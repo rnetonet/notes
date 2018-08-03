@@ -16,9 +16,7 @@ This happens when you do `import ...` or `from ... import ...`.
 
 * **Caution:** `from module import a, b, c` will insert `a, b, c` into the importer namespace (*creating a copy*), overwriting if already defined.
 
----
 * **Tip:** You can open an interpreter after the script execution (even if it fails) using the `python -i module.py` option. The interpreter will have access to the attributes defined in *module.py*.
----
 
 # Types and Operations
 
@@ -45,17 +43,13 @@ This happens when you do `import ...` or `from ... import ...`.
 |Sets            |`{1, 2, 3}, set('abc')`                          |
 |Others          |`Modules, Functions, Classes`                    |
 
----
 * **Note:** Modules, Functions and Classes are objects also!
----
 
 * Python is **dynamically typed**: the interpreter keeps tabs on the types of the objects, no need to declare.
 
 * Python is also **strongly typed**: you can only perform operations on an object that are valid for its type.
 
----
 * **Note:** `repr(object)` outputs the precise representation of the object. `print(object)` outputs the friendly version.
----
 
 ## Numbers
 
