@@ -1,1 +1,3 @@
-* [Book - Learning Python 5ed](book-learning-python-5ed.md)
+Livros:
+
+* [The Quick Python Book 3rd - Naomi Ceder](the-quick-python-book-3rd-naomi-ceder.md)
