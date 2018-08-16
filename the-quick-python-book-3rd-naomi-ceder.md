@@ -1,8 +1,8 @@
 # The Quick Python Book 3rd - Naomi Ceder
 
-## Sobre Python
+### Pontos Fortes X Pontos Fracos, otário!
 
-### Pontos fortes
+#### Pontos fortes
 
 * Fácil de usar
 * Expressiva:
@@ -18,7 +18,7 @@ a, b = b, a
 * Tem (bibliotecas) baterias incluídas
 * Multi-plataforma
 
-### Pontos fracos
+#### Pontos fracos
 
 * Não tão rápida quanto C
 * Tem menos bibliotecas - em alguns nichos - do que linguagens como C, Java...
@@ -620,3 +620,431 @@ Nenhum deu match
 1
 >>> 
 ```
+
+* `for` - tá mais para um `foreach`
+
+```python
+>>> # for do python itera sobre sequências
+... seq = [1, 2, 3, 'four', 5, 6.15]
+>>> for i in seq:
+...     print(i)
+... 
+1
+2
+3
+four
+5
+6.15
+>>> 
+
+>>> # o for numérico pode ser feito produzindo um range(comeco, fim), fim não é incluído!
+... for i in range(10, 20):
+...     print(i)
+... 
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+>>> 
+
+>>> # se início for omitido, começa de 0
+... for i in range(11):
+...     print(i)
+... 
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+>>> 
+
+>>> # continue e break também funcionam com for
+... seq = [1, 2, 3, 4, 'five', 'six', 7]
+>>> for i in seq:
+...     if i == 3: continue
+...     if i == 'six': break
+...     print(i)
+... 
+1
+2
+4
+five
+```
+
+* `def` - declarando funções e formas de receber parâmetros
+
+```python
+>>> # você define funções usando a declaração def
+... 
+>>> def soma(a, b):
+...     return a + b
+... 
+>>> soma(2, 2)
+4
+>>> 
+
+>>> # você pode atribuir valores padrão para os parâmetros
+... # lembre-se, a partir do primeiro atributo com valor padrão, todos terão que ter
+... 
+>>> def mensagem(nome, tratamento='Sr', elogio='Sagaz'):
+...     print(f'{tratamento} {nome} é {elogio}')
+... 
+>>> mensagem('Rui')
+Sr Rui é Sagaz
+>>> mensagem('Rui', tratamento='Dr')
+Dr Rui é Sagaz
+>>> mensagem('Rui', tratamento='Dr', elogio='Brilhante')
+Dr Rui é Brilhante
+>>> mensagem('Rui', elogio='Estupendo')
+Sr Rui é Estupendo
+>>> 
+
+>>> # você pode passar uma lista variávels de parâmetros, usando '*', 
+>>> # exemplo '*args': args será visto como uma tupla dos parâmetros passados
+... def debug(*args):
+...     for arg in args:
+...             print(arg)
+... 
+>>> debug('a', 'b', 3, 15)
+a
+b
+3
+15
+>>> 
+
+>>> # você também pode passar uma conjunto variávels de parâmetros nomeados usando '**args'
+>>> # '**args' 
+>>> def mensagem(nome, **atributos):
+...     print(nome)
+...     for chave, valor in atributos.items():
+...             print(f'{chave} = {valor}')
+...
+>>> mensagem('Rui', idade=30, sobrenome='Neto', time='Bahia')
+Rui
+idade = 30
+sobrenome = Neto
+time = Bahia
+>>> 
+
+>>> # uma função sem return, retorna None
+>>> # 'pass' é uma declaração que não faz nada no Python
+>>> def nada():
+...     pass
+... 
+>>> print(nada())
+None
+>>> 
+
+>>> # você pode, mas não deve, mudar a ordem se nomear os parâmetros
+>>> def mensagem(nome, elogio):
+...     print(f'{nome} e {elogio}')
+... 
+>>> mensagem(elogio='Inteligente', nome='John')
+John e Inteligente
+>>> 
+```
+
+* `Exception` - Exceções
+
+```python
+>>> # O bloco minimo para tratar exceções é o try / except:
+... try:
+...     x = 10 / 0
+... except ZeroDivisionError:
+...     x = 0
+... 
+>>> x
+0
+>>> 
+
+>>> # Você pode adicionar, também, uma claúsula 'else'
+... # Essa claúsula só é executada se NÃO ocorrer nenhuma exceção
+... try:
+...     10 / 2
+... except ZeroDivisionError:
+...     x = 0
+... else:
+...     print(f'x = {x}')
+... 
+5.0
+x = 0
+>>> 
+
+>>> # Além do 'else', também é possível adicionar uma claúsula 'finally'
+... # A claúsula finally é executada de qualquer forma
+... try:
+...     x = 10 / 2
+... except ZeroDivisionError:
+...     x = 0
+... else:
+...     print('Sem exceções!')
+... finally:
+...     print(f'x = {x}')
+... 
+Sem exceções!
+x = 5.0
+>>> 
+
+>>> # Para criar sua proria exceção, crie uma classe herdando de 'Exception'
+... class ErroCustomizado(Exception):
+...     pass
+... 
+
+>>> # Para lançar essa exceção, use 'raise'
+... try:
+...     raise ErroCustomizado("Ops!")
+... except ErroCustomizado as e:
+...     print(e)
+... 
+Ops!
+```
+
+* `with` - Gerenciando contexto
+
+```python
+>>> # A declaração with permite abstrair as construções try / except / finally
+... # Através da utilização de um gerenciador de contexto que já faz isso implicitamente
+... # No exemplo abaixo, usando with e gerenciador de contexto, não precisamos dar 'close' no arquivo
+... # Isso será feito automaticamente ao final do bloco
+... with open('teste.txt', 'w') as fp:
+...     fp.write('oi\n')
+... 
+3
+>>> fp
+<_io.TextIOWrapper name='teste.txt' mode='w' encoding='UTF-8'>
+>>> 
+```
+
+* Criando módulos
+
+```python
+# Todo arquivo Python é um módulo, podendo ser importado para utilização dos seus atributos
+# Arquivo: wo.py
+def words_occur(file_name):
+    """Retorna uma tupla contendo respectivamente: quantidade de palavras, quantidade de palavras únicas"""
+    # A linha acima é uma docstring!
+    # É um comentário especial do Python, que permite documentar objetos. 
+    # É possível acessar esse comentário através da função: help(words_occur)
+    f = open(file_name)
+    w_list = f.read().split()
+    occur_list = {}
+    for word in w_list:
+        occur_list[word] = occur_list.get(word, 0) + 1
+    
+    return (len(w_list), len(occur_list))
+```
+
+* Utilizando o módulo (supondo estar no mesmo diretório que `wo.py` ou que `wo.py` esteja no `sys.path`):
+
+```python
+# arquivo wo_test.py
+import wo
+print( wo.words_occur('sample.txt') )
+```
+
+* Se `wo` for atualizado durante a execução de `wo_test`, essa modificação não será automaticamente assimilada.
+Você precisará atualizar o módulo usando `imp.reload()`:
+
+```python
+import wo
+
+# .... faz coisas....
+
+# Ops, preciso atualizar wo
+import imp
+imp.reload(wo) # Note que não precisa de aspas, é o próprio objeto
+```
+
+* Em projetos muito grandes, você pode criar estruturas de pacotes (`packages`).
+
+Supondo uma estrutura:
+
+```
+jogo
+└── fisica
+    └── colisao
+        ├── deteccao.py
+```
+
+E que você abra o interpretador dentro da pasta `jogo`, você pode importar `deteccao`:
+
+```python
+In [1]: import fisica.colisao.deteccao
+In [2]: fisica.colisao.deteccao.detectar(1, 3)
+1 3
+```
+
+* Orientação a Objetos:
+
+```python
+class Forma:
+    """Classe base para formas geométricas"""
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    
+    def mover(self, deltaX, deltaY):
+        self.x = self.x + deltaX
+        self.y = self.y + deltaY
+
+# Herança! 
+class Quadrado(Forma):
+    """Um quadrado que herda de Forma"""
+    def __init__(self, x, y, lado=1):
+        Forma.__init__(self, x, y)
+        self.lado = lado
+
+# Outra herança!
+# Dessa vez adicionamos um método
+class Circulo(Forma):
+    pi = 3.14
+
+    """Classe Circulo, herda de Forma e adiciona mais um metodo"""
+    def __init__(self, x, y, r=1):
+        Forma.__init__(self, x, y)
+        self.raio = r
+    
+    def area(self):
+        return self.raio * self.raio * self.pi
+
+    # Método chamado para representação amigável "print(obj)"
+    # Gera o output de print(circuloObjeto)
+    def __str__(self):
+        return f'Circulo de raio = {self.raio}, nas coordenadas ({self.x}, {self.y})'
+
+
+if __name__ == '__main__':
+    c1 = Circulo(18, 23)
+    c2 = Circulo(5, 15, 20)
+
+    print(c1)
+    print(c2)
+
+    print(f'Area c2: {c2.area()}')
+
+    c2.mover(5, 6)
+    print(c2)
+
+"""
+### Saída: ###
+Circulo de raio = 1, nas coordenadas (18, 23)
+Circulo de raio = 20, nas coordenadas (5, 15)
+Area c2: 1256.0
+Circulo de raio = 20, nas coordenadas (10, 21)
+"""
+```
+
+* Todos métodos de classes recebem como primeiro parâmetro `self`. Quando o método é chamado, `self` é setado para a instância que o chamou.
+
+* A classe herdeira deve sempre chamar o `__init__()` de sua classe pai, dentro do seu `__init__()`.
+
+* Observe que o parâmetro `self` é atribuído automaticamente pelo Python, com o valor da instância solicitante.
+
+#### O Essencial
+
+### Basicão
+
+* Python usa identação para identificar blocos de código:
+
+```python
+n = 9
+r = 1
+
+# 4 espaços!
+while n > 0:
+    r = r * n # equivalente: r *= n
+    n = n - 1 # equivalente: n -= 1
+```
+
+* Comentários em Python é tudo que vem após `#`:
+
+```python
+# Eu sou um comentário. Completamente ignorado pelo interpretador.
+a = 10 # O código que precede executado. Mas o comentário, ignorado.
+text = 'Mas, dentro de strings, é um # caractere como outro qualquer'
+```
+
+* Variáveis em Python são criadas no momento que são declaradas. Não há necessidade de definir os tipos, que são inferidos:
+
+```python
+a = 10
+c = 3.14
+x = 'uma string'
+```
+
+* Em algumas linguagens, os tipos primitivos são "baldes" que armazenam de fato os valores. **Mas**, em Python, variáveis são como **etiquetas** que apontam para os objetos dentro do *namespace*. Podem existir múltiplas etiquetas para um mesmo objeto. Caso esse objeto seja modificado, todas etiquetas refletirão isso.
+
+```python
+# Etiqueta 'numero' refere-se ao objeto inteiro 10
+numero = 10
+
+# 'copia' passará a apontar também para o objeto inteiro 10
+# cuidado! 'copia' não aponta para 'numero'.
+# no momento da atribuição, 'numero' foi resolvido para o objeto inteiro 10
+copia = numero
+
+# Altera a etiqueta/variável 'numero' que passa a apontar o objeto inteiro 20
+numero = 20
+
+# 'copia', apesar da modificação em 'numero', permanece inalterada
+print(copia)  # 10!
+print(numero) # 20!
+```
+
+* Essa informação só faz diferença **mesmo** para objetos mutáveis:
+
+```python
+# Ambas apontam para o mesmo objeto
+# Novamente: l_copia não referencia l, mas sim o objeto lista.
+l = [1, 2, 3]
+l_copia = l
+
+# Modifica o objeto lista, através de l
+l[0] = 10
+l[1] = 20
+l[2] = 30
+
+# Como o objeto é Mutável, l_copia também é afetado
+print(l) # 10, 20, 30
+print(l_copia) # 10, 20, 30
+```
+
+* Variáveis em Python podem durante a execução diferentes tipos de objeto. **Mas evite!**:
+
+```python
+a = 10
+print(a)
+
+a = 3.14
+print(a)
+
+a = 'aloha'
+print(a)
+```
+
+* Você pode deletar uma variável com `del`:
+
+```python
+a = 100
+print(a)
+
+del a
+
+print(a) # Exceção! a não foi declarada!
+```
+
+* Por fim, variáveis devem começar com letras ou underline e não podem conter espaços. Python diferencia maiúsculas de minúsculas.
+
+* Expressões
