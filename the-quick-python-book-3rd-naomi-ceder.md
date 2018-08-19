@@ -1047,4 +1047,219 @@ print(a) # Exceção! a não foi declarada!
 
 * Por fim, variáveis devem começar com letras ou underline e não podem conter espaços. Python diferencia maiúsculas de minúsculas.
 
-* Expressões
+* Expressões aritméticas e similares:
+
+```python
+# Expressões retornam valores
+In [1]: 2 + 2
+Out[1]: 4
+
+# A divisão entre inteiros retorna um float. 
+# Para truncar a parte fracional, use o '//'.
+In [2]: 3 / 4
+Out[2]: 0.75
+
+# Outros objetos podem ser usados em expressões, não apenas números
+In [4]: 'a' + 'b'
+Out[4]: 'ab'
+
+# Parênteses alteram a precedência
+In [5]: 7 * (2 + 3)
+Out[5]: 35
+
+In [6]: 7 * 2 + 3
+Out[6]: 17
+```
+
+* Strings:
+
+```python
+# Declare com aspas simples ou duplas
+>>> a = "spam"
+>>> b = 'bacon'
+>>> a
+'spam'
+>>> b
+'bacon'
+
+# Você aspas simples dentro de aspas duplas e vice-versa
+>>> c = "you're"
+>>> d = '"citacao"'
+>>> c
+"you're"
+>>> d
+'"citacao"'
+
+# Você pode escapar usando '\', para inserir caracteres especiais
+>>> x = "\t abc \n def"
+>>> x
+'\t abc \n def'
+>>> print(x)
+         abc 
+ def
+
+# Strings multilinha
+>>> z = """
+... um
+... texto
+... multilinha
+... """
+>>> 
+>>> y = '''
+... outro
+... texto
+... multilinha
+... '''
+>>> 
+>>> x
+'\t abc \n def'
+>>> print(z)
+
+um
+texto
+multilinha
+
+>>> print(y)
+
+outro
+texto
+multilinha
+```
+
+* Números:
+
+```python
+>>> # Inteiro
+... i = 10
+>>> j = -15
+>>> 
+>>> # Floats
+... c = 3.14
+>>> d = 9.99
+>>> 
+>>> # Operações com int sempre retornam int, exceto a divisão, que retorna float
+... 10 / 2
+5.0
+>>> 
+>>> # Para truncar, use //
+... 10 // 2
+5
+>>> 
+>>> # Operações com float sempre retornam float
+... 2.15 / 1.5
+1.4333333333333333
+>>> 
+>>> # Você pode converter entre os tipos usando as funções int e float
+... int(3.14)
+3
+>>> 
+>>> float(2)
+2.0
+>>> 
+>>> # Booleans se comportam como números, exceto na hora de serem representados como string
+... # True = 1, False = 0
+... True + True
+2
+>>> True == 1
+True
+>>> 
+>>> False == 0
+True
+>>> 
+```
+
+* Algumas funções *built-in* relacionadas a números:
+
+```python
+>>> # Valor absoluto
+... abs(3.5)
+3.5
+>>> abs(-2)
+2
+>>> 
+>>> # Quociente e resto
+... divmod(10, 3)
+(3, 1)
+>>> 
+>>> # Converte para float
+... float(3)
+3.0
+>>> float('4.5')
+4.5
+>>> 
+>>> # Converte para uma representação (string) hexadecimal do número
+... hex(2)
+'0x2'
+>>> # Representação Octal
+... oct(2)
+'0o2'
+>>> # Representação Binária
+... bin(2)
+'0b10'
+>>> 
+>>> 
+>>> # Converte para inteiro
+... int(3.5)
+3
+>>> int('4')
+4
+>>> 
+>>> # Exponenciona
+... pow(2, 3)
+8
+>>> 2 ** 3
+8
+>>> 
+>>> # Arredonda
+... round(3.5)
+4
+>>> round(3.4)
+3
+>>> round(3.6)
+4
+```
+
+* `None`
+
+```python
+# None é o "null" do Python
+# Em valores lógicos, é um valor False
+# Pode ser usado como placeholder
+>>> nome = None
+>>> bool(nome)
+False
+
+>>> # Depois a variável é de fato preenchida
+>>> nome = "Teste"
+
+>>> # Como None é um Singleton (só há uma instância)
+... # Pode ser comparado com 'is'
+... idade is None
+True
+```
+
+* Para ler dados do usuário, use `input('Mensagem: ')`
+
+```python
+# Use input(msg) para receber uma string do usuário
+>>> nome = input('Seu nome: ')
+Seu nome: Rui
+>>> 
+
+# Você deve converter, quando necessário, para o tipo adequado
+>>> idade = int(input('Sua idade: '))
+Sua idade: 30
+```
+
+* Recomendações PEP8:
+
+
+|Situação  |Sugestão  |Exemplo  |
+|---------|---------|---------|
+|Nome de módulos     |Tudo minúsculo e curto. Underscore apenas se necessário.         |`imp, sys`         |
+|Nome de funções     |Tudo minúsculo. Use underscores se ficar mais legível.         |`sum(), my_func()`         |
+|Nome de variáveis     |Tudo minúsculo. Use underscores se ficar mais legível.         |`my_var`         |
+|Nome de Classes     |CapitalizeCadaPalavra         |`MyClass()`         |
+|Constantes     |TODA_MAISCULA_COM_UNDERSCORE         |`TAX_RATE=`         |
+|Identação     |4 espaçõs por nível         |         |
+|Comparando True ou False     |Não comparte com True ou False, teste o valor da variável         |`if x, if not y`         |
