@@ -1,0 +1,39 @@
+* {
+  font-family: "Source Code Pro" !important;
+  font-size: 16px !important;
+  text-align: left;
+  vertical-align: top !important;
+}
+
+.reveal .slides > section > section {
+  text-align: left;
+}
+
+.reveal .slides {
+  width: 90%;
+  height: 90%;
+  min-height: 90%;
+  min-width: 90%;
+  top: 0;
+  margin-top: 0;
+}
+
+.reveal .slides > section {
+  min-height: 90%;
+  min-width: 90%;
+}
+
+.reveal .slides > section > section {
+  min-height: 90%;
+  min-width: 90%;
+}
+
+.reveal .slides > section code {
+  background-color: rgb(250, 250, 250);
+  padding: 3px;
+}
+
+
+.reveal pre code {
+  max-height: 600px;
+}
