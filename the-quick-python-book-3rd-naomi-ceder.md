@@ -1,8 +1,23 @@
+---
+theme: "white"
+customTheme : "notes"
+transition: "none"
+highlightTheme: "tomorrow"
+center: false
+controls: false
+---
+
 # The Quick Python Book 3rd - Naomi Ceder
 
-### Pontos Fortes X Pontos Fracos, otário!
+---
 
-#### Pontos fortes
+# Pontos Fortes x Pontos Fracos
+
+Otário!
+
+---
+
+Pontos fortes
 
 * Fácil de usar
 * Expressiva:
@@ -18,7 +33,9 @@ a, b = b, a
 * Tem (bibliotecas) baterias incluídas
 * Multi-plataforma
 
-#### Pontos fracos
+---
+
+Pontos fracos
 
 * Não tão rápida quanto C
 * Tem menos bibliotecas - em alguns nichos - do que linguagens como C, Java...
@@ -26,9 +43,13 @@ a, b = b, a
 * Não tem bom suporte em mobile
 * GIL atrapalha concorrência
 
-### Python em 10 minutos ou menos
+---
 
-* Tipos numéricos
+# Python em 10 minutos ou menos
+
+---
+
+Tipos numéricos
 
 ```python
 # Inteiros
@@ -46,7 +67,9 @@ t = True
 z = False
 ```
 
-* Operações com inteiros:
+---
+
+Operações com inteiros:
 
 ```python
 >>> # Operacoes
@@ -75,7 +98,9 @@ z = False
 >>> 
 ```
 
-* Operações com pontos flutuantes:
+---
+
+Operações com pontos flutuantes:
 
 ```python
 >>> x = 4.23 * 7.15
@@ -90,7 +115,9 @@ z = False
 >>> 
 ```
 
-* Algums funções *built-in* e do módulo *math*:
+---
+
+Algums funções *built-in* e do módulo *math*:
 
 ```python
 >>> x = 3.49
@@ -105,9 +132,17 @@ z = False
 3
 ```
 
-* Todo arquivo Python é um módulo. Os atributos definidos no módulo podem ser acessados a partir de outro módulo através de `import`. Feito o *import*, você pode acessar os atributos através da sintaxe: `module.function(arguments)`.
+---
 
-* Booleans:
+Todo arquivo Python é um módulo. 
+
+Os atributos definidos no módulo podem ser acessados a partir de outro módulo através de `import`. 
+
+Feito o *import*, você pode acessar os atributos através da sintaxe: `module.function(arguments)`.
+
+---
+
+Booleans:
 
 ```python
 >>> x = True
@@ -132,7 +167,9 @@ True
 >>> 
 ```
 
-* Listas
+---
+
+Listas
 
 ```python
 >>> # Lista vazia
@@ -178,7 +215,9 @@ True
 >>> 
 ```
 
-* Modificando listas:
+---
+
+Modificando listas:
 
 ```python
 >>> x = [1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -195,7 +234,9 @@ True
 >>> 
 ```
 
-* Algumas operações e funções que podem lidar com listas:
+---
+
+Algumas operações e funções que podem lidar com listas:
 
 ```python
 >>> x = [1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -235,7 +276,9 @@ True
 >>> 
 ```
 
-* Tuplas - similar a listas, mas são imutáveis, não permitem alteração por indexação / slice
+---
+
+Tuplas - similar a listas, mas são imutáveis, não permitem alteração por indexação / slice
 
 ```python
 >>> a = ()
@@ -268,7 +311,9 @@ True
 >>> 
 ```
 
-* Conversão entre listas e tuplas
+---
+
+Conversão entre listas e tuplas
 
 ```python
 >>> l = [1, 2, 3]
@@ -285,7 +330,9 @@ True
 [4, 5, 6]
 ```
 
-* Strings
+---
+
+Strings
 
 ```python
 >>> # Diversas maneiras de declarar
@@ -330,7 +377,9 @@ teste
 5
 ```
 
-* Ao usar `print(objeto)` o objeto é convertido para *string*
+---
+
+Ao usar `print(objeto)` o objeto é convertido para *string*
 
 ```python
 >>> print(3.14)
@@ -342,7 +391,9 @@ True
 >>> 
 ```
 
-* Dicionários:
+---
+
+Dicionários `dict()`:
 
 ```python
 >>> # Dicionários são hashmaps de chave e valor
@@ -378,7 +429,9 @@ TypeError: unhashable type: 'list'
 >>> 
 ```
 
-* Conjuntos (*Sets*)
+---
+
+Conjuntos `set()`
 
 ```python
 >>> # Sets / Conjuntos são agrupamentos não ordenados de objetos (de qualquer tipo) únicos
@@ -396,7 +449,9 @@ False
 >>> 
 ```
 
-* Arquivos:
+---
+
+Arquivos:
 
 ```python
 >>> # Arquivos em Python estão acessíveis através da função open()
@@ -443,7 +498,9 @@ Spam
 >>> 
 ```
 
-* Estruturas de controle de fluxo
+---
+
+Estruturas de controle de fluxo
 
 ```python
 >>> # Python tem diversas maneiras de expressar valores Booleanos:
@@ -483,7 +540,9 @@ True
 >>> 
 ```
 
-* Operações de comparação lógica:
+---
+
+Operações de comparação lógica:
 
 ```python
 >>> # Igualdade, diferença, maior que, menor que...
@@ -528,7 +587,9 @@ True
 >>> 
 ```
 
-* `if / elif / else`
+---
+
+`if / elif / else`
 
 ```python
 >>> x = 10
@@ -548,7 +609,9 @@ Nenhum deu match
 >>> 
 ```
 
-* `while`:
+---
+
+`while`:
 
 ```python
 >>> # Executa até a condição tornar-se falsa
@@ -621,7 +684,9 @@ Nenhum deu match
 >>> 
 ```
 
-* `for` - tá mais para um `foreach`
+---
+
+`for` - tá mais para um `foreach`
 
 ```python
 >>> # for do python itera sobre sequências
@@ -683,7 +748,9 @@ four
 five
 ```
 
-* `def` - declarando funções e formas de receber parâmetros
+---
+
+`def` - declarando funções e formas de receber parâmetros
 
 ```python
 >>> # você define funções usando a declaração def
@@ -756,7 +823,9 @@ John e Inteligente
 >>> 
 ```
 
-* `Exception` - Exceções
+---
+
+`Exception` - Exceções
 
 ```python
 >>> # O bloco minimo para tratar exceções é o try / except:
@@ -811,7 +880,9 @@ x = 5.0
 Ops!
 ```
 
-* `with` - Gerenciando contexto
+---
+
+`with` - Gerenciando contexto
 
 ```python
 >>> # A declaração with permite abstrair as construções try / except / finally
@@ -827,7 +898,9 @@ Ops!
 >>> 
 ```
 
-* Criando módulos
+---
+
+Criando módulos
 
 ```python
 # Todo arquivo Python é um módulo, podendo ser importado para utilização dos seus atributos
@@ -846,7 +919,9 @@ def words_occur(file_name):
     return (len(w_list), len(occur_list))
 ```
 
-* Utilizando o módulo (supondo estar no mesmo diretório que `wo.py` ou que `wo.py` esteja no `sys.path`):
+---
+
+Utilizando o módulo (supondo estar no mesmo diretório que `wo.py` ou que `wo.py` esteja no `sys.path`):
 
 ```python
 # arquivo wo_test.py
@@ -854,7 +929,9 @@ import wo
 print( wo.words_occur('sample.txt') )
 ```
 
-* Se `wo` for atualizado durante a execução de `wo_test`, essa modificação não será automaticamente assimilada.
+---
+
+Se `wo` for atualizado durante a execução de `wo_test`, essa modificação não será automaticamente assimilada.
 Você precisará atualizar o módulo usando `imp.reload()`:
 
 ```python
@@ -867,7 +944,9 @@ import imp
 imp.reload(wo) # Note que não precisa de aspas, é o próprio objeto
 ```
 
-* Em projetos muito grandes, você pode criar estruturas de pacotes (`packages`).
+---
+
+Em projetos muito grandes, você pode criar estruturas de pacotes (`packages`).
 
 Supondo uma estrutura:
 
@@ -886,7 +965,9 @@ In [2]: fisica.colisao.deteccao.detectar(1, 3)
 1 3
 ```
 
-* Orientação a Objetos:
+---
+
+Orientação a Objetos:
 
 ```python
 class Forma:
@@ -936,15 +1017,22 @@ if __name__ == '__main__':
 
     c2.mover(5, 6)
     print(c2)
+```
 
-"""
-### Saída: ###
+---
+
+Saída:
+
+```bash
 Circulo de raio = 1, nas coordenadas (18, 23)
 Circulo de raio = 20, nas coordenadas (5, 15)
 Area c2: 1256.0
 Circulo de raio = 20, nas coordenadas (10, 21)
-"""
 ```
+
+---
+
+# Observações Orientação a Objetos
 
 * Todos métodos de classes recebem como primeiro parâmetro `self`. Quando o método é chamado, `self` é setado para a instância que o chamou.
 
@@ -952,11 +1040,13 @@ Circulo de raio = 20, nas coordenadas (10, 21)
 
 * Observe que o parâmetro `self` é atribuído automaticamente pelo Python, com o valor da instância solicitante.
 
-#### O Essencial
+---
 
-### Basicão
+# Python - Essencial, em mais de 10 minutos
 
-* Python usa identação para identificar blocos de código:
+---
+
+Python usa identação para identificar blocos de código:
 
 ```python
 n = 9
@@ -968,7 +1058,9 @@ while n > 0:
     n = n - 1 # equivalente: n -= 1
 ```
 
-* Comentários em Python é tudo que vem após `#`:
+---
+
+Comentários em Python é tudo que vem após `#`:
 
 ```python
 # Eu sou um comentário. Completamente ignorado pelo interpretador.
@@ -976,7 +1068,9 @@ a = 10 # O código que precede executado. Mas o comentário, ignorado.
 text = 'Mas, dentro de strings, é um # caractere como outro qualquer'
 ```
 
-* Variáveis em Python são criadas no momento que são declaradas. Não há necessidade de definir os tipos, que são inferidos:
+---
+
+Variáveis em Python são criadas no momento que são declaradas. Não há necessidade de definir os tipos, que são inferidos:
 
 ```python
 a = 10
@@ -984,7 +1078,19 @@ c = 3.14
 x = 'uma string'
 ```
 
-* Em algumas linguagens, os tipos primitivos são "baldes" que armazenam de fato os valores. **Mas**, em Python, variáveis são como **etiquetas** que apontam para os objetos dentro do *namespace*. Podem existir múltiplas etiquetas para um mesmo objeto. Caso esse objeto seja modificado, todas etiquetas refletirão isso.
+---
+
+# Obs:
+
+Em algumas linguagens, os tipos primitivos são "baldes" que armazenam de fato os valores. 
+
+**Mas**, em Python, variáveis são como **etiquetas** que apontam para os objetos dentro do *namespace*. 
+
+Podem existir múltiplas etiquetas para um mesmo objeto. Caso esse objeto seja modificado, todas etiquetas refletirão isso.
+
+---
+
+Etiquetas! 
 
 ```python
 # Etiqueta 'numero' refere-se ao objeto inteiro 10
@@ -1003,7 +1109,9 @@ print(copia)  # 10!
 print(numero) # 20!
 ```
 
-* Essa informação só faz diferença **mesmo** para objetos mutáveis:
+---
+
+Essa informação só faz diferença **mesmo** para objetos mutáveis:
 
 ```python
 # Ambas apontam para o mesmo objeto
@@ -1021,7 +1129,9 @@ print(l) # 10, 20, 30
 print(l_copia) # 10, 20, 30
 ```
 
-* Variáveis em Python podem durante a execução diferentes tipos de objeto. **Mas evite!**:
+---
+
+Variáveis em Python podem durante a execução diferentes tipos de objeto. **Mas evite!**:
 
 ```python
 a = 10
@@ -1034,7 +1144,9 @@ a = 'aloha'
 print(a)
 ```
 
-* Você pode deletar uma variável com `del`:
+---
+
+Você pode deletar uma variável com `del`:
 
 ```python
 a = 100
@@ -1045,9 +1157,15 @@ del a
 print(a) # Exceção! a não foi declarada!
 ```
 
-* Por fim, variáveis devem começar com letras ou underline e não podem conter espaços. Python diferencia maiúsculas de minúsculas.
+---
 
-* Expressões aritméticas e similares:
+Por fim, variáveis devem começar com letras ou underline e não podem conter espaços. 
+
+Python diferencia maiúsculas de minúsculas.
+
+---
+
+Expressões aritméticas e similares:
 
 ```python
 # Expressões retornam valores
@@ -1071,7 +1189,9 @@ In [6]: 7 * 2 + 3
 Out[6]: 17
 ```
 
-* Strings:
+---
+
+Strings:
 
 ```python
 # Declare com aspas simples ou duplas
@@ -1126,7 +1246,9 @@ texto
 multilinha
 ```
 
-* Números:
+---
+
+Números:
 
 ```python
 >>> # Inteiro
@@ -1168,7 +1290,9 @@ True
 >>> 
 ```
 
-* Algumas funções *built-in* relacionadas a números:
+---
+
+Algumas funções *built-in* relacionadas a números:
 
 ```python
 >>> # Valor absoluto
@@ -1219,7 +1343,9 @@ True
 4
 ```
 
-* `None`
+---
+
+`None`
 
 ```python
 # None é o "null" do Python
@@ -1238,7 +1364,9 @@ False
 True
 ```
 
-* Para ler dados do usuário, use `input('Mensagem: ')`
+---
+
+Para ler dados do usuário, use `input('Mensagem: ')`
 
 ```python
 # Use input(msg) para receber uma string do usuário
@@ -1251,7 +1379,9 @@ Seu nome: Rui
 Sua idade: 30
 ```
 
-* Recomendações PEP8:
+---
+
+Recomendações PEP8:
 
 
 |Situação  |Sugestão  |Exemplo  |
@@ -1263,3 +1393,117 @@ Sua idade: 30
 |Constantes     |TODA_MAISCULA_COM_UNDERSCORE         |`TAX_RATE=`         |
 |Identação     |4 espaçõs por nível         |         |
 |Comparando True ou False     |Não comparte com True ou False, teste o valor da variável         |`if x, if not y`         |
+
+---
+
+# Listas, tuplas e conjuntos
+
+---
+
+Listas são como  arrays. Só que bem mais poderosos:
+
+* Listas podem crescer ou diminuir
+* Não há necessidade de declarar tipos
+* Tipos de objetos diferentes podem constar na mesma lista
+
+```python
+>>> # Declarando uma lista
+... lista = [1, 3.14, 'a', ['a', 'b']]
+>>> lista
+[1, 3.14, 'a', ['a', 'b']]
+>>> 
+>>> # Verificando o tamanho da lista
+... len( lista )
+4
+>>> 
+>>> # Para obter elementos individualmente, você pode indexar
+... # Índices começam de zero
+... lista[0]
+1
+>>> 
+>>> # Você também pode indexar usando números negativos
+... # -1 = último elemento
+... # -2 = penúltimo.... e assim por diante
+... lista[-1]
+['a', 'b']
+>>> lista[-2]
+'a'
+>>> 
+>>> # Python permite indexar vários elementos de uma única vez
+... # Sintaxe: [inicio:fim], sendo que fim não é inclusivo.
+... lista[0:2] # Retornará os índices 0 e 1. Lembre-se, 2 não é incluído.
+[1, 3.14]
+>>> 
+>>> lista[0:-1] # Todos
+[1, 3.14, 'a']
+>>> 
+>>> lista[0:3] # 0, 1, 2
+[1, 3.14, 'a']
+>>> 
+>>> lista[-2:-1]
+['a']
+>>> 
+>>> # Cuidado, retorna uma lista vazia:
+... lista[-1:2]
+[]
+>>> 
+>>> # Você pode omitir as partes do slice
+... # Se omitir o começo, default é 0
+... lista[:2]
+[1, 3.14]
+>>> 
+>>> # Se omitir o final, o default é len(lista), ou seja incluirá o último índice
+... lista[2:]
+['a', ['a', 'b']]
+>>> 
+>>> # Se omitir ambos, default [0:len(lista)]
+... lista[:] # Essa sintaxe muitas vezes é utilizada para fazer uma cópia de uma lista
+[1, 3.14, 'a', ['a', 'b']]
+>>> 
+>>> # Acessando um elemento específico
+... lista[0]
+1
+>>> lista[1]
+3.14
+>>> 
+>>> # Modificando uma lista
+... lista[1] = 7.32
+>>> 
+>>> lista
+[1, 7.32, 'a', ['a', 'b']]
+>>> 
+>>> # Modificando usando slices
+... lista[1:3] = [10, 20, 30]
+>>> lista
+[1, 10, 20, 30, ['a', 'b']]
+>>> 
+>>> # Não precisa ser o mesmo tamanho não
+... lista[1:3] = [10, 20, 30, 40, 50, 60, 70]
+>>> lista
+[1, 10, 20, 30, 40, 50, 60, 70, 30, ['a', 'b']]
+>>> 
+>>> # Removendo elementos da lista
+... lista[1:3] = []
+>>> lista
+[1, 30, 40, 50, 60, 70, 30, ['a', 'b']]
+>>> lista[1:3] = []
+>>> lista
+[1, 50, 60, 70, 30, ['a', 'b']]
+>>> 
+>>> # Adicionando elementos a lista
+... lista.append('spam')
+>>> lista
+[1, 50, 60, 70, 30, ['a', 'b'], 'spam']
+>>> 
+
+>>> lista = [1, 3.14, 'f', ['a', 10]]
+>>> 
+>>> # Para mesclar listas, use extend()
+... lista.extend([99, 100, 101])
+>>> lista
+[1, 3.14, 'f', ['a', 10], 99, 100, 101]
+>>> 
+```
+
+---
+
