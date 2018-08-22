@@ -1503,7 +1503,73 @@ Listas são como  arrays. Só que bem mais poderosos:
 >>> lista
 [1, 3.14, 'f', ['a', 10], 99, 100, 101]
 >>> 
+
+>>> # Para inserir antes de uma posição específica, use insert(posicao, objeto)
+... # objeto será incluído logo antes de "posicao"
+... lista = [1, 2, 3]
+>>> lista.insert(1, 'a')
+>>> lista
+[1, 'a', 2, 3]
+
+>>> # Também suport índices negativos
+... lista.insert(-1, 'b')
+>>> lista
+[1, 'a', 2, 'b', 3]
+>>>
 ```
 
 ---
 
+Para deletar um elemento de uma lista, use `del`:
+
+```python
+>>> lista
+[1, 'a', 2, 'b', 3]
+>>> 
+>>> del lista[1]
+>>> 
+>>> lista
+[1, 2, 'b', 3]
+>>> 
+```
+
+---
+
+Para remover um elemento através do valor, não do índice, use `remove(valor)`:
+
+```python
+>>> lista
+[1, 2, 'b', 3]
+>>> 
+>>> lista.remove('b')
+>>> 
+>>> lista
+[1, 2, 3]
+>>> 
+
+>>> # Se o valor não for encontrado, produz exceção. Cuidado.
+... lista.remove('x')
+Traceback (most recent call last):
+  File "<stdin>", line 2, in <module>
+ValueError: list.remove(x): x not in list
+>>> 
+```
+
+---
+
+# Ordenando listas
+
+---
+
+O método `.reverse()` das listas, inverte a ordem *in-place*.
+
+```python
+>>> lista
+[1, 2, 3]
+>>> 
+>>> lista.reverse()
+>>> 
+>>> lista
+[3, 2, 1]
+>>> 
+```
