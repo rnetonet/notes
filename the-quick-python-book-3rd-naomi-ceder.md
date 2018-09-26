@@ -1573,3 +1573,504 @@ O método `.reverse()` das listas, inverte a ordem *in-place*.
 [3, 2, 1]
 >>> 
 ```
+
+---
+
+O método `.sort()` ordena a lista *in-place*. Para não alterar a lista original, 
+use a função `sorted()` ou use o `.sort()` em uma cópia da lista original.
+
+```python
+lista = [4, 5, 1, 3]
+
+# Criando uma nova lista ordenada com sorted()
+l1 = sorted(lista)
+print('l1 => ', l1)
+print('lista => ', lista)
+"""
+l1 =>  [1, 3, 4, 5]
+lista =>  [4, 5, 1, 3]
+"""
+
+# Criando uma cópia e ordenando com sort() a cópia
+l2 = lista[:] # ou lista.copy()
+l2.sort()
+print('l2 => ', l2)
+print('lista => ', lista)
+"""
+l2 =>  [1, 3, 4, 5]
+lista =>  [4, 5, 1, 3]
+"""
+
+# Ordenando, de fato, lista
+lista.sort()
+print('lista => ', lista)
+"""
+lista =>  [1, 3, 4, 5]
+"""
+```
+
+---
+
+Funciona com listas de strings também
+
+```python
+>>> lista = ['Aloha', 'Bacon', 'Alpha', 'Bahamas']
+>>> lista.sort()
+>>> lista
+['Aloha', 'Alpha', 'Bacon', 'Bahamas']
+```
+
+---
+
+Cuidado! Lista com tipos diferentes geram exceção ao ser ordenadas
+
+```python
+>>> lista = ['Aloha', 'Bacon', 'Alpha', 'Bahamas']
+>>> lista.sort()
+>>> lista
+['Aloha', 'Alpha', 'Bacon', 'Bahamas']
+>>>
+```
+
+---
+
+Listas de listas podem ser ordenadas
+
+```python
+>>> l = [ [1, 3], [0, 2], [7, 6], [4, 4] ]
+>>> l.sort()
+>>> l
+[[0, 2], [1, 3], [4, 4], [7, 6]]
+>>>
+```
+
+---
+
+O método `sort()` permite ordenar de forma reversa, através do parâmetro `reverse=True`:
+
+```python
+>>> l = [ 3, 4, 2, 1, 7, 9 ]
+>>> l.sort(reverse=True)
+>>> l
+[9, 7, 4, 3, 2, 1]
+>>>
+```
+
+---
+
+`sort()` permite usar uma função de comparação customizada
+
+```python
+>>> # Retorna o "lenght" (tamanho da string)
+... def tamanho(s):
+...     return len(s)
+...
+>>>
+>>> lista = ['aloha', 'spam', 'bacon', 'xyz', 'delta']
+>>>
+>>> lista.sort(key=tamanho)
+>>>
+>>> lista
+['xyz', 'spam', 'aloha', 'bacon', 'delta']
+>>>
+```
+
+Evite utilizar `sort()` customizado para ordenar de forma invertida. 
+Prefira usar a sequênce: `sort()` depois `reverse()`
+
+---
+
+A função `sorted()`
+
+Listas têm o método `.sort()`, mas outros iteráveis do Python (chaves de um dicionário, por exemplo), 
+não têm esses métodos.
+
+Para esses casos, deve-se usar a função `sorted(objeto)`, que retorna uma lista ordenada.
+
+A função, assim como o método `sort()`, também aceita parâmetros `reverse` e `key`.
+
+```python
+>>> t = (1, 3, 4, 2)
+>>>
+>>> x = sorted(t)
+>>> x
+[1, 2, 3, 4]
+>>>
+>>> y = sorted(t, reverse=True)
+>>> y
+[4, 3, 2, 1]
+>>>
+```
+
+---
+
+# Outras operações com listas
+
+---
+
+Testando a presença ou ausência de um elemento em uma lista
+
+```python
+>>> l = [10, 20, 30]
+>>>
+>>> # Presença
+... 11 in l
+False
+>>>
+>>> # Ausência
+... 10 not in l
+False
+>>>
+```
+
+---
+
+Concatenando listas com `+`
+
+```python
+>>> a = [1, 2]
+>>> b = [3, 4]
+>>>
+>>> a + b
+[1, 2, 3, 4]
+>>>
+```
+
+---
+
+Inicializando com `*`
+
+```python
+>>> zeros = [0] * 100
+>>> zeros
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+>>>
+
+>>> other = [1, 2, 3] * 10
+>>> other
+[1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3]
+>>>
+```
+
+---
+
+`min()` e `max()`
+
+```python
+>>> l = [-2, 10, 9 , 7 , 3, 45]
+>>> min(l)
+-2
+>>>
+>>> max(l)
+45
+>>>
+>>>
+```
+
+Exceção, se houverem tipos não comparáveis diretamente:
+
+```python
+>>> l = [1, 2, 'spam', 4]
+>>> min(l)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: '<' not supported between instances of 'str' and 'int'
+>>>
+>>> max(l)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: '>' not supported between instances of 'str' and 'int'
+>>>
+```
+
+---
+
+Encontrando o índice de um determinado valor com `index()`
+
+```python
+>>> l = [1, 2, 'spam', 4]
+>>>
+>>> l.index('spam')
+2
+>>> l.index(4)
+3
+>>>
+```
+
+---
+
+Contando o número de ocorrência de um valor na lista
+
+```python
+>>> l = [1, 2, 3, 1, 1, 3, 4, 5, 6]
+>>> l.count(1)
+3
+>>> l.count(2)
+1
+>>> l.count(3)
+2
+>>>
+```
+
+---
+
+Resumo de Listas
+
+```python
+>>> # Lista vazia
+... l = []
+>>>
+>>> # Tamanho da lista
+... len(l)
+0
+>>> # Adiciona um elemento ao fim
+... l.append(10)
+>>>
+>>> l
+[10]
+>>>
+>>> # Extende com outra lista. Um merge.
+... l.extend([1, 2, 3])
+>>> l
+[10, 1, 2, 3]
+>>>
+>>> # Insere numa posição específica
+... l.insert(0, 101)
+>>> l
+[101, 10, 1, 2, 3]
+>>>
+>>> # Removendo um elemento
+... del l[0]
+>>> l
+[10, 1, 2, 3]
+>>>
+>>> # Remove por valor
+... l.remove(10)
+>>> l
+[1, 2, 3]
+>>>
+>>> # Inverter uma lista
+... l.reverse()
+>>> l
+[3, 2, 1]
+>>>
+>>> # Ordenar in-place
+... l.sort()
+>>> l
+[1, 2, 3]
+>>>
+>>> # Concatenar +. Não muda as listas, produz uma nova.
+... l1 = [1, 2]
+>>> l2 = [3, 4]
+>>> l1 + l2
+[1, 2, 3, 4]
+>>> l1
+[1, 2]
+>>> l2
+[3, 4]
+>>>
+>>> # Replicar uma lista
+... # "Inicialização"
+... l = [-1] * 100
+>>> l
+[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+>>>
+>>> # Encontrar o mínimo de uma lista
+... min( [9, 10, 8, 3, 101] )
+3
+>>>
+>>> # Encontrar o máximo de uma lista
+... max( [10, 3, 9, 101, 4, 2] )
+101
+>>>
+>>> # Encontrar o índice de um elemento através do valor
+... l = [10, 3, 4, 2, 5, 6, 11]
+>>> l.index(2)
+3
+>>> l.index(11)
+6
+>>>
+>>> # Contar ocorrências
+... l = [10, 8, 3, 2, 5, 4, 4, 7]
+>>> l.count(4)
+2
+>>>
+>>> # Soma dos elementos
+... sum( [1, 2, 3] )
+6
+>>>
+>>> # Verificar presença
+... 1 in [1, 2, 3]
+True
+>>>
+>>> # Verificar ausência
+... 10 not in [1, 2, 3]
+True
+>>>
+```
+
+---
+
+# Listas aninhadas e cópias
+
+---
+
+Listas aninhadas permitem representar matrizes multidimensionais:
+
+```python
+>>> m = [
+...     [1, 2, 3],
+...     [4, 5, 6],
+...     [7, 8, 9]
+... ]
+>>>
+>>> m
+[[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+>>>
+>>> m[0]
+[1, 2, 3]
+>>>
+>>> m[0][1]
+2
+>>> m[0][2]
+3
+>>>
+>>> # Alterando uma lista interna, "reflete" na externa
+... m[0][1] = 101
+>>> m
+[[1, 101, 3], [4, 5, 6], [7, 8, 9]]
+>>>
+>>>
+```
+
+---
+
+Isso ocorre pois variáveis, em Python, são apenas referências para objetos.
+
+Se você tem mais de uma referência para o mesmo objeto e altera o objeto, 
+ambas referências "refletirão" isso.
+
+```python
+>>> l = [1, 2, 3]
+>>> l1 = l
+>>> l2 = l
+>>>
+>>> l[1] = 'Mudança'
+>>>
+>>> l
+[1, 'Mudança', 3]
+>>> l1
+[1, 'Mudança', 3]
+>>> l2
+[1, 'Mudança', 3]
+>>>
+```
+
+---
+
+Ao copiar uma lista usando slices `[:]` ou o método `.copy()`, você faz uma cópia leve.
+Apenas a lista externa é copiada. 
+
+Listas aninhadas ou outros objetos mutáveis, têm suas referências mantidas.
+
+```python
+>>> l1 = [1, 2, 3]
+>>>
+>>> l = [ l1, 'one', 'two', 'three' ]
+>>>
+>>> lclone = l.copy()
+>>>
+>>> lclone[0][1] = 'spam'
+>>>
+>>> l
+[[1, 'spam', 3], 'one', 'two', 'three']
+>>> lclone
+[[1, 'spam', 3], 'one', 'two', 'three']
+>>>
+```
+
+---
+
+Para realizar uma cópia profunda (*deepcopy*), use o módulo `copy`
+
+```python
+>>> import copy
+>>> l1 = [1, 2, 3]
+>>> l = [ l1, 'one', 'two', 'three' ]
+>>> lclone = copy.deepcopy(l)
+>>> lclone[0][1] = 'spam'
+>>>
+>>> l
+[[1, 2, 3], 'one', 'two', 'three']
+>>> lclone
+[[1, 'spam', 3], 'one', 'two', 'three']
+>>>
+```
+
+---
+
+## Tuplas
+
+---
+
+Tuplas são muito similares a listas. Contudo, são imutáveis.
+
+```python
+>>> # Tupla sao declaradas entre parenteses
+... t1 = (1, 2, 3, 4)
+>>>
+>>> # Tuplas com apenas um elemento precisam de uma virgula
+... # Para nao serem confundidas com expressoes
+... t2 = (101,)
+>>> t2
+(101,)
+>>>
+>>> # Tuplas vazias nao precisam de virgulas, apenas parenteses
+... t3 = ()
+>>> t3
+()
+>>>
+>>> # Python permite o packing e unpacking de diversas variaveis ao mesmo tempo
+... a, b, c = 1, 2,  3
+>>> a
+1
+>>> b
+2
+>>> c
+3
+>>>
+>>> # Python 3 expandiu esse conceito com o operador *
+... a, b, c, *d = 1, 2, 3, 4, 5
+>>> a
+1
+>>> b
+2
+>>> c
+3
+>>> d
+[4, 5]
+>>>
+>>> # Que pode ser aplicado em qualquer posicao
+... *a, b, c = 1, 2, 3, 4, 5
+>>> a
+[1, 2, 3]
+>>> b
+4
+>>> c
+5
+>>> d
+[4, 5]
+>>>
+>>> a, *b, c = 1, 2, 3, 4, 5
+>>> a
+1
+>>> b
+[2, 3, 4]
+>>> c
+5
+>>>
+```
+
+---
+
