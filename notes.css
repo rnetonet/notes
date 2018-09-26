@@ -33,6 +33,11 @@
   padding: 3px;
 }
 
+.reveal pre {
+  margin-left: 0px;
+  margin-right: 0px;
+  width: 100%;
+}
 
 .reveal pre code {
   max-height: 600px;
