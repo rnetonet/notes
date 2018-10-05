@@ -1,23 +1,8 @@
----
-theme: "white"
-customTheme : "notes"
-transition: "none"
-highlightTheme: "tomorrow"
-center: false
-controls: false
----
-
 # The Quick Python Book 3rd - Naomi Ceder
 
----
+## Pontos Fortes x Pontos Fracos
 
-# Pontos Fortes x Pontos Fracos
-
-Otário!
-
----
-
-Pontos fortes
+#### Pontos fortes
 
 * Fácil de usar
 * Expressiva:
@@ -33,9 +18,8 @@ a, b = b, a
 * Tem (bibliotecas) baterias incluídas
 * Multi-plataforma
 
----
 
-Pontos fracos
+#### Pontos fracos
 
 * Não tão rápida quanto C
 * Tem menos bibliotecas - em alguns nichos - do que linguagens como C, Java...
@@ -43,13 +27,9 @@ Pontos fracos
 * Não tem bom suporte em mobile
 * GIL atrapalha concorrência
 
----
+## Python em 10 minutos ou menos
 
-# Python em 10 minutos ou menos
-
----
-
-Tipos numéricos
+#### Tipos numéricos
 
 ```python
 # Inteiros
@@ -67,9 +47,7 @@ t = True
 z = False
 ```
 
----
-
-Operações com inteiros:
+#### Operações com inteiros:
 
 ```python
 >>> # Operacoes
@@ -98,9 +76,7 @@ Operações com inteiros:
 >>> 
 ```
 
----
-
-Operações com pontos flutuantes:
+#### Operações com pontos flutuantes:
 
 ```python
 >>> x = 4.23 * 7.15
@@ -115,9 +91,7 @@ Operações com pontos flutuantes:
 >>> 
 ```
 
----
-
-Algums funções *built-in* e do módulo *math*:
+#### Algums funções `built-in` e do módulo `math`:
 
 ```python
 >>> x = 3.49
@@ -132,17 +106,13 @@ Algums funções *built-in* e do módulo *math*:
 3
 ```
 
----
-
-Todo arquivo Python é um módulo. 
+#### Todo arquivo Python é um módulo. 
 
 Os atributos definidos no módulo podem ser acessados a partir de outro módulo através de `import`. 
 
 Feito o *import*, você pode acessar os atributos através da sintaxe: `module.function(arguments)`.
 
----
-
-Booleans:
+#### Booleans:
 
 ```python
 >>> x = True
@@ -167,9 +137,7 @@ True
 >>> 
 ```
 
----
-
-Listas
+#### Listas
 
 ```python
 >>> # Lista vazia
@@ -215,9 +183,7 @@ Listas
 >>> 
 ```
 
----
-
-Modificando listas:
+#### Modificando listas:
 
 ```python
 >>> x = [1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -234,9 +200,7 @@ Modificando listas:
 >>> 
 ```
 
----
-
-Algumas operações e funções que podem lidar com listas:
+#### Algumas operações e funções que podem lidar com listas:
 
 ```python
 >>> x = [1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -276,9 +240,7 @@ Algumas operações e funções que podem lidar com listas:
 >>> 
 ```
 
----
-
-Tuplas - similar a listas, mas são imutáveis, não permitem alteração por indexação / slice
+#### Tuplas - similar a listas, mas são imutáveis, não permitem alteração por indexação / slice
 
 ```python
 >>> a = ()
@@ -311,9 +273,7 @@ Tuplas - similar a listas, mas são imutáveis, não permitem alteração por in
 >>> 
 ```
 
----
-
-Conversão entre listas e tuplas
+#### Conversão entre listas e tuplas
 
 ```python
 >>> l = [1, 2, 3]
@@ -330,9 +290,7 @@ Conversão entre listas e tuplas
 [4, 5, 6]
 ```
 
----
-
-Strings
+#### Strings
 
 ```python
 >>> # Diversas maneiras de declarar
@@ -377,9 +335,7 @@ teste
 5
 ```
 
----
-
-Ao usar `print(objeto)` o objeto é convertido para *string*
+#### Ao usar `print(objeto)` o objeto é convertido para *string*
 
 ```python
 >>> print(3.14)
@@ -391,9 +347,7 @@ True
 >>> 
 ```
 
----
-
-Dicionários `dict()`:
+#### Dicionários `dict()`:
 
 ```python
 >>> # Dicionários são hashmaps de chave e valor
@@ -429,9 +383,7 @@ TypeError: unhashable type: 'list'
 >>> 
 ```
 
----
-
-Conjuntos `set()`
+#### Conjuntos `set()`
 
 ```python
 >>> # Sets / Conjuntos são agrupamentos não ordenados de objetos (de qualquer tipo) únicos
@@ -449,9 +401,7 @@ False
 >>> 
 ```
 
----
-
-Arquivos:
+#### Arquivos:
 
 ```python
 >>> # Arquivos em Python estão acessíveis através da função open()
@@ -498,9 +448,7 @@ Spam
 >>> 
 ```
 
----
-
-Estruturas de controle de fluxo
+#### Estruturas de controle de fluxo
 
 ```python
 >>> # Python tem diversas maneiras de expressar valores Booleanos:
@@ -540,9 +488,7 @@ True
 >>> 
 ```
 
----
-
-Operações de comparação lógica:
+#### Operações de comparação lógica:
 
 ```python
 >>> # Igualdade, diferença, maior que, menor que...
@@ -587,9 +533,7 @@ True
 >>> 
 ```
 
----
-
-`if / elif / else`
+#### `if / elif / else`
 
 ```python
 >>> x = 10
@@ -609,9 +553,7 @@ Nenhum deu match
 >>> 
 ```
 
----
-
-`while`:
+#### `while`:
 
 ```python
 >>> # Executa até a condição tornar-se falsa
@@ -684,9 +626,7 @@ Nenhum deu match
 >>> 
 ```
 
----
-
-`for` - tá mais para um `foreach`
+#### `for` - tá mais para um `foreach`
 
 ```python
 >>> # for do python itera sobre sequências
@@ -748,9 +688,7 @@ four
 five
 ```
 
----
-
-`def` - declarando funções e formas de receber parâmetros
+#### `def` - declarando funções e formas de receber parâmetros
 
 ```python
 >>> # você define funções usando a declaração def
@@ -823,9 +761,7 @@ John e Inteligente
 >>> 
 ```
 
----
-
-`Exception` - Exceções
+#### `Exception` - Exceções
 
 ```python
 >>> # O bloco minimo para tratar exceções é o try / except:
@@ -880,9 +816,7 @@ x = 5.0
 Ops!
 ```
 
----
-
-`with` - Gerenciando contexto
+#### `with` - Gerenciando contexto
 
 ```python
 >>> # A declaração with permite abstrair as construções try / except / finally
@@ -898,9 +832,7 @@ Ops!
 >>> 
 ```
 
----
-
-Criando módulos
+#### Criando módulos
 
 ```python
 # Todo arquivo Python é um módulo, podendo ser importado para utilização dos seus atributos
@@ -919,17 +851,13 @@ def words_occur(file_name):
     return (len(w_list), len(occur_list))
 ```
 
----
-
-Utilizando o módulo (supondo estar no mesmo diretório que `wo.py` ou que `wo.py` esteja no `sys.path`):
+#### Utilizando o módulo (supondo estar no mesmo diretório que `wo.py` ou que `wo.py` esteja no `sys.path`):
 
 ```python
 # arquivo wo_test.py
 import wo
 print( wo.words_occur('sample.txt') )
 ```
-
----
 
 Se `wo` for atualizado durante a execução de `wo_test`, essa modificação não será automaticamente assimilada.
 Você precisará atualizar o módulo usando `imp.reload()`:
@@ -943,8 +871,6 @@ import wo
 import imp
 imp.reload(wo) # Note que não precisa de aspas, é o próprio objeto
 ```
-
----
 
 Em projetos muito grandes, você pode criar estruturas de pacotes (`packages`).
 
@@ -965,9 +891,7 @@ In [2]: fisica.colisao.deteccao.detectar(1, 3)
 1 3
 ```
 
----
-
-Orientação a Objetos:
+#### Orientação a Objetos:
 
 ```python
 class Forma:
@@ -1019,8 +943,6 @@ if __name__ == '__main__':
     print(c2)
 ```
 
----
-
 Saída:
 
 ```bash
@@ -1030,9 +952,7 @@ Area c2: 1256.0
 Circulo de raio = 20, nas coordenadas (10, 21)
 ```
 
----
-
-# Observações Orientação a Objetos
+#### Observações Orientação a Objetos
 
 * Todos métodos de classes recebem como primeiro parâmetro `self`. Quando o método é chamado, `self` é setado para a instância que o chamou.
 
@@ -1040,13 +960,9 @@ Circulo de raio = 20, nas coordenadas (10, 21)
 
 * Observe que o parâmetro `self` é atribuído automaticamente pelo Python, com o valor da instância solicitante.
 
----
+## Python - Essencial, em mais de 10 minutos
 
-# Python - Essencial, em mais de 10 minutos
-
----
-
-Python usa identação para identificar blocos de código:
+#### Python usa identação para identificar blocos de código:
 
 ```python
 n = 9
@@ -1058,9 +974,7 @@ while n > 0:
     n = n - 1 # equivalente: n -= 1
 ```
 
----
-
-Comentários em Python é tudo que vem após `#`:
+#### Comentários em Python é tudo que vem após `#`:
 
 ```python
 # Eu sou um comentário. Completamente ignorado pelo interpretador.
@@ -1068,9 +982,7 @@ a = 10 # O código que precede executado. Mas o comentário, ignorado.
 text = 'Mas, dentro de strings, é um # caractere como outro qualquer'
 ```
 
----
-
-Variáveis em Python são criadas no momento que são declaradas. Não há necessidade de definir os tipos, que são inferidos:
+#### Variáveis em Python são criadas no momento que são declaradas. Não há necessidade de definir os tipos, que são inferidos:
 
 ```python
 a = 10
@@ -1078,9 +990,7 @@ c = 3.14
 x = 'uma string'
 ```
 
----
-
-# Obs:
+> **Obs:**
 
 Em algumas linguagens, os tipos primitivos são "baldes" que armazenam de fato os valores. 
 
@@ -1088,9 +998,7 @@ Em algumas linguagens, os tipos primitivos são "baldes" que armazenam de fato o
 
 Podem existir múltiplas etiquetas para um mesmo objeto. Caso esse objeto seja modificado, todas etiquetas refletirão isso.
 
----
-
-Etiquetas! 
+#### Etiquetas! 
 
 ```python
 # Etiqueta 'numero' refere-se ao objeto inteiro 10
@@ -1109,9 +1017,7 @@ print(copia)  # 10!
 print(numero) # 20!
 ```
 
----
-
-Essa informação só faz diferença **mesmo** para objetos mutáveis:
+#### Essa informação só faz diferença **mesmo** para objetos mutáveis:
 
 ```python
 # Ambas apontam para o mesmo objeto
@@ -1129,9 +1035,7 @@ print(l) # 10, 20, 30
 print(l_copia) # 10, 20, 30
 ```
 
----
-
-Variáveis em Python podem durante a execução diferentes tipos de objeto. **Mas evite!**:
+#### Variáveis em Python podem durante a execução diferentes tipos de objeto. **Mas evite!**:
 
 ```python
 a = 10
@@ -1144,9 +1048,7 @@ a = 'aloha'
 print(a)
 ```
 
----
-
-Você pode deletar uma variável com `del`:
+#### Você pode deletar uma variável com `del`:
 
 ```python
 a = 100
@@ -1157,15 +1059,13 @@ del a
 print(a) # Exceção! a não foi declarada!
 ```
 
----
+> **Obs:**
 
 Por fim, variáveis devem começar com letras ou underline e não podem conter espaços. 
 
 Python diferencia maiúsculas de minúsculas.
 
----
-
-Expressões aritméticas e similares:
+#### Expressões aritméticas e similares:
 
 ```python
 # Expressões retornam valores
@@ -1189,9 +1089,7 @@ In [6]: 7 * 2 + 3
 Out[6]: 17
 ```
 
----
-
-Strings:
+#### Strings:
 
 ```python
 # Declare com aspas simples ou duplas
@@ -1246,9 +1144,7 @@ texto
 multilinha
 ```
 
----
-
-Números:
+#### Números:
 
 ```python
 >>> # Inteiro
@@ -1290,9 +1186,7 @@ True
 >>> 
 ```
 
----
-
-Algumas funções *built-in* relacionadas a números:
+#### Algumas funções *built-in* relacionadas a números:
 
 ```python
 >>> # Valor absoluto
@@ -1343,9 +1237,7 @@ Algumas funções *built-in* relacionadas a números:
 4
 ```
 
----
-
-`None`
+#### `None`
 
 ```python
 # None é o "null" do Python
@@ -1364,9 +1256,7 @@ False
 True
 ```
 
----
-
-Para ler dados do usuário, use `input('Mensagem: ')`
+#### Para ler dados do usuário, use `input('Mensagem: ')`
 
 ```python
 # Use input(msg) para receber uma string do usuário
@@ -1379,9 +1269,7 @@ Seu nome: Rui
 Sua idade: 30
 ```
 
----
-
-Recomendações PEP8:
+#### Recomendações PEP8:
 
 
 |Situação  |Sugestão  |Exemplo  |
@@ -1390,17 +1278,13 @@ Recomendações PEP8:
 |Nome de funções     |Tudo minúsculo. Use underscores se ficar mais legível.         |`sum(), my_func()`         |
 |Nome de variáveis     |Tudo minúsculo. Use underscores se ficar mais legível.         |`my_var`         |
 |Nome de Classes     |CapitalizeCadaPalavra         |`MyClass()`         |
-|Constantes     |TODA_MAISCULA_COM_UNDERSCORE         |`TAX_RATE=`         |
+|Constantes     |TODA_MAISCULA_COM_UNDERSCORE         |`TAX_RATE =`         |
 |Identação     |4 espaçõs por nível         |         |
 |Comparando True ou False     |Não comparte com True ou False, teste o valor da variável         |`if x, if not y`         |
 
----
+## Listas, tuplas e conjuntos
 
-# Listas, tuplas e conjuntos
-
----
-
-Listas são como  arrays. Só que bem mais poderosos:
+#### Listas são como  arrays. Só que bem mais poderosos:
 
 * Listas podem crescer ou diminuir
 * Não há necessidade de declarar tipos
@@ -1518,9 +1402,7 @@ Listas são como  arrays. Só que bem mais poderosos:
 >>>
 ```
 
----
-
-Para deletar um elemento de uma lista, use `del`:
+#### Para deletar um elemento de uma lista, use `del`:
 
 ```python
 >>> lista
@@ -1533,9 +1415,7 @@ Para deletar um elemento de uma lista, use `del`:
 >>> 
 ```
 
----
-
-Para remover um elemento através do valor, não do índice, use `remove(valor)`:
+#### Para remover um elemento através do valor, não do índice, use `remove(valor)`:
 
 ```python
 >>> lista
@@ -1555,11 +1435,7 @@ ValueError: list.remove(x): x not in list
 >>> 
 ```
 
----
-
-# Ordenando listas
-
----
+#### Ordenando listas
 
 O método `.reverse()` das listas, inverte a ordem *in-place*.
 
@@ -1574,7 +1450,6 @@ O método `.reverse()` das listas, inverte a ordem *in-place*.
 >>> 
 ```
 
----
 
 O método `.sort()` ordena a lista *in-place*. Para não alterar a lista original, 
 use a função `sorted()` ou use o `.sort()` em uma cópia da lista original.
@@ -1609,8 +1484,6 @@ lista =>  [1, 3, 4, 5]
 """
 ```
 
----
-
 Funciona com listas de strings também
 
 ```python
@@ -1619,8 +1492,6 @@ Funciona com listas de strings também
 >>> lista
 ['Aloha', 'Alpha', 'Bacon', 'Bahamas']
 ```
-
----
 
 Cuidado! Lista com tipos diferentes geram exceção ao ser ordenadas
 
@@ -1632,8 +1503,6 @@ Cuidado! Lista com tipos diferentes geram exceção ao ser ordenadas
 >>>
 ```
 
----
-
 Listas de listas podem ser ordenadas
 
 ```python
@@ -1643,8 +1512,6 @@ Listas de listas podem ser ordenadas
 [[0, 2], [1, 3], [4, 4], [7, 6]]
 >>>
 ```
-
----
 
 O método `sort()` permite ordenar de forma reversa, através do parâmetro `reverse=True`:
 
@@ -1656,9 +1523,7 @@ O método `sort()` permite ordenar de forma reversa, através do parâmetro `rev
 >>>
 ```
 
----
-
-`sort()` permite usar uma função de comparação customizada
+#### `sort()` permite usar uma função de comparação customizada
 
 ```python
 >>> # Retorna o "lenght" (tamanho da string)
@@ -1678,9 +1543,7 @@ O método `sort()` permite ordenar de forma reversa, através do parâmetro `rev
 Evite utilizar `sort()` customizado para ordenar de forma invertida. 
 Prefira usar a sequênce: `sort()` depois `reverse()`
 
----
-
-A função `sorted()`
+#### A função `sorted()`
 
 Listas têm o método `.sort()`, mas outros iteráveis do Python (chaves de um dicionário, por exemplo), 
 não têm esses métodos.
@@ -1702,11 +1565,7 @@ A função, assim como o método `sort()`, também aceita parâmetros `reverse` 
 >>>
 ```
 
----
-
-# Outras operações com listas
-
----
+#### Outras operações com listas
 
 Testando a presença ou ausência de um elemento em uma lista
 
@@ -1723,8 +1582,6 @@ False
 >>>
 ```
 
----
-
 Concatenando listas com `+`
 
 ```python
@@ -1735,8 +1592,6 @@ Concatenando listas com `+`
 [1, 2, 3, 4]
 >>>
 ```
-
----
 
 Inicializando com `*`
 
@@ -1752,8 +1607,6 @@ Inicializando com `*`
 [1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3]
 >>>
 ```
-
----
 
 `min()` e `max()`
 
@@ -1784,8 +1637,6 @@ TypeError: '>' not supported between instances of 'str' and 'int'
 >>>
 ```
 
----
-
 Encontrando o índice de um determinado valor com `index()`
 
 ```python
@@ -1797,8 +1648,6 @@ Encontrando o índice de um determinado valor com `index()`
 3
 >>>
 ```
-
----
 
 Contando o número de ocorrência de um valor na lista
 
@@ -1812,8 +1661,6 @@ Contando o número de ocorrência de um valor na lista
 2
 >>>
 ```
-
----
 
 Resumo de Listas
 
@@ -1910,11 +1757,7 @@ True
 >>>
 ```
 
----
-
-# Listas aninhadas e cópias
-
----
+#### Listas aninhadas e cópias
 
 Listas aninhadas permitem representar matrizes multidimensionais:
 
@@ -1944,8 +1787,6 @@ Listas aninhadas permitem representar matrizes multidimensionais:
 >>>
 ```
 
----
-
 Isso ocorre pois variáveis, em Python, são apenas referências para objetos.
 
 Se você tem mais de uma referência para o mesmo objeto e altera o objeto, 
@@ -1966,8 +1807,6 @@ ambas referências "refletirão" isso.
 [1, 'Mudança', 3]
 >>>
 ```
-
----
 
 Ao copiar uma lista usando slices `[:]` ou o método `.copy()`, você faz uma cópia leve.
 Apenas a lista externa é copiada. 
@@ -1990,8 +1829,6 @@ Listas aninhadas ou outros objetos mutáveis, têm suas referências mantidas.
 >>>
 ```
 
----
-
 Para realizar uma cópia profunda (*deepcopy*), use o módulo `copy`
 
 ```python
@@ -2008,11 +1845,7 @@ Para realizar uma cópia profunda (*deepcopy*), use o módulo `copy`
 >>>
 ```
 
----
-
-## Tuplas
-
----
+#### Tuplas
 
 Tuplas são muito similares a listas. Contudo, são imutáveis.
 
@@ -2071,6 +1904,3 @@ Tuplas são muito similares a listas. Contudo, são imutáveis.
 5
 >>>
 ```
-
----
-
