@@ -664,7 +664,7 @@ TypeError: '<' not supported between instances of 'str' and 'int'
 (1, 2, 3)
 ```
 
-# Dictionaries
+## Dictionaries
 
 - Key -> value
 - Key can be any immutable object (string, tuple, set, etc)
@@ -1076,8 +1076,949 @@ True
 >>> 
 ```
 
-- What Python considers `True`:
+- What Python considers `False`:
+
+```python
+# False is zero and everything empty
+>>> bool(False)
+False
+>>> bool(None)
+False
+>>> bool(0)
+False
+>>> bool(0.0)
+False
+>>> bool("")
+False
+>>> bool([])
+False
+>>> bool(())
+False
+>>> bool({})
+False
+>>> bool(set())
+False
+>>> 
+
+
+```
+
+- **Everything** else is `True`:
+
+```python
+>>> bool(1)
+True
+>>> bool("Z")
+True
+>>> bool(0.1)
+True
+>>> bool(["a"])
+True
+```
+
+- `while`
+
+```python
+>>> counter = 10
+>>> while counter:
+...     print(counter)
+...     counter -= 1
+... 
+10
+9
+8
+7
+6
+5
+4
+3
+2
+1
+>>> 
+```
+
+- Exit early from a loop using `break`
+
+```python
+>>> while True:
+...     print("Press q to quit: ")
+...     if input() == "q":
+...             break
+... 
+Press q to quit: 
+a
+Press q to quit: 
+b
+Press q to quit: 
+c
+Press q to quit: 
+q
+>>> 
+```
+
+- Hurry to the next iteration of the loop using `continue`
+
+```python
+>>> counter = 0
+>>> while counter <= 10:
+...     counter += 1
+...     if counter % 2 != 0:
+...             continue
+...     else:
+...             print(counter ** 2)
+... 
+4
+16
+36
+64
+100
+>>> 
+```
+
+- Check for break usage with `else` (if no `break` is used, `else` block is called):
+
+```python
+>>> counter = 0
+>>> while counter <= 10:
+...     counter += 1
+...     if counter > 20:
+...             break
+... else:
+...     print("No break executed!")
+... 
+No break executed!
+>>> 
+```
+
+- `for` (consume iterators)
+
+```python
+# Iterate over lists, tuples or sets
+>>> countries = ["Brazil", "EUA", "England"]
+>>> for country in countries:
+...     print(country)
+... 
+Brazil
+EUA
+England
+>>> 
+
+# Iterate over strings one char at a time
+>>> for char in "Spam!":
+...     print(char)
+... 
+S
+p
+a
+m
+!
+>>> 
+
+# Over a dict, you get the keys
+>>> data = {
+...     "name": "John",
+...     "age": 40
+... }
+>>> 
+>>> for key in data:
+...     print(key)
+... 
+name
+age
+
+# Over dict values (using .values())
+>>> for value in data.values():
+...     print(value)
+... 
+John
+40
+>>> 
+
+# Over both (.items())
+>>> for key, value in data.items():
+...     print(key, "->", value)
+... 
+name -> John
+age -> 40
+>>>
+```
+
+- `for` also supports `break`, `continue` and `else` (the no-break-clause).
+
+```python
+>>> colors = ["red", "blue", "green", "orange"]
+>>> for color in colors:
+...     if color == "purple":
+...             break
+... else:
+...     print("Oh, no purple")
+... 
+Oh, no purple
+>>>
+```
+
+- Use `zip()` to iterate over different sequences at the same time, bounds begin the smaller one:
+
+
+
+```python
+>>> names = ["Jack", "John", "Pamela"]
+>>> ages  = [17, 32]
+
+# Pamela is not printed, because "ages" is smaller than "names"
+>>> for name, age in zip(names, ages):
+...     print(name, "->", age)
+... 
+Jack -> 17
+John -> 32
+>>> 
+```
+
+- You can, also, use `zip()` to convert two list into a list of tuples or in a dict:
+
+```python
+>>> a = ["name", "age", "color"]
+>>> b = ["john", 23, "blue"]
+>>> 
+>>> list( zip(a, b) )
+[('name', 'john'), ('age', 23), ('color', 'blue')]
+>>> 
+>>> dict( zip(a, b) )
+{'name': 'john', 'age': 23, 'color': 'blue'}
+>>> 
+```
+
+- Create sequences of numbers using `range()` 
+
+```python
+>>> # range(start, stop, step)
+... # start defaults to 0
+... # step defaults to 1
+... # stop is not included (open interval)
+... for n in range(3):
+...     print(n)
+... 
+0
+1
+2
+>>> 
+```
+
+```python
+>>> # range() returns an iterable (generates on demanda - lazy - saving memory)
+... # convert to list(), if necessary
+... list(range(6))
+[0, 1, 2, 3, 4, 5]
+>>> 
+```
+
+```python
+>>> # Use a negative to go backwards
+>>> for x in range(10, 0, -1):
+...     print(x)
+... 
+10
+9
+8
+7
+6
+5
+4
+3
+2
+1
+>>> 
+```
+
+## Comprehensions
+
+- A Pythonic and terse way to create complex Python objects from iterable objects
+
+```python
+>>> # A very simple number list comprehension
+... lst = [number * number for number in range(10)]
+>>> lst
+[0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
+>>> 
+```
+
+```python
+>>> # Comprehensions can have an if clause too
+>>> lst = [number * number for number in range(10) if number % 2 == 0]
+>>> lst
+[0, 4, 16, 36, 64]
+>>>
+```
+
+```python
+>>> # You can, also, have more than one for
+... 
+>>> letters = ["a", "b", "c"]
+>>> numbers = [1, 2, 3]
+>>> 
+>>> pairs = [(letter, number) for letter in letters for number in numbers]
+>>> pairs
+[('a', 1), ('a', 2), ('a', 3), ('b', 1), ('b', 2), ('b', 3), ('c', 1), ('c', 2), ('c', 3)]
+>>> 
+>>> # if can be used too
+... 
+>>> pairs = [(letter, number) for letter in letters if letter == "a" for number in numbers if number ==1 or number == 2]
+>>> pairs
+[('a', 1), ('a', 2)]
+>>> 
+```
+
+```python
+>>> # Comprehensions can be used to create dicts
+>>> word = "letters"
+>>> char_count = {char:word.count(char) for char in word}
+>>> char_count
+{'l': 1, 'e': 2, 't': 2, 'r': 1, 's': 1}
+>>> 
+```
+
+```python
+>>> # set comprehensions
+>>> names = ["John", "Jack", "Jill", "Joana", "John"]
+>>> clean_names = {name for name in names if "o" in name}
+>>> clean_names
+{'John', 'Joana'}
+>>> 
+```
+
+
+```python
+>>> # Tuples dosen´t have comprehension
+>>> # Using parenthesis, you create a generator comprehension
+>>> # That returns lazily only when requested and once consumed, cant be requested again
+>>> 
+>>> gen = (number * 2 for number in range(6))
+>>> for number in gen:
+...     print(number)
+... 
+0
+2
+4
+6
+8
+10
+>>> 
+>>> # The generator was exhausted
+... for number in gen:
+...     print(number)
+... 
+>>> 
+```
+
+## Functions
 
 ```python
 
+>>> # Functions are pieces of reusable code
+>>> # Define with "def"
+>>> def make_sound():
+...     print("quack")
+... 
+>>> make_sound()
+quack
+>>> make_sound()
+quack
+>>> 
+```
+
+```python
+>>> # Functions can return values (any object)
+>>> def is_user_authorized():
+...     return True
+... 
+>>> if is_user_authorized():
+...     print("Welcome!")
+... else:
+...     print("Go away!")
+... 
+Welcome!
+```
+
+```python
+# Functions can receive arguments when called
+# Just define some parameters
+>>> def welcome(name):
+...     print("Welcome!", name)
+... 
+>>> welcome("John")
+Welcome! John
+>>> 
+```
+
+```python
+# If the function dosent define a return, it implicitly returns None
+>>> def sum(a, b):
+...     print(a + b)
+... 
+>>> result = sum(10, 20)
+30
+>>> 
+>>> print(result) # None! There was no return
+None
+>>> 
+```
+
+```python
+# How to diferentiate None from False ? Use "is"
+>>> thing = None
+>>> thing is False
+False
+>>> thing is None
+True
+>>> 
+```
+
+```python
+>>> # Python functions have flexible arguments
+... # 1. Positional arguments (the argument is bound to the parameter of same position)
+... def sum(a, b):
+...     return a + b
+... 
+# a = 10, b = 3
+>>> print( sum(10, 3) )
+13
+```
+
+```python
+>>> # 2. Use the parameter name to force the bound (keyword arguments)
+... # This manner, you can even change the order
+... def div(a, b):
+...     return a / b
+... 
+>>> div(10, 2)
+5.0
+>>> 
+>>> div(b=10, a=2)
+0.2
+>>> 
+```
+
+```python
+>>> # The keyword syntax allows the specification of defaults during
+... # the function definition
+... def div(a, b=2):
+...     return a / b
+... 
+>>> div(10)
+5.0
+>>> div(10, 3)
+3.3333333333333335
+>>> 
+```
+
+- If the function call mixes positional and keyword arguments, the positional should come first.
+
+- Caution: default values for arguments are created during definition, not during call. So avoid the use of mutable objects as defaults!
+
+```python
+>>> def buggy(arg, result=[]):
+...     result.append(arg)
+...     return result
+... 
+>>> buggy(2)
+[2]
+>>> buggy(3)
+[2, 3]
+>>> 
+```
+
+- To avoid that, many programmers use `None` to indicate the first call:
+
+```python
+>>> def correct(arg, result=None):
+...     if result is None:
+...             result = []
+...     result.append(arg)
+...     return result
+... 
+>>> correct(2)
+[2]
+>>> correct(3)
+[3]
+>>> 
+```
+
+- If you want to gather multiple positional arguments into a single tuple, use: `*args`:
+
+```python
+>>> def itemize(*args):
+...     for arg in args:
+...             print("*", arg)
+... 
+>>> itemize("coffee", "bacon", "eggs")
+* coffee
+* bacon
+* eggs
+>>> 
+
+>>> itemize() # but you can pass nothing too
+>>> 
+```
+
+- If you want to require some positional arguments and gather the rest as a tuple:
+
+```python
+>>> def itemize_with_header(token, *args):
+...     for arg in args:
+...             print(token, arg)
+... 
+>>> 
+>>> itemize_with_header("-", 1, 2, 3)
+- 1
+- 2
+- 3
+>>> 
+>>> itemize_with_header() # error
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: itemize_with_header() missing 1 required positional argument: 'token'
+>>> 
+```
+
+- But if you want to gather keyword args into a dict, use `**kwargs`
+
+```python
+>>> def pkwargs(**kwargs):
+...     for arg in kwargs:
+...             print(arg, "=", kwargs[arg])
+... 
+>>> pkwargs(a=1, b=2, c=10)
+a = 1
+b = 2
+c = 10
+>>> 
+```
+
+- If you mix `*args` and `**kwargs`, `*args` should come before `**kwargs`:
+
+```python
+>>> def pargs(token, *args, **kwargs): # positional args, *args, **kwargs
+...     for arg in args:
+...             print(token, arg)
+...     for arg in kwargs:
+...             print(token, arg, "=", kwargs[arg])
+... 
+>>> 
+>>> pargs("*", 1, 2, 3, a=10, b=20, c=30)
+* 1
+* 2
+* 3
+* a = 10
+* b = 20
+* c = 30
+>>> 
+```
+
+- Document function with docstrings:
+
+```python
+>>> def sum(a, b):
+...     """ Returns a + b """
+...     return a + b
+... 
+>>> sum(2, 2)
+4
+
+# Use help(function) to see the documentation
+Help on function sum in module __main__:
+
+sum(a, b)
+    Returns a + b
+(END)
+```
+
+- Function are first class citizen (objects!), so you can pass them to other function, return it, set attributes:
+
+```python
+>>> def quack():
+...     print("Quack!")
+... 
+>>> def run_it(f):
+...     f()
+... 
+>>> 
+>>> run_it(quack)
+Quack!
+>>> 
+>>> type(quack) # not quack()! just an object, callable, but an object
+<class 'function'>
+>>> 
+```
+
+- Function objects can be used as elements of lists, tuples, etc. Can even be dictionarie keys.
+
+- Inner functions:
+
+```python
+>>> def sum_with_increment(inc):
+...     def inner(a, b):
+...             return a + b + inc
+...     return inner
+... 
+>>> 
+>>> operation = sum_with_increment(3)
+>>> operation(2, 2)
+7
+>>>
+```
+
+> In Python, everything is an object, and variables are names that are bound to those objects.
+
+> Mutable objects reflect change in all references to it. Immutable objects, don´t:
+
+```python
+# Mutable object
+>>> lst = []
+>>> 
+>>> def change_lst(l):
+...     l.append("X")
+... 
+>>> change_lst(lst)
+>>> lst
+['X']
+>>> 
+
+# Immutable object
+>>> num = 2
+>>> def change_num(n):
+...     n = n + 1 # create a new "n" in the local scope
+... 
+>>> change_num(num)
+>>> num
+2
+>>>
+```
+
+- `Closures` are inner function that remember and have access to the data (arguments and defined variables) of the outer function:
+
+```python
+>>> def incrementer(step):
+...     def inner(number):
+...             return number + step
+...     return inner
+
+>>> inc3 = incrementer(3)
+>>> inc3(10)
+13
+>>> 
+
+>>> inc11 = incrementer(11)
+>>> inc11(1000)
+1011
+>>> 
+
+# Note! All three are functions, but inc3 and inc11 have a different scope
+>>> type(incrementer)
+<class 'function'>
+>>> type(inc3)
+<class 'function'>
+>>> type(inc11)
+<class 'function'>
+>>> 
+
+>>> incrementer
+<function incrementer at 0x7f7c96e99c80>
+>>> inc3
+<function incrementer.<locals>.inner at 0x7f7c96e99d08>
+>>> inc11
+<function incrementer.<locals>.inner at 0x7f7c93e18b70>
+>>> 
+```
+
+- `lambda` functions are single statements function that don´t have a name (anonymous)
+
+```python
+>>> words = ["spam", "eggs", "bacon"]
+>>> def apply_to(sequence, function):
+...     for item in sequence:
+...             function(item)
+... 
+>>> 
+>>> apply_to( words, lambda word: print(word.capitalize()) )
+Spam
+Eggs
+Bacon
+>>> 
+```
+
+- `generator` are a special kind of functions that generate data on demand.
+These functions make some processing, return some data and holds their execution. 
+In their next call, they remember where they were (statewise) and continue execution:
+
+```python
+>>> def firstn(n):
+...     num = 0
+...     while num < n:
+...             yield num # use yield instead of return!
+...             num += 1
+... 
+>>> first10 = firstn(10)
+>>> first10 # generator!
+<generator object firstn at 0x7f0f47fb31a8>
+>>> 
+>>> # iterate
+... for n in first10:
+...     print(n)
+... 
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+>>> 
+```
+
+## Decorators
+
+- A decorator is a function that receives a function as argument, enhances it with some behavior and returns this enhanced function, overwriting the prior.
+
+```python
+>>> def make_verbose(function):                                                 
+...     def verbose_function(*args, **kwargs):                                  
+...             print(function.__name__)
+...             print("args", args)
+...             print("kwargs", kwargs)
+...             result = function(*args, **kwargs) # unpack args and kwargs
+...             print("result", result)
+...             return result
+...     return verbose_function
+... 
+>>> 
+>>> def add(a, b):
+...     return a + b
+... 
+>>> add(2, 3)
+5
+>>> 
+>>> add = make_verbose(add)
+>>> add(2, 3)
+add
+args (2, 3)
+kwargs {}
+result 5
+5
+>>> # Python also offers this syntax sugar
+>>> @make_verbose # same as make_noise = make_verbose(make_noise)
+... def make_noise(noise):
+...     print(noise, "!")
+... 
+>>> make_noise("Meow")
+make_noise
+args ('Meow',)
+kwargs {}
+Meow !
+result None
+>>> 
+```
+
+```python
+>>> # You can apply multiple decorators
+... # The closer to def is used first, than the interpreter goes up
+... 
+>>> def square_it(func):
+...     def decorated_func(*args, **kwargs):
+...             result = func(*args, **kwargs)
+...             return result * 2
+...     return decorated_func
+... 
+>>> # minus = make_verbose( square_it(minus) )
+>>> @make_verbose
+... @square_it
+... def minus(a, b):
+...     return a - b
+... 
+>>> 
+>>> minus(10, 8)
+decorated_func
+args (10, 8)
+kwargs {}
+result 4
+4
+>>>
+
+>>> 
+>>> # if you invert decorator order...
+>>> # minus = square_it( make_verbose(minus) )
+... @square_it
+... @make_verbose
+... def minus(a, b):
+...     return a - b
+... 
+>>> minus(10, 8)
+minus
+args (10, 8)
+kwargs {}
+result 2
+4
+>>> 
+```
+
+## Namespaces and scope
+
+- Python program have differents scopes. The names in each one are unrelated to the others scopes.
+
+- Rules:
+    - The main part of a program define a "global" namespace;
+    - Each function defines it´s own scope, but can read global scope. To change, you to explicitly say;
+    - Each module (.py) file, has its own scope
+
+```python
+>>> # To change, be explicit
+... def increase_total():
+...     global total # i will change this global!
+...     total = total * 1.10
+... 
+>>> increase_total()
+>>> print(total)
+110.00000000000001
+>>> 
+```
+
+- You can list the defined variables in the local scope with `locals()` and in the global scope with `globals()`
+
+## Using `_` and `__` in names
+
+- Python creators define some special variables with prefix and suffix (`_` ou `__`):
+
+```python
+>>> def sum(a, b):
+...     return a + b
+... 
+>>> print(sum.__name__)
+sum
+>>> 
+>>> print(sum.__doc__)
+None
+>>>
+```
+
+- The name of the main program, for example, is assigned to `__main__`
+
+## Exceptions
+
+- If an exception error happens inside a function and is not treated, it pops up in the caller stack.
+- If the exceptio is not treated at all, Python prints it and terminates the program.
+
+```python
+>>> lst = ["a", "b", "c"]
+>>> 
+>>> index = 5
+
+# With exception
+>>> try:
+...     print(lst[index])
+... except:
+...     print("not found")
+... 
+not found
+>>> 
+
+# No exception
+>>> index = 1
+>>> try:
+...     print(lst[index])
+... except:
+...     print("not found")
+... 
+b
+>>> 
+```
+
+- You can specify the type of exceptions to be handled:
+
+```python
+>>> lst = ["a", "b", "c"]
+>>> 
+>>> index = 4
+>>> 
+>>> try:
+...     print(lst[index])
+... except IndexError, Exception:
+...     print("invalid index")
+... 
+invalid index
+>>> 
+>>> 
+```
+
+- If you want to get the exception object, use `as`:
+
+```python
+>>> try:
+...     print(lst[index])
+... except IndexError as err:
+...     print(err)
+... 
+list index out of range
+>>> 
+```
+
+- You can stack `except` clauses:
+
+```python
+>>> lst = [1, 2, 3]
+>>> while True:
+...     try:
+...             position = int( input("Which position?") ) 
+...             print(lst[position])
+...     except IndexError as ierr:
+...             print("Invalid position: ", position, ierr)
+...     except Exception as err:
+...             print("Something happened: ", err)
+... 
+Which position?1
+2
+Which position?
+Something happened:  invalid literal for int() with base 10: ''
+Which position?2
+3
+Which position?10
+Invalid position:  10 list index out of range
+Which position?xxx
+Something happened:  invalid literal for int() with base 10: 'xxx'
+Which position?
+```
+
+- Create your exception extending `Exception`
+
+```python
+>>> class SillyMathError(Exception):
+...     pass
+... 
+>>> 
+>>> def sum(a, b):
+...     if a == b:
+...             raise SillyMathError("a == b!")
+...     else:
+...             return a + b
+... 
+>>> 
+
+>>> sum(2, 3)
+5
+>>> 
+
+>>> sum(2, 2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "<stdin>", line 3, in sum
+__main__.SillyMathError: a == b!
+>>> 
+
+>>> try:
+...     print(sum(10, 10))
+... except SillyMathError as err:
+...     print("Ops!", err)
+... 
+Ops! a == b!
 ```
