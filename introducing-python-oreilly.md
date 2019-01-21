@@ -2022,3 +2022,305 @@ __main__.SillyMathError: a == b!
 ... 
 Ops! a == b!
 ```
+
+## Command line args
+
+- Command line args are save in `sys.argv`
+
+```python
+import sys
+for index, arg in enumerate(sys.argv):
+    print("sys.argv[", index, "]", "->", arg)
+```
+
+```bash
+rnetonet@T440s:~$ python3 /tmp/sample.py a b c
+sys.argv[ 0 ] -> /tmp/sample.py
+sys.argv[ 1 ] -> a
+sys.argv[ 2 ] -> b
+sys.argv[ 3 ] -> c
+```
+
+## Modules and import statements
+
+- A module is just a file of Python code
+
+- You can refer to some module using the `import` statement:
+
+```python
+# report.py
+def get_description():
+    return "Sunny"
+```
+
+```python
+# weather.py
+
+# We import all the module inside the variable/namespace report
+# Everything declared inside the module is avaible through "report."
+import report
+
+# See ? "report."
+print(report.get_description())
+```
+
+```bash
+$ python3 weather.py 
+Sunny
+```
+
+- You can import a module `as` an alias
+
+```python
+# weather.py
+# Instead of report, prefix with "rep."
+import report as rep
+
+print(rep.get_description())
+```
+
+- You can also, import only "parts" of a module to your namespace
+
+```python
+# weather.py
+
+# Import to current namespace only the function "get_description()"
+from report import get_description
+
+print(get_description())
+```
+
+- These parts can be imported with an alias also
+
+```python
+# weather.py
+
+from report import get_description as getdesc
+
+print(getdesc())
+```
+
+> Important! Python **always** executes all the module code, than proceeds with the import. So, if you have a `print` statement on the module, when it´s imported, the `print` is run.
+
+- Python looks for module in the paths listed in `sys.path`:
+
+```python
+>>> import sys
+>>> sys.path
+['', '/usr/lib/python36.zip', '/usr/lib/python3.6', '/usr/lib/python3.6/lib-dynload', '/home/rnetonet/.local/lib/python3.6/site-packages', '/usr/local/lib/python3.6/dist-packages', '/usr/lib/python3/dist-packages']
+>>> 
+```
+
+> The empty string is the current importer folder. Mind that the first match is used, so if you have a `random.py` in the importer folder, it will not be able to access the system´s `random` module.
+
+
+## Some Python - batteries included - modules
+
+- Dictionaries `.setdefault(key, default_value)` are like ``.get()`, but the inexistent key is actually set to the default value:
+
+```python
+>>> data = {"name": "John", "age": 20}
+>>> data.get("address", "Baker Street")
+'Baker Street'
+
+>>> data # The same keys
+{'name': 'John', 'age': 20}
+>>> 
+>>> data = {"name": "John", "age": 20}
+>>> data.setdefault("address", "Baker Street") # sets and returns Baker Street
+'Baker Street'
+>>> data # new key!
+{'name': 'John', 'age': 20, 'address': 'Baker Street'}
+>>> 
+
+>>> # If the key already exists, it is returned and nothing set
+... data.setdefault("name", "Paul")
+'John'
+>>> data
+{'name': 'John', 'age': 20, 'address': 'Baker Street'}
+>>> 
+```
+
+- `collections.defaultdict` is a dict with a default value for any key:
+
+```python
+>>> from collections import defaultdict
+
+# defaultdict is initialized with a callable, called anytime the key is required without being set
+# if you omit, None is used
+>>> d = defaultdict(int) 
+>>> 
+>>> d["age"]
+0
+>>> d["name"]
+0
+>>> 
+
+>>> d
+defaultdict(<class 'int'>, {'age': 0, 'name': 0})
+
+# It is still a dict, you can change values
+>>> d["name"] = 1
+>>> d["name"]
+1
+>>> d
+defaultdict(<class 'int'>, {'age': 0, 'name': 1})
+>>> 
+```
+
+- Counting with `collections.Counter`
+
+```python
+>>> from collections import Counter
+>>> 
+>>> d = ["spam", "eggs", "spam", "bacon"]
+>>> c = Counter(d)
+>>> 
+>>> c
+Counter({'spam': 2, 'eggs': 1, 'bacon': 1})
+>>> c["spam"]
+2
+>>> 
+
+>>> # Get elements in descending order using (most_common())
+... # You can also pass a int limit as argument, to get the top N
+... c.most_common()
+[('spam', 2), ('eggs', 1), ('bacon', 1)]
+>>> 
+>>> c.most_common(2)
+[('spam', 2), ('eggs', 1)]
+>>> 
+
+>>> # Counters have some operations
+... 
+>>> lst1 = ["spam", "eggs", "spam", "bacon"]
+>>> c1 = Counter(lst1)
+>>> c1
+Counter({'spam': 2, 'eggs': 1, 'bacon': 1})
+>>> 
+>>> 
+>>> lst2 = ["eggs", "spam", "bacon", "bacon"]
+>>> c2 = Counter(lst2)
+>>> c2
+Counter({'bacon': 2, 'eggs': 1, 'spam': 1})
+>>> 
+>>> c1 + c2
+Counter({'spam': 3, 'bacon': 3, 'eggs': 2})
+>>> 
+>>> c1 - c2
+Counter({'spam': 1})
+>>> 
+>>> c1 & c2
+Counter({'spam': 1, 'eggs': 1, 'bacon': 1})
+>>> 
+>>> c1 | c2
+Counter({'spam': 2, 'bacon': 2, 'eggs': 1})
+>>> 
+```
+
+- Python lists behave like a `stack` (LIFO) when you use `pop()`:
+
+```python
+>>> lst = ["John", "Paul", "Mal"]
+>>> lst.pop()
+'Mal'
+>>> 
+>>> lst
+['John', 'Paul']
+>>> 
+```
+
+- If you want a `queue` (FIFO), use `collections.deque` and `popleft()`:
+
+```python
+>>> from collections import deque
+>>> 
+>>> lst = ["John", "Paul", "Mal"]
+>>> dqu = deque(lst)
+>>> 
+>>> dqu.popleft()
+'John'
+>>> dqu
+deque(['Paul', 'Mal'])
+>>> 
+```
+
+- `itertools` is a magic module to work with iterable objects:
+
+```python
+# Iterate over multiple sequences, chaining them
+>>> for item in itertools.chain(["john", "jack"], [10, 22]):
+...     print(item)
+... 
+john
+jack
+10
+22
+```
+
+```python
+# Cycle forever over an iterable
+>>> for item in itertools.cycle(["red", "blue"]):
+...     print(item)
+red
+blue
+red
+blue
+red
+blue
+red
+blue
+red
+blue
+red
+blue
+red
+...
+```
+
+```python
+>>> # You can also go accumulating the values of the iterator
+... for intermediary_sum in itertools.accumulate([1, 2, 3, 4, 5, 6]):
+...     print(intermediary_sum)
+... 
+1
+3
+6
+10
+15
+21
+>>> 
+```
+
+```python
+>>> # accumulate takes a function(a, b) as second param
+... # if you want a multiplication accumulation instead of the default sum:
+... for inter in itertools.accumulate([1, 2, 3, 4, 5], lambda a, b: a * b):
+...     print(inter)
+... 
+1
+2
+6
+24
+120
+>>> 
+```
+
+- Pretty Print with `pprint.pprint()`
+
+```python
+>>> # Pretty Printer with pprint
+... 
+>>> from pprint import pprint
+>>> 
+>>> d = {"name": "John", "age": 34, "address": "Baker Street", "nickname": "John Carlson Travolta"}
+
+# See ? The output looks nicer
+>>> pprint(d)
+{'address': 'Baker Street',
+ 'age': 34,
+ 'name': 'John',
+ 'nickname': 'John Carlson Travolta'}
+>>> 
+```
+
