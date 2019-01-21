@@ -2324,3 +2324,174 @@ red
 >>> 
 ```
 
+# Objects and Classes
+
+- A very simple example
+
+```python
+>>> class Person:
+...     def __init__(self, name):
+                # Inside the class, refer with "self.variable"
+                # "self" means "the current object"
+...             self.name = name
+... 
+>>> 
+>>> someone = Person("John!") # self = created Person object, name = "John"
+
+# outside, refer using the object reference name
+>>> someone.name
+'John!'
+>>> 
+```
+
+# Inheritance
+
+- A first simple example:
+
+```python
+>>> class Car:
+...     def exclaim(self):
+...             print("I am a car!")
+... 
+>>> class Yugo(Car):
+...     pass
+... 
+>>> 
+>>> simple_car = Car()
+>>> yugo = Yugo()
+>>> 
+>>> simple_car.exclaim()
+I am a car!
+
+# Yugo Inherited the method!
+>>> yugo.exclaim()
+I am a car!
+
+# Remember! An Yugo is a Car!
+>>> isinstance(yugo, Car)
+True
+>>> isinstance(yugo, Yugo)
+True
+
+# But a Car is not an Yugo
+>>> isinstance(simple_car, Yugo)
+False
+>>> 
+```
+
+- Inheritance might require you to override some methods:
+
+```python
+>>> class Yugo(Car):
+...     def exclaim(self):
+...             print("I am an Yugo")
+... 
+
+>>> new_yugo = Yugo()
+>>> new_yugo.exclaim()
+I am an Yugo
+>>> 
+```
+
+- Besides overriding, you can add specific methods to subclasses
+
+```python
+>>> class Yugo(Car):
+...     def exclaim(self):
+...             print("I am an Yugo")
+... 
+>>> class Yugo(Car):
+...     def exclaim(self):
+...             print("I am an Yugo")
+...     def need_a_push(self):
+...             return True
+... 
+>>> 
+>>> y = Yugo()
+>>> y.exclaim()
+I am an Yugo
+
+# Only Yugos have this method
+>>> print( y.need_a_push() )
+True
+>>> 
+```
+
+- Leveraging the super class implementation with `super()`
+
+```python
+# When you override, the superclass method is not called anymore
+>>> class Person:
+...     def __init__(self, name):
+...             self.name = name
+... 
+>>> 
+
+# You can call it explicitly specifying the class
+>>> class EmailPerson(Person):
+...     def __init__(self, name, email):
+...             Person.__init__(self, name)
+...             self.email = email
+... 
+>>> 
+>>> jack = EmailPerson("Jack", "jack@hotmail.com")
+>>> print(jack.name)
+Jack
+>>> print(jack.email)
+jack@hotmail.com
+>>>
+
+# But you can use "super()" to implictly refer to the superclass
+>>> class EmailPerson(Person):
+...     def __init__(self, name, email):
+                # super() returns the "inside" Person object of the current (EmailPerson) object, so, no need to pass self
+                # methods called in this object, will use the Person implementation
+...             super().__init__(name)
+...             self.email = email
+... 
+>>> 
+>>> emailperson = EmailPerson("John", "john@gmail.com")
+>>> emailperson.name
+'John'
+>>> emailperson.email
+'john@gmail.com'
+>>> 
+```
+
+- Getters and Setters using properties
+
+```python
+>>> class Person:
+...     def __init__(self, n):
+...         self.name = n
+...     
+...     def get_name(self):
+...         return self._name
+...     
+...     def set_name(self, n):
+            # the getter uppercases the name
+...         self._name = n.upper()
+...     
+...     name = property(get_name, set_name)
+... 
+>>> p = Person("jack")
+>>> p.name
+'JACK'
+>>> 
+
+>>> # get_name is accessible
+... p.get_name()
+'JACK'
+>>> 
+>>> # so is set_name
+... p.set_name("paul")
+>>> p.name
+'PAUL'
+>>> 
+```
+
+- Setting properties with decorators
+
+```python
+
+```
