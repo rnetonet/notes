@@ -2490,8 +2490,283 @@ jack@hotmail.com
 >>> 
 ```
 
-- Setting properties with decorators
+- Setting properties with decorators (`@property` comes first)
 
 ```python
-
+>>> # When you use decorators, you loose direct access to the methods
+... class NetworkItem:
+...     def __init__(self, ip):
+...         self.ip = ip
+...     
+...     @property
+...     def ip(self):
+...         return self._ip
+...     
+...     # property.setter
+...     @ip.setter
+...     def ip(self, ip):
+...         self._ip = ip.strip() # remove any space
+... 
+>>> n = NetworkItem(" 1.2.3.4 ")
+>>> n.ip
+'1.2.3.4'
+>>> n.ip = " 10.20.11.2"
+>>> n.ip
+'10.20.11.2'
+>>>
 ```
+
+- Remember, properties can be computed values also:
+
+```python
+>>> class Circle:
+...     def __init__(self, radius):
+...         self.radius = radius
+...     
+...     @property
+...     def diameter(self):
+...         return self.radius * 2
+... 
+>>> c = Circle(2.3)
+>>> c.radius
+2.3
+>>> 
+>>> c.diameter
+4.6
+>>> c.radius = 3
+>>> c.diameter
+6
+>>> 
+```
+
+## Name Mangling
+
+- Python has no `private`, `protected` accessors
+
+- Prefixing your class or instance variables with two underscores `__` make their name mangled to the outside:
+
+```python
+class Person:
+    __name = None
+
+    def __init__(self, name):
+        self.__name = name
+
+if __name__ == "__main__":
+    p = Person("Jack!")
+
+    print(p._Person__name) # Mangled name still accessible
+    print(p.__name) # Error: AttributeError: 'Person' object has no attribute '__name'
+```
+
+```bash
+$ python3 sample.py 
+Jack!
+Traceback (most recent call last):
+  File "sample.py", line 11, in <module>
+    print(p.__name) # Error: AttributeError: 'Person' object has no attribute '__name'
+AttributeError: 'Person' object has no attribute '__name'
+rnetonet@T440s:/tmp$ 
+```
+
+> Name mangling is useful to avoid the variable being overriden in subclasses
+
+> The programmer, the original code, dosent have to worry about the mangled name. So, in the code, you can always refer to `__var`...
+
+## Method Types
+
+- Python has instance methods (that receive `self`) and classmethods, that receive the `class`.
+
+- Let´s see an example of a class that keeps tabs on its created instances:
+
+```python
+class Example:
+    total = 0
+    kids = []
+
+    def __init__(self):
+        Example.total += 1
+        Example.kids.append(self)
+    
+    @classmethod
+    def list_kids(cls):
+        for kid in cls.kids:
+            print(kid)
+
+if __name__ == "__main__":
+    a = Example()
+    b = Example()
+    c = Example()
+    
+    # Calling the class method from the class
+    Example.list_kids()
+
+    # Calling from some of the objects
+    # Works too!
+    a.list_kids()
+```
+
+- Python also have static methods, that are methods that do not affect the instance or the class. 
+They just share the class namespace for convenience:
+
+```python
+>>> class Math:
+...     @staticmethod
+...     def sum(a, b): # no self or cls is passed
+...             return a + b
+... 
+>>> 
+
+>>> Math.sum(10, 20) # you dont need to instatiate the Math class to use
+30
+>>> 
+```
+
+## Duck Typing
+
+- Python dosen´t check the type, since the method is avaiable, it is, the interface is implemented
+
+```python
+class Animal:
+    def __init__(self, name, sound):
+        self.name = name
+        self.sound = sound
+    
+    def noise(self):
+        pass
+
+class Dog(Animal):
+    # __init__ is not overriden, so Python automatically calls
+    # Animal.__init__...
+
+    def noise(self):
+        print(self.sound + " !")
+
+class Cat(Animal):
+    # Again, __init__ is not overriden
+
+    def noise(self):
+        print(self.sound + "...")
+
+
+good_dog = Dog("Good", "Bark")
+pretty_cat = Cat("Mewtwo", "Meow")
+
+house_animals = [good_dog, pretty_cat]
+
+for animal in house_animals:
+    # Duck Typing
+    # Python dosen´t care about the type, since the interface is avaiable
+    animal.noise()
+```
+
+```bash
+$ /usr/bin/python3 /tmp/sample.py
+Bark !
+Meow...
+```
+
+## Python Magic Methods
+
+- Magic Methods performe some operations that have specific syntax (`==`, `=`, `<`, `>=`, etc...)
+- They star and end with two underscores, like `__init__`
+
+```python
+# Word that are case insensitive for comparisons
+class Word:
+    def __init__(self, word):
+        self.word = word
+    
+    def __eq__(self, value):
+        # Case insensitive comparasion
+        return self.word.lower() == value.word.lower()
+
+print( Word("Aha") == Word("aHA") )
+```
+
+```bash
+$ /usr/bin/python3 /tmp/sample.py
+True
+```
+
+- The two most used special methods are `__init__` and `__str__`, the second the way to print (`print(obj)`, `str(obj)`...) the object:
+
+```python
+class Word:
+    def __init__(self, word):
+        self.word = word
+    
+    def __str__(self):
+        return f"Word('{self.word.lower()}')"
+
+print( Word("Aha") )
+```
+
+```bash
+$ /usr/bin/python3 /tmp/sample.py
+Word('aha')
+```
+
+- Another method is the `__repr__` used for object representation in the prompt:
+
+```python
+>>> class Word:
+...     def __init__(self, word):
+...         self.word = word
+...     
+...     def __repr__(self):
+...         return f"Word({self.word})[{id(self)}]"
+... 
+>>> Word("Test!")
+Word(Test!)[140579768199656]
+>>> 
+```
+
+## Composition
+
+- Prefer composition over inheritance
+
+
+
+## Objects / Classes x Modules
+
+- Modules are singletons (only one loaded per process)
+
+- Module don´t support inheritance
+
+- Keep data structures simple. Prefer to use tuples, lists, dicts...
+
+## Named Tuple
+
+- Subclass of tuples which elements are accessible by key `[offset]` or `.key`:
+
+```python
+# Creating
+>>> Duck = namedtuple("Duck", "name tail") # "Class" name and fields
+>>> 
+>>> d1 = Duck("john", 21)
+>>> d1
+Duck(name='john', tail=21)
+>>> 
+>>> d1.name
+'john'
+>>> d1.tail
+21
+>>> d1[0]
+'john'
+>>> 
+```
+
+- Creating a `namedtuple` from a `dict`:
+
+```python
+>>> Person = namedtuple("Person", "name age")
+>>> 
+>>> d = {"name": "John", "age": 23}
+>>> 
+>>> p = Person(**d)
+>>> p
+Person(name='John', age=23)
+>>> 
+```
+
