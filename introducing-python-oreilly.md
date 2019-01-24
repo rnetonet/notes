@@ -2,15 +2,15 @@
 
 ## Numbers, Strings, Booleans and Variables
 
-- `int('98.3')` triggers an exception
-- Python promotes types to the biggest precision:
+`int('98.3')` triggers an exception
+Python promotes types to the biggest precision:
 
 ```python
 >>> 2 + 4.5
 6.5
 ```
 
-- Two division operatores: `/` float division, `//` integer division (truncates):
+Two division operatores: `/` float division, `//` integer division (truncates):
 
 ```python
 >>> 10 / 3
@@ -20,14 +20,14 @@
 >>> 
 ```
 
-- `divmod(num, div)` returns the result and "rest" of the division
+`divmod(num, div)` returns the result and "rest" of the division
 
 ```python
 >>> divmod(11, 2)
 (5, 1)
 ```
 
-- Math operations with variables can be shortened:
+Math operations with variables can be shortened:
 
 ```python
 >>> a = 10
@@ -41,7 +41,7 @@
 >>> 
 ```
 
-- You can convert between types (`int`, `float` and `str`) using the types as functions:
+You can convert between types (`int`, `float` and `str`) using the types as functions:
 
 ```python
 >>> int(10.2)
@@ -70,7 +70,7 @@ ValueError: invalid literal for int() with base 10: '10.2'
 >>> 
 ```
 
-- Strings are sequences and immutables
+Strings are sequences and immutables
 
 ```python
 >>> s = "Hello World!"
@@ -98,7 +98,7 @@ TypeError: 'str' object does not support item assignment
 >>> 
 ```
 
-- Multiples ways to create strings:
+Multiples ways to create strings:
 
 ```python
 >>> a = 'single'
@@ -118,7 +118,7 @@ TypeError: 'str' object does not support item assignment
 >>> 
 ```
 
-- Empty strings
+Empty strings
 
 ```python
 # Each step creates a new string object and points "s" variable to it
@@ -133,7 +133,7 @@ TypeError: 'str' object does not support item assignment
 >>> 
 ```
 
-- Escapes are interpreted in single quotes and double quotes, except for raw strings:
+Escapes are interpreted in single quotes and double quotes, except for raw strings:
 
 ```python
 >>> a = 'Hello\nWorld'
@@ -151,7 +151,7 @@ Hello\nWorld
 >>> 
 ```
 
-- More escapes:
+More escapes:
 
 ```python
 >>> print("Others \' \" \t escapes \\ ok!")
@@ -159,7 +159,7 @@ Others ' "       escapes \ ok!
 >>> 
 ```
 
-- Concatenating strings
+Concatenating strings
 
 ```python
 # Prefered way
@@ -198,7 +198,7 @@ Others ' "       escapes \ ok!
 'l'
 ```
 
-- Caution with string limits
+Caution with string limits
 
 ```python
 >>> s[23]
@@ -207,7 +207,7 @@ Traceback (most recent call last):
 IndexError: string index out of range
 ```
 
-- How to change, if immutable
+How to change, if immutable
 
 ```python
 >>> s = "Jon"
@@ -224,7 +224,7 @@ IndexError: string index out of range
 >>> 
 ```
 
-- Slices
+Slices
 
 ```python
 >>> s = "Hello World"
@@ -267,7 +267,7 @@ IndexError: string index out of range
 >>> 
 ```
 
-- Length, Split and Join
+Length, Split and Join
 
 ```python
 # Length
@@ -292,7 +292,7 @@ IndexError: string index out of range
 >>> 
 ```
 
-- More methods
+More methods
 
 ```python
 >>> quote = "To be, or not to be"
@@ -316,7 +316,7 @@ True
 >>> quote.isalnum() # all letters and numbers ?
 ```
 
-- Replace
+Replace
 
 ```python
 >>> s = "Hello World"
@@ -336,7 +336,7 @@ True
 
 ## Lists, Tuples, Dicts and Sets
 
-- Creating
+Creating
 
 ```python
 >>> # Creating lists
@@ -353,7 +353,7 @@ True
 >>> weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri"]
 ```
 
-- Convert to list using `list()`
+Convert to list using `list()`
 
 ```python
 >>> list("dog") # string to list
@@ -364,7 +364,7 @@ True
 >>> 
 ```
 
-- Getting by index and slicing
+Getting by index and slicing
 
 ```python
 >>> names = ["John", "Jack", "Jill"]
@@ -378,7 +378,7 @@ True
 >>> 
 ```
 
-- Nested lists
+Nested lists
 
 ```python
 >>> matrix = [
@@ -394,7 +394,7 @@ True
 >>> 
 ```
 
-- Support for different types
+Support for different types
 
 ```python
 >>> # Lists support any type
@@ -410,7 +410,7 @@ True
 >>> 
 ```
 
-- Mutable
+Mutable
 
 ```python
 >>> l = [1, 2, 3]
@@ -421,7 +421,7 @@ True
 >>> 
 ```
 
-- Ways to grow
+Ways to grow
 
 ```python
 >>> l = [1, 2, 3]
@@ -451,7 +451,7 @@ True
 >>> 
 ```
 
-- More list methods and operations
+More list methods and operations
 
 ```python
 >>> l = ['a', 'b', 'c']
@@ -575,7 +575,7 @@ TypeError: '<' not supported between instances of 'str' and 'int'
 >>> 
 ```
 
-- Mutable objects, when changed, affect all references (variables) pointing to it
+Mutable objects, when changed, affect all references (variables) pointing to it
 
 ```python
 >>> lst = ['a', 'b', 'c']
@@ -596,7 +596,7 @@ TypeError: '<' not supported between instances of 'str' and 'int'
 >>> 
 ```
 
-- But, how can i copy another object to apply changes ?
+But, how can i copy another object to apply changes ?
 
 ```python
 >>> orig = ['a', 'b', 'c']
@@ -625,7 +625,7 @@ TypeError: '<' not supported between instances of 'str' and 'int'
 
 ## Tuples
 
-- Constant (immutable) lists
+Constant (immutable) lists
 
 ```python
 # Empty tuple
@@ -666,8 +666,8 @@ TypeError: '<' not supported between instances of 'str' and 'int'
 
 ## Dictionaries
 
-- Key -> value
-- Key can be any immutable object (string, tuple, set, etc)
+Key -> value
+Key can be any immutable object (string, tuple, set, etc)
 
 ```python
 (1, 2, 3)
@@ -831,11 +831,11 @@ dict_keys(['red', 'yellow', 'green'])
 
 ## Sets
 
-- Dicts, without values.
+Dicts, without values.
 
-- Keys must be unique, as in dicts
+Keys must be unique, as in dicts
 
-- Works when you deal with existence only, no values considered
+Works when you deal with existence only, no values considered
 
 ```python
 >>> # Creating a set
@@ -865,7 +865,7 @@ dict_keys(['red', 'yellow', 'green'])
 True
 ```
 
-- Set operations
+Set operations
 
 ```python
 # Intersection (what is in both)
@@ -950,7 +950,7 @@ True
 
 ## Code Structures
 
-- Comments
+Comments
 
 ```python
 >>> # Comment, ignored
@@ -959,7 +959,7 @@ Hello world
 >>> 
 ```
 
-- Therei no multiline comment:
+Therei no multiline comment:
 
 ```python
 >>> # There is
@@ -968,7 +968,7 @@ Hello world
 ... 
 ```
 
-- You cant comment inside strings, its just a # char:
+You cant comment inside strings, its just a # char:
 
 ```python
 >>> print("Hello # World")
@@ -976,7 +976,7 @@ Hello # World
 >>> 
 ```
 
-- Breaking long lines with `\`:
+Breaking long lines with `\`:
 
 ```python
 >>> text = "Roses are red \
@@ -986,7 +986,7 @@ Roses are red Violets are blue
 >>> 
 ```
 
-- You can break math expressions too:
+You can break math expressions too:
 
 ```python
 >>> 10 + 2 \
@@ -996,7 +996,7 @@ Roses are red Violets are blue
 >>> 
 ```
 
-- Compare, using `if`, `elif` and `else`:
+Compare, using `if`, `elif` and `else`:
 
 ```python
 >>> debug = True
@@ -1009,7 +1009,7 @@ I am doing...
 >>> 
 ```
 
-- Using `elif`:
+Using `elif`:
 
 ```python
 >>> number = 2
@@ -1024,7 +1024,7 @@ Second
 >>> 
 ```
 
-- Comparison operators:
+Comparison operators:
 
 ```python
 >>> 10 == 10
@@ -1048,7 +1048,7 @@ True
 True
 ```
 
-- Boolean Operators (combine comparisons):
+Boolean Operators (combine comparisons):
 
 ```python
 # The comparisons expressions are evaluated before the combiner (and)
@@ -1076,7 +1076,7 @@ True
 >>> 
 ```
 
-- What Python considers `False`:
+What Python considers `False`:
 
 ```python
 # False is zero and everything empty
@@ -1103,7 +1103,7 @@ False
 
 ```
 
-- **Everything** else is `True`:
+**Everything** else is `True`:
 
 ```python
 >>> bool(1)
@@ -1116,7 +1116,7 @@ True
 True
 ```
 
-- `while`
+`while`
 
 ```python
 >>> counter = 10
@@ -1137,7 +1137,7 @@ True
 >>> 
 ```
 
-- Exit early from a loop using `break`
+Exit early from a loop using `break`
 
 ```python
 >>> while True:
@@ -1156,7 +1156,7 @@ q
 >>> 
 ```
 
-- Hurry to the next iteration of the loop using `continue`
+Hurry to the next iteration of the loop using `continue`
 
 ```python
 >>> counter = 0
@@ -1175,7 +1175,7 @@ q
 >>> 
 ```
 
-- Check for break usage with `else` (if no `break` is used, `else` block is called):
+Check for break usage with `else` (if no `break` is used, `else` block is called):
 
 ```python
 >>> counter = 0
@@ -1190,7 +1190,7 @@ No break executed!
 >>> 
 ```
 
-- `for` (consume iterators)
+`for` (consume iterators)
 
 ```python
 # Iterate over lists, tuples or sets
@@ -1243,7 +1243,7 @@ age -> 40
 >>>
 ```
 
-- `for` also supports `break`, `continue` and `else` (the no-break-clause).
+`for` also supports `break`, `continue` and `else` (the no-break-clause).
 
 ```python
 >>> colors = ["red", "blue", "green", "orange"]
@@ -1257,7 +1257,7 @@ Oh, no purple
 >>>
 ```
 
-- Use `zip()` to iterate over different sequences at the same time, bounds begin the smaller one:
+Use `zip()` to iterate over different sequences at the same time, bounds begin the smaller one:
 
 
 
@@ -1274,7 +1274,7 @@ John -> 32
 >>> 
 ```
 
-- You can, also, use `zip()` to convert two list into a list of tuples or in a dict:
+You can, also, use `zip()` to convert two list into a list of tuples or in a dict:
 
 ```python
 >>> a = ["name", "age", "color"]
@@ -1288,7 +1288,7 @@ John -> 32
 >>> 
 ```
 
-- Create sequences of numbers using `range()` 
+Create sequences of numbers using `range()` 
 
 ```python
 >>> # range(start, stop, step)
@@ -1332,7 +1332,7 @@ John -> 32
 
 ## Comprehensions
 
-- A Pythonic and terse way to create complex Python objects from iterable objects
+A Pythonic and terse way to create complex Python objects from iterable objects
 
 ```python
 >>> # A very simple number list comprehension
@@ -1511,9 +1511,9 @@ True
 >>> 
 ```
 
-- If the function call mixes positional and keyword arguments, the positional should come first.
+If the function call mixes positional and keyword arguments, the positional should come first.
 
-- Caution: default values for arguments are created during definition, not during call. So avoid the use of mutable objects as defaults!
+Caution: default values for arguments are created during definition, not during call. So avoid the use of mutable objects as defaults!
 
 ```python
 >>> def buggy(arg, result=[]):
@@ -1527,7 +1527,7 @@ True
 >>> 
 ```
 
-- To avoid that, many programmers use `None` to indicate the first call:
+To avoid that, many programmers use `None` to indicate the first call:
 
 ```python
 >>> def correct(arg, result=None):
@@ -1543,7 +1543,7 @@ True
 >>> 
 ```
 
-- If you want to gather multiple positional arguments into a single tuple, use: `*args`:
+If you want to gather multiple positional arguments into a single tuple, use: `*args`:
 
 ```python
 >>> def itemize(*args):
@@ -1560,7 +1560,7 @@ True
 >>> 
 ```
 
-- If you want to require some positional arguments and gather the rest as a tuple:
+If you want to require some positional arguments and gather the rest as a tuple:
 
 ```python
 >>> def itemize_with_header(token, *args):
@@ -1569,9 +1569,9 @@ True
 ... 
 >>> 
 >>> itemize_with_header("-", 1, 2, 3)
-- 1
-- 2
-- 3
+1
+2
+3
 >>> 
 >>> itemize_with_header() # error
 Traceback (most recent call last):
@@ -1580,7 +1580,7 @@ TypeError: itemize_with_header() missing 1 required positional argument: 'token'
 >>> 
 ```
 
-- But if you want to gather keyword args into a dict, use `**kwargs`
+But if you want to gather keyword args into a dict, use `**kwargs`
 
 ```python
 >>> def pkwargs(**kwargs):
@@ -1594,7 +1594,7 @@ c = 10
 >>> 
 ```
 
-- If you mix `*args` and `**kwargs`, `*args` should come before `**kwargs`:
+If you mix `*args` and `**kwargs`, `*args` should come before `**kwargs`:
 
 ```python
 >>> def pargs(token, *args, **kwargs): # positional args, *args, **kwargs
@@ -1614,7 +1614,7 @@ c = 10
 >>> 
 ```
 
-- Document function with docstrings:
+Document function with docstrings:
 
 ```python
 >>> def sum(a, b):
@@ -1632,7 +1632,7 @@ sum(a, b)
 (END)
 ```
 
-- Function are first class citizen (objects!), so you can pass them to other function, return it, set attributes:
+Function are first class citizen (objects!), so you can pass them to other function, return it, set attributes:
 
 ```python
 >>> def quack():
@@ -1650,9 +1650,9 @@ Quack!
 >>> 
 ```
 
-- Function objects can be used as elements of lists, tuples, etc. Can even be dictionarie keys.
+Function objects can be used as elements of lists, tuples, etc. Can even be dictionarie keys.
 
-- Inner functions:
+Inner functions:
 
 ```python
 >>> def sum_with_increment(inc):
@@ -1694,7 +1694,7 @@ Quack!
 >>>
 ```
 
-- `Closures` are inner function that remember and have access to the data (arguments and defined variables) of the outer function:
+`Closures` are inner function that remember and have access to the data (arguments and defined variables) of the outer function:
 
 ```python
 >>> def incrementer(step):
@@ -1730,7 +1730,7 @@ Quack!
 >>> 
 ```
 
-- `lambda` functions are single statements function that don´t have a name (anonymous)
+`lambda` functions are single statements function that don´t have a name (anonymous)
 
 ```python
 >>> words = ["spam", "eggs", "bacon"]
@@ -1746,7 +1746,7 @@ Bacon
 >>> 
 ```
 
-- `generator` are a special kind of functions that generate data on demand.
+`generator` are a special kind of functions that generate data on demand.
 These functions make some processing, return some data and holds their execution. 
 In their next call, they remember where they were (statewise) and continue execution:
 
@@ -1780,7 +1780,7 @@ In their next call, they remember where they were (statewise) and continue execu
 
 ## Decorators
 
-- A decorator is a function that receives a function as argument, enhances it with some behavior and returns this enhanced function, overwriting the prior.
+A decorator is a function that receives a function as argument, enhances it with some behavior and returns this enhanced function, overwriting the prior.
 
 ```python
 >>> def make_verbose(function):                                                 
@@ -1865,9 +1865,9 @@ result 2
 
 ## Namespaces and scope
 
-- Python program have differents scopes. The names in each one are unrelated to the others scopes.
+Python program have differents scopes. The names in each one are unrelated to the others scopes.
 
-- Rules:
+Rules:
     - The main part of a program define a "global" namespace;
     - Each function defines it´s own scope, but can read global scope. To change, you to explicitly say;
     - Each module (.py) file, has its own scope
@@ -1884,11 +1884,11 @@ result 2
 >>> 
 ```
 
-- You can list the defined variables in the local scope with `locals()` and in the global scope with `globals()`
+You can list the defined variables in the local scope with `locals()` and in the global scope with `globals()`
 
 ## Using `_` and `__` in names
 
-- Python creators define some special variables with prefix and suffix (`_` ou `__`):
+Python creators define some special variables with prefix and suffix (`_` ou `__`):
 
 ```python
 >>> def sum(a, b):
@@ -1902,12 +1902,12 @@ None
 >>>
 ```
 
-- The name of the main program, for example, is assigned to `__main__`
+The name of the main program, for example, is assigned to `__main__`
 
 ## Exceptions
 
-- If an exception error happens inside a function and is not treated, it pops up in the caller stack.
-- If the exceptio is not treated at all, Python prints it and terminates the program.
+If an exception error happens inside a function and is not treated, it pops up in the caller stack.
+If the exceptio is not treated at all, Python prints it and terminates the program.
 
 ```python
 >>> lst = ["a", "b", "c"]
@@ -1934,7 +1934,7 @@ b
 >>> 
 ```
 
-- You can specify the type of exceptions to be handled:
+You can specify the type of exceptions to be handled:
 
 ```python
 >>> lst = ["a", "b", "c"]
@@ -1951,7 +1951,7 @@ invalid index
 >>> 
 ```
 
-- If you want to get the exception object, use `as`:
+If you want to get the exception object, use `as`:
 
 ```python
 >>> try:
@@ -1963,7 +1963,7 @@ list index out of range
 >>> 
 ```
 
-- You can stack `except` clauses:
+You can stack `except` clauses:
 
 ```python
 >>> lst = [1, 2, 3]
@@ -1989,7 +1989,7 @@ Something happened:  invalid literal for int() with base 10: 'xxx'
 Which position?
 ```
 
-- Create your exception extending `Exception`
+Create your exception extending `Exception`
 
 ```python
 >>> class SillyMathError(Exception):
@@ -2025,7 +2025,7 @@ Ops! a == b!
 
 ## Command line args
 
-- Command line args are save in `sys.argv`
+Command line args are save in `sys.argv`
 
 ```python
 import sys
@@ -2043,9 +2043,9 @@ sys.argv[ 3 ] -> c
 
 ## Modules and import statements
 
-- A module is just a file of Python code
+A module is just a file of Python code
 
-- You can refer to some module using the `import` statement:
+You can refer to some module using the `import` statement:
 
 ```python
 # report.py
@@ -2069,7 +2069,7 @@ $ python3 weather.py
 Sunny
 ```
 
-- You can import a module `as` an alias
+You can import a module `as` an alias
 
 ```python
 # weather.py
@@ -2079,7 +2079,7 @@ import report as rep
 print(rep.get_description())
 ```
 
-- You can also, import only "parts" of a module to your namespace
+You can also, import only "parts" of a module to your namespace
 
 ```python
 # weather.py
@@ -2090,7 +2090,7 @@ from report import get_description
 print(get_description())
 ```
 
-- These parts can be imported with an alias also
+These parts can be imported with an alias also
 
 ```python
 # weather.py
@@ -2102,7 +2102,7 @@ print(getdesc())
 
 > Important! Python **always** executes all the module code, than proceeds with the import. So, if you have a `print` statement on the module, when it´s imported, the `print` is run.
 
-- Python looks for module in the paths listed in `sys.path`:
+Python looks for module in the paths listed in `sys.path`:
 
 ```python
 >>> import sys
@@ -2116,7 +2116,7 @@ print(getdesc())
 
 ## Some Python - batteries included - modules
 
-- Dictionaries `.setdefault(key, default_value)` are like ``.get()`, but the inexistent key is actually set to the default value:
+Dictionaries `.setdefault(key, default_value)` are like ``.get()`, but the inexistent key is actually set to the default value:
 
 ```python
 >>> data = {"name": "John", "age": 20}
@@ -2141,7 +2141,7 @@ print(getdesc())
 >>> 
 ```
 
-- `collections.defaultdict` is a dict with a default value for any key:
+`collections.defaultdict` is a dict with a default value for any key:
 
 ```python
 >>> from collections import defaultdict
@@ -2168,7 +2168,7 @@ defaultdict(<class 'int'>, {'age': 0, 'name': 1})
 >>> 
 ```
 
-- Counting with `collections.Counter`
+Counting with `collections.Counter`
 
 ```python
 >>> from collections import Counter
@@ -2218,7 +2218,7 @@ Counter({'spam': 2, 'bacon': 2, 'eggs': 1})
 >>> 
 ```
 
-- Python lists behave like a `stack` (LIFO) when you use `pop()`:
+Python lists behave like a `stack` (LIFO) when you use `pop()`:
 
 ```python
 >>> lst = ["John", "Paul", "Mal"]
@@ -2230,7 +2230,7 @@ Counter({'spam': 2, 'bacon': 2, 'eggs': 1})
 >>> 
 ```
 
-- If you want a `queue` (FIFO), use `collections.deque` and `popleft()`:
+If you want a `queue` (FIFO), use `collections.deque` and `popleft()`:
 
 ```python
 >>> from collections import deque
@@ -2245,7 +2245,7 @@ deque(['Paul', 'Mal'])
 >>> 
 ```
 
-- `itertools` is a magic module to work with iterable objects:
+`itertools` is a magic module to work with iterable objects:
 
 ```python
 # Iterate over multiple sequences, chaining them
@@ -2306,7 +2306,7 @@ red
 >>> 
 ```
 
-- Pretty Print with `pprint.pprint()`
+Pretty Print with `pprint.pprint()`
 
 ```python
 >>> # Pretty Printer with pprint
@@ -2326,7 +2326,7 @@ red
 
 # Objects and Classes
 
-- A very simple example
+A very simple example
 
 ```python
 >>> class Person:
@@ -2346,7 +2346,7 @@ red
 
 # Inheritance
 
-- A first simple example:
+A first simple example:
 
 ```python
 >>> class Car:
@@ -2379,7 +2379,7 @@ False
 >>> 
 ```
 
-- Inheritance might require you to override some methods:
+Inheritance might require you to override some methods:
 
 ```python
 >>> class Yugo(Car):
@@ -2393,7 +2393,7 @@ I am an Yugo
 >>> 
 ```
 
-- Besides overriding, you can add specific methods to subclasses
+Besides overriding, you can add specific methods to subclasses
 
 ```python
 >>> class Yugo(Car):
@@ -2417,7 +2417,7 @@ True
 >>> 
 ```
 
-- Leveraging the super class implementation with `super()`
+Leveraging the super class implementation with `super()`
 
 ```python
 # When you override, the superclass method is not called anymore
@@ -2458,7 +2458,7 @@ jack@hotmail.com
 >>> 
 ```
 
-- Getters and Setters using properties
+Getters and Setters using properties
 
 ```python
 >>> class Person:
@@ -2490,7 +2490,7 @@ jack@hotmail.com
 >>> 
 ```
 
-- Setting properties with decorators (`@property` comes first)
+Setting properties with decorators (`@property` comes first)
 
 ```python
 >>> # When you use decorators, you loose direct access to the methods
@@ -2516,7 +2516,7 @@ jack@hotmail.com
 >>>
 ```
 
-- Remember, properties can be computed values also:
+Remember, properties can be computed values also:
 
 ```python
 >>> class Circle:
@@ -2541,9 +2541,9 @@ jack@hotmail.com
 
 ## Name Mangling
 
-- Python has no `private`, `protected` accessors
+Python has no `private`, `protected` accessors
 
-- Prefixing your class or instance variables with two underscores `__` make their name mangled to the outside:
+Prefixing your class or instance variables with two underscores `__` make their name mangled to the outside:
 
 ```python
 class Person:
@@ -2575,9 +2575,9 @@ rnetonet@T440s:/tmp$
 
 ## Method Types
 
-- Python has instance methods (that receive `self`) and classmethods, that receive the `class`.
+Python has instance methods (that receive `self`) and classmethods, that receive the `class`.
 
-- Let´s see an example of a class that keeps tabs on its created instances:
+Let´s see an example of a class that keeps tabs on its created instances:
 
 ```python
 class Example:
@@ -2606,7 +2606,7 @@ if __name__ == "__main__":
     a.list_kids()
 ```
 
-- Python also have static methods, that are methods that do not affect the instance or the class. 
+Python also have static methods, that are methods that do not affect the instance or the class. 
 They just share the class namespace for convenience:
 
 ```python
@@ -2624,7 +2624,7 @@ They just share the class namespace for convenience:
 
 ## Duck Typing
 
-- Python dosen´t check the type, since the method is avaiable, it is, the interface is implemented
+Python dosen´t check the type, since the method is avaiable, it is, the interface is implemented
 
 ```python
 class Animal:
@@ -2668,8 +2668,8 @@ Meow...
 
 ## Python Magic Methods
 
-- Magic Methods performe some operations that have specific syntax (`==`, `=`, `<`, `>=`, etc...)
-- They star and end with two underscores, like `__init__`
+Magic Methods performe some operations that have specific syntax (`==`, `=`, `<`, `>=`, etc...)
+They star and end with two underscores, like `__init__`
 
 ```python
 # Word that are case insensitive for comparisons
@@ -2689,7 +2689,7 @@ $ /usr/bin/python3 /tmp/sample.py
 True
 ```
 
-- The two most used special methods are `__init__` and `__str__`, the second the way to print (`print(obj)`, `str(obj)`...) the object:
+The two most used special methods are `__init__` and `__str__`, the second the way to print (`print(obj)`, `str(obj)`...) the object:
 
 ```python
 class Word:
@@ -2707,7 +2707,7 @@ $ /usr/bin/python3 /tmp/sample.py
 Word('aha')
 ```
 
-- Another method is the `__repr__` used for object representation in the prompt:
+Another method is the `__repr__` used for object representation in the prompt:
 
 ```python
 >>> class Word:
@@ -2724,21 +2724,21 @@ Word(Test!)[140579768199656]
 
 ## Composition
 
-- Prefer composition over inheritance
+Prefer composition over inheritance
 
 
 
 ## Objects / Classes x Modules
 
-- Modules are singletons (only one loaded per process)
+Modules are singletons (only one loaded per process)
 
-- Module don´t support inheritance
+Module don´t support inheritance
 
-- Keep data structures simple. Prefer to use tuples, lists, dicts...
+Keep data structures simple. Prefer to use tuples, lists, dicts...
 
 ## Named Tuple
 
-- Subclass of tuples which elements are accessible by key `[offset]` or `.key`:
+Subclass of tuples which elements are accessible by key `[offset]` or `.key`:
 
 ```python
 # Creating
@@ -2757,7 +2757,7 @@ Duck(name='john', tail=21)
 >>> 
 ```
 
-- Creating a `namedtuple` from a `dict`:
+Creating a `namedtuple` from a `dict`:
 
 ```python
 >>> Person = namedtuple("Person", "name age")
@@ -2769,4 +2769,279 @@ Duck(name='john', tail=21)
 Person(name='John', age=23)
 >>> 
 ```
+
+## Mangling data
+
+For handling data, Python has two major types: `unicode strings` (sequence of unicode chars with multibyte variable sizes) and `bytes` or `bytearrays` (a sequence or arrays of eight bits ints)
+
+In Python 3, all strings are unicode aware
+
+Three ways to include an unicode char into a string:
+
+```python
+# \uXXXX - \u + four hex numbers
+>>> print("\u27F2") # \u + four hex numbers
+⟲
+
+# \U0XXXXXXX - \U0 + seven hex numbers
+>>> print("\U0001F62F")
+😯
+
+# \N{ name }
+>>> print("\N{Left-Facing Armenian Eternity Sign}")
+֎
+>>> 
+```
+
+The `unicodedata` modules permits finding a char by the unicode name getting the name of some char:
+
+```python
+>>> import unicodedata
+>>> 
+
+>>> print("\U0001F62F")
+😯
+
+# Get the name of some unicode symbol/char
+>>> unicodedata.name("\U0001F62F")
+'HUSHED FACE'
+>>> 
+
+# Lookup a char by it´s unicode name
+>>> unicodedata.lookup("HUSHED FACE")
+'😯'
+>>> 
+```
+
+Mind that `len()` is smart enough to count chars in strings, not bytes:
+
+```python
+>>> s = "café"
+>>> len(s)
+4
+>>> 
+
+>>> s.encode("utf8")
+b'caf\xc3\xa9'
+>>> 
+
+>>> len( s.encode("utf8") )
+5
+```
+
+`encode(encoding)` convert an unicode string to a sequence / string of bytes
+
+```python
+>>> snowman = '\u2603'
+>>> print(snowman)
+☃
+>>> len(snowman) # unicode string with only one char
+1
+>>> 
+
+>>> encoded = snowman.encode("utf8") # encode to bytes. remember that utf8 is a variable length encoding:
+>>> print(encoded)
+b'\xe2\x98\x83'
+>>> 
+>>> len(encoded) # number of bytes
+3
+>>> 
+```
+
+Ignore exceptions using `ignore`
+
+```python
+... snowman.encode("ascii")
+Traceback (most recent call last):
+  File "<stdin>", line 3, in <module>
+UnicodeEncodeError: 'ascii' codec can't encode character '\u2603' in position 0: ordinal not in range(128)
+
+
+>>> # If you want to ignore encoding exceptions
+... # use the second argument as "ignore"
+>>> snowman.encode("ascii", "ignore")
+b''
+>>> 
+```
+
+`encode()` also provides options to replace the unicode char, besides of ignoring:
+
+```python
+>>> snowman = '\u2603'
+>>> 
+>>> # Replace with ? if the codec can´t decode
+... snowman.encode("ascii", "replace")
+b'?'
+>>> 
+>>> # Replace with the Python unicode-hex code that represent the char
+... snowman.encode("ascii", "backslashreplace")
+b'\\u2603'
+>>> 
+>>> # Replace with the HTML entity code
+... snowman.encode("ascii", "xmlcharrefreplace")
+b'&#9731;'
+>>> 
+```
+
+Remember: you `encode()` the unicode strings to bytes to send to the outside world (outside the Pytohn program).
+And, to receive data from the external world, you should `decode()`. You receive data as `bytes` and decodes into unicode strings.
+
+To understand the decode process let´s create an `unicode` string and its `bytes` counterpart:
+
+```bash
+>>> # An unicode string
+... unicode_string = "café"
+
+# str, unicode
+>>> type(unicode_string) 
+<class 'str'>
+
+# 4 unicode chars
+>>> len(unicode_string) 
+4
+>>> 
+
+>>> # The bytes representation, encode using the utf8 "encoding" table
+... bytes_string = unicode_string.encode("utf8")
+>>> 
+
+>>> type(bytes_string) # bytes string, 8 bits integers sequence
+<class 'bytes'>
+>>> 
+
+>>> len(bytes_string) # how many bytes in the sequence ?
+5
+
+>>> bytes_string  # first three bytes in utf8 match with ascii, the two last are used to represent "é"
+b'caf\xc3\xa9'
+>>>
+```
+
+Let´s decode the `bytes_string` back into an unicode string:
+
+```python
+>>> decoded_string = bytes_string.decode("utf8")
+>>> decoded_string
+'café'
+>>> type(decoded_string)
+<class 'str'>
+```
+
+This worked flawless because we know the correct encoding. See what happens when we use the wrong one:
+
+```python
+>>> # If the encoding dosen´t support some codepoint, exception
+... bytes_string.decode("ascii")
+Traceback (most recent call last):
+  File "<stdin>", line 2, in <module>
+UnicodeDecodeError: 'ascii' codec can't decode byte 0xc3 in position 3: ordinal not in range(128)
+>>> 
+>>> # If the encoding supports, but is not the correct one, wrong char is returned
+... bytes_string.decode("latin1")
+'cafÃ©'
+>>> 
+```
+
+## Format
+
+How the old, not recommended anymore, string interpolation was made:
+
+```python
+>>> template = "His name is %s, he is %d years old and has %.2f in the bank account" % ("John", 19, 1_000_000)
+>>> print(template)
+His name is John, he is 19 years old and has 1000000.00 in the bank account
+>>> 
+```
+
+Since Python 2.6, we have `str.format`, which is an improvement:
+
+```python
+>>> name = "John"
+>>> age = 19
+>>> account = 1250
+>>> 
+
+# Position based, just use {} to mark a replacement
+>>> print("{} is {} and has {}".format(name, age, account))
+John is 19 and has 1250
+>>>
+
+# You can also replace by index
+>>> print("{1} is {2} and has {0}".format(account, name, age)) # In the string, you can exchange the order
+John is 19 and has 1250
+
+# If you pass named arguments, you can index by name (kwargs)
+>>> print("{name} is {age} and has {account}".format(name=name, age=age, account=account))
+John is 19 and has 1250
+
+# You can use dictionarie unpacking to make this easier
+>>> data = {
+...     "name": "John",
+...     "age": 19,
+...     "account": 1250
+... }
+>>> print("{name} is {age} and has {account}".format(**data))
+John is 19 and has 1250
+```
+
+And, since 3.6, we have the awesome and recommended f-strings!
+
+```python
+>>> name = "Eric"
+>>> age = 74
+>>> print(f"Hello, {name}, You are {age}")
+Hello, Eric, You are 74
+>>> 
+```
+You can put any Python code inside `{}`, it will be evaluated at runtime:
+
+```python
+>>> print(f"4 + 4 = {2 * 4}")
+4 + 4 = 8
+>>> 
+```
+
+The fstrings respect the same protocol as the `str.format` (`__format__`):
+
+```python
+>>> n = 42
+>>> f = 7
+>>> s = "cheese"
+
+>>> # Simple format by type
+... print( f"{n:d} {f:f} {s:s}" )
+42 7.000000 cheese
+
+>>> # Minimum field with = 10, right aligned (10)
+... print( f"{n:10d} {f:10f} {s:10s}" )
+        42   7.000000 cheese    
+>>> 
+
+>>> # Same minimum width = 10, but even more right aligned
+... print( f"{n:>10d} {f:>10f} {s:>10s}" )
+        42   7.000000     cheese
+>>> 
+
+>>> # Left aligned <
+... print( f"{n:<10d} {f:<10f} {s:<10s}" )
+42         7.000000   cheese    
+>>> 
+
+>>> # Centered
+... print( f"{n:^10d} {f:^10f} {s:^10s}" )
+    42      7.000000    cheese  
+
+>>> # Limit the precision for floats and the length of strings
+... print( f"{n:^10d} {f:^10.3f} {s:^10.4s}" )
+    42       7.000       chee   
+>>> 
+
+# Last, the fill character
+>>> banner = "Big Sale!"
+>>> print(f"{banner:*^30}")
+**********Big Sale!***********
+>>> 
+```
+
+## Regular Expressions
 
