@@ -3045,3 +3045,114 @@ The fstrings respect the same protocol as the `str.format` (`__format__`):
 
 ## Regular Expressions
 
+A simple match: does the string starts with the pattern ?
+
+```python
+>>> import re
+
+>>> pattern = "You"
+>>> source_string = "You are awesome"
+
+>>> re.match(pattern, source_string)
+<_sre.SRE_Match object; span=(0, 3), match='You'>
+
+>>> other_pattern = "Are"
+>>> re.match(other_pattern, source_string) # None
+```
+
+You can compile patterns for speed and reutilization:
+
+```python
+>>> compiled_pattern = re.compile("They")
+>>> print( re.match(compiled_pattern, "Are They here?") )
+None
+>>> 
+```
+
+Other methods:
+
+```python
+>>> # Other Methods
+... # search() returns the first match, if any
+... re.search("you", "are you here?")
+<_sre.SRE_Match object; span=(4, 7), match='you'>
+>>> 
+>>> # findall() return all occurrences
+... re.findall("[0-9]{1,2}", "4, 8, 15, 16, 23, 42")
+['4', '8', '15', '16', '23', '42']
+>>> 
+>>> # split() string based on the pattern match
+... re.split("[.-]", "He is there - no. Ok. - Go!")
+['He is there ', ' no', ' Ok', ' ', ' Go!']
+>>> 
+>>> # sub() replace all match occurrences by the replacement argument
+>>> re.sub("( [a-z]{2} )", "-", "They do the same thing so over and over")
+'They-the same thing-over and over'
+>>>
+```
+
+`match()`, `search()` return have a `.group()` attribute to access the returned data:
+
+```python
+>>> m = re.search("you", "are you here?")
+>>> m.group()
+'you'
+
+>>> m = re.match("you", "you are beatiful")
+>>> m.group()
+'you'
+
+>>> m = re.match("you", "are you here?") # ops, not in the start
+>>> m.group()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+AttributeError: 'NoneType' object has no attribute 'group'
+>>> 
+```
+
+> Mind: `match()` checks for the start, `search()` looks in all the string.
+
+## Binary Data
+
+Python 3 has two new types composed of eight bit integers: `bytes`, an immutable string of 8bit ints. And `bytearray`, a mutable array of 8bit ints.
+
+```python
+>>> blist = [1, 2, 3, 255] # 8 bit can represent from 0 to 255
+>>> 
+>>> the_bytes = bytes(blist)
+>>> 
+>>> the_bytes
+b'\x01\x02\x03\xff'
+>>> 
+>>> the_byte_array = bytearray(blist)
+>>> the_byte_array
+bytearray(b'\x01\x02\x03\xff')
+>>> 
+>>> the_byte_array[1] = 10
+>>> the_byte_array # changed!
+bytearray(b'\x01\n\x03\xff')
+>>> 
+>>> print(the_bytes) # ascii printable ints are printed as chars, not representable as ascii, hex representation
+b'\x01\x02\x03\xff'
+>>> 
+```
+
+> Tip: Use https://construct.readthedocs.io/en/latest/ to handle binary files.
+
+## Use ```binascii``` to convert bytes and bytearrays to other representations
+
+```python
+>>> import binascii
+>>> 
+>>> the_bytes = bytes([1, 3, 4, 11])
+
+>>> the_bytes
+b'\x01\x03\x04\x0b'
+
+>>> binascii.hexlify(the_bytes)
+b'0103040b'
+
+>>> binascii.b2a_base64(the_bytes)
+b'AQMECw==\n'
+```
+
