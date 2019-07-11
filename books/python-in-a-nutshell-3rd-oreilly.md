@@ -104,3 +104,20 @@ Out[4]: {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5}
 
 - Em sessões interativas do interpretador, o identificar dor `_`, *single underscore*, guarda o valor do último comando interpretado.
 
+- Todos valores em Python são objetos. Tudo é objeto.
+
+- Todo objeto tem um **tipo**. O tipo define as ações realizáveis e os atributos alteráveis em um objeto. Além de dizer se ele é mutável ou imutável.
+
+- `type(obj)` retorna o objeto-classe/tipo de qualquer objeto
+
+- `isinstance(obj, type)` retorna `True` se `obj` é do tipo `type` ou uma subclasse
+
+- Tipos numéricos:
+    - `int`
+    - `float`
+    - `decimal`   * módulo 
+    - `fractions` * módulo
+
+- Todos tipos numéricos são imutáveis. Operações produzem novos objetos.
+- Os tipos numéricos não carregam sinal, qualquer sinal presente é uma operação.
+- 
