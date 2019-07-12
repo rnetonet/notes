@@ -366,4 +366,264 @@ frozenset({1, 2, 3})
 
 - cada item de um `dict` é o par `chave` e `valor`.
 
-- 
+- formas de declarar um dicionário:
+
+```python
+>>> dic_vazio = {}
+>>> dic_simples = {'nome': 'John'}              
+>>> dic_simples
+{'nome': 'John'}
+
+>>> dic_variado = {'nome': 'John', 'idade': 30}              
+>>> dic_variado              
+{'nome': 'John', 'idade': 30}
+```
+
+- se uma chave se repete, o último valor atribuido é o que vale:
+
+```python
+>>> dct = {'a': 1, 'a': 2, 'a': 3}
+>>> dct
+{'a': 3}
+>>> 
+```
+
+- o tipo `dict` também permite a criação de dicionários:
+
+```python
+>>> dic_vazio = dict()
+>>> dic_simples = dict(a=1, b=2, c=3)
+>>> dic_simples
+{'a': 1, 'b': 2, 'c': 3}
+>>> 
+>>> # Usando pairs - tuplas com dois valores
+>>> dict([('a', 1), ('b', 2), ('c', 3)])
+{'a': 1, 'b': 2, 'c': 3}
+```
+
+- tendo apenas a lista de chaves, é possível criar uma lista com um valor padrão:
+
+```python
+>>> lst = ['nome', 'sobrenome', 'apelido']
+>>>
+>>> # Valor atribuido = None, se nenhum parâmetro for passado
+>>> dct = dict.fromkeys(lst) 
+>>> dct
+{'nome': None, 'sobrenome': None, 'apelido': None}
+>>> 
+>>> dct = dict.fromkeys(lst, 15)
+>>> dct
+{'nome': 15, 'sobrenome': 15, 'apelido': 15}
+>>> 
+```
+
+- `None` é o objeto nulo de Python. Não tem métodos ou atributos.
+
+- Funções sem um `return` explícito retornam `None`
+
+- `callables` em Python, são todos objetos que suportam a operação de chamada de função. Por padrão, funções e `generators` são `callable`.
+
+- `types` (classes) também são `callable` e, geralmente, ao serem chamados, produzem um novo objeto daquele tipo
+
+- os outros tipos de `callable` são os métodos (funções vinculadas a objetos) e instâncias de classes que implementam o método especial `__call__`
+
+- todos valores de Python podem ser usados como indicador de `True` ou `False`. `0`, `0.0` e todo container vazio `[], {}, ()` é tido como `False`. todo resto é entendido como `True`:
+
+```python
+>>> bool(-1)
+True
+>>> bool(1)
+True
+>>> bool(0)
+False
+>>> bool(0.0)
+False
+>>> bool(5.0)
+True
+>>> bool([1, 2, 3])
+True
+>>> bool([])
+False
+>>> bool({})
+False
+```
+
+- Evite usar pontos flutuantes para lógicas booleanas. Pontos flutuantes são *imprecisos*.
+
+- `True` e `False` são subclasses de `int`. `True` tem valor `1` e `False` tem valor `0`. Dá até pra fazer conta:
+
+```python
+>>> int(False)
+0
+>>> int(True)
+1
+>>> True + True
+2
+>>> 
+```
+
+- O tipo `bool()` pode ser usado para converter qualquer objeto passado para `True` ou `False`:
+
+```python
+>>> bool(0)
+False
+>>> bool(1)
+True
+>>> bool('')
+False
+>>> bool('spam')
+True
+```
+
+- Como todo objeto em Python tem um valor lógico implícito, você deve escrever expressões lógicas usando os objetos diretamente. Evite chamar o tipo ou comparar direto com os valores `True` ou `False`:
+
+```python
+# sim!
+>>> valor = 10
+>>> if valor: print('valor eh valido')
+... 
+valor eh valido
+
+# nao!
+>>> if bool(valor) == True: print('valor eh valido')
+... 
+valor eh valido
+>>> 
+```
+
+- Variáveis são criadas na primeira atribuição. Não há declaração:
+
+```python
+>>> a = 1
+>>> b = 2
+>>> a
+1
+>>> b
+2
+>>> 
+```
+
+- Podem ser desvinculadas com o operador `del`:
+
+```python
+>>> a = 10
+>>> b = 20
+>>> 
+>>> del a
+>>> 
+>>> a
+Traceback (most recent call last):
+  File "<input>", line 1, in <module>
+    a
+NameError: name 'a' is not defined
+>>> b
+20
+>>> 
+```
+
+- Variáveis podem ser revinculadas, a um novo objeto. A revinculação não tem efeito no objeto que era referenciado. Entretanto, `objetos sem nenhuma referência são` *garbage collected*
+
+```python
+>>> var = 10
+>>> print(var)
+10
+>>> 
+>>> var = 'spam'
+>>> print(var)
+spam
+>>> 
+```
+
+- Variáveis podem ser `global`, quando são declaradas no corpo de um módulo (lembre-se: todo arquivo `.py` é um módulo) ou `local`, quando declaradas no escopo de uma função
+
+- Variáveis podem referenciar qualquer tipo: `functions, methods`. Lembre-se: tudo é objeto.
+
+- Os bindings de variáveis podem ser feitos com diferentes targets:
+
+    - um identificador. a atribuição é feita imediatamente:
+
+    ```python
+    >>> valor = 99
+    >>> valor
+    99
+    >>> 
+    >>> valor = 10
+    >>> valor
+    10
+    >>> 
+    ```
+
+    - se for um atributo de um objeto ou o item de uma lista, a operação é `delegada` para o objeto ou container (vide `__setattr__, __setitem__`):
+
+    ```python
+    >>> lst = [1, 2, 3]
+    >>> lst[0] = 100
+    >>> lst
+    [100, 2, 3]
+    >>> 
+    >>> # implicitamente o objeto é chamado
+    >>> lst.__setitem__(0, 999)
+    >>> lst
+    [999, 2, 3]
+    >>> 
+    ```
+
+- múltiplas variáveis podem ser atribuídas a um mesmo valor:
+
+```python
+# Cada variável vai referenciar o objeto a direito.
+# a referencia 100, b referencia 100, c referencia 100
+# a NÃO referencia b...
+>>> a = b = c = 100
+>>> c
+100
+>>> b
+100
+>>> a
+100
+
+# Apenas c mudará
+>>> c = 101
+>>> c
+101
+>>> b
+100
+>>> a
+100
+>>> 
+```
+
+- múltiplas variáveis podem ser atribuídas para valores distintos, usando um container no `right side`. `unpacking assignment`:
+
+```python
+>>> # Cuidado: o número de variáveis deve ser igual ao tamanho do right side
+>>> a, b, c = (1, 2, 3)
+>>> a
+1
+>>> b
+2
+>>> c
+3
+>>>
+```
+
+- esse comportamento pode ser utilizado para realizar `swap` de variáveis, pois lembre-se que o `right side` é sempre resolvido antes da atribuição, e variáveis são substituidas por seus valores:
+
+```python
+>>> a = 10
+>>> b = 20
+>>> 
+>>> a, b = b, a
+>>> 
+>>> a
+20
+>>> b
+10
+>>> 
+```
+
+- a partir da versão 3, `um` dos identificadores do lado esquerdo pode ser prefixado com um asterisco `*` para que ele obtenha todos valores do lado direito que não foram diretamente mapeados:
+
+```python
+
+```
