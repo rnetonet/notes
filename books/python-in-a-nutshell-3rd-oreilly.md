@@ -625,5 +625,14 @@ spam
 - a partir da versão 3, `um` dos identificadores do lado esquerdo pode ser prefixado com um asterisco `*` para que ele obtenha todos valores do lado direito que não foram diretamente mapeados:
 
 ```python
-
+>>> first, *middle, last = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+>>> first
+1
+>>> middle
+[2, 3, 4, 5, 6, 7, 8]
+>>> last
+9
+>>> 
 ```
+
+- 
