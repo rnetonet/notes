@@ -635,4 +635,121 @@ spam
 >>> 
 ```
 
+- `augmented assignments` permitem uma variável apenas, previamente existente, no lado esquerdo. Como em toda atribuição, o lado direito é avaliado primeiro, então a operação acontece e um dos argumentos é a variável do lado esquerdo:
+
+```python
+>>> a = 10
+>>> a *= 2 # a = a * 2
+>>> a
+20
+>>> 
+```
+
+- Todo operador Python tem um método especial correspondente, ex: `+ -> __add__`. 
+Este método é chamado para realizar a operação e recebe o outro objeto da operação como parâmetro.
+    
+    - Quando o objeto implementa tais métodos os `augmented assignments` modificam o objeto do lado esquerdo, ao invés de simplesmente remapeá-lo:
+
+    ```python
+    >>> lst = [1, 2, 3]
+    >>> lst += [4]
+    >>> lst
+    [1, 2, 3, 4]
+    >>> 
+    ```
+
+- `del` apenas deleta a referência que está sendo feita pela variável a um objeto, não deleta o objeto. A deleção é feita pelo GC quando não existem referências para tal objeto.
+
+    - Em identificadores, variáveis simples, a referência é desfeita na hora.
+
+    - Em container ou objetos complexos, que implementam os métodos especiais `__delitem__` ou `__delattr__`, a operação é delegada para tais métodos
+
+- Comparações booleanas podem ser encadeadas. Um `and` é implicado:
+
+```python
+>>> a = 10
+>>> b = 25
+>>> 
+>>> if a < 18 <= b:
+...     print('Can pass!')
+...     
+... 
+Can pass!
+>>> 
+>>> # O mesmo que
+>>> if a < 18 and 18 <= b:
+...     print('Can pass!')
+...     
+... 
+Can pass!
+>>> 
+```
+
+- `and` e `or` em Python avaliam as expressões necessárias apenas. Exemplo: em `x and y`, se `x` for `False`, este valor é retornado e `y` sequer é executado.
+
+- Outro operador `short-circuit` é o operador ternário:
+
+```python
+valor_se_verdadeiro if condicao else valor_se_falso
+```
+
+`condicao` é executada. Se o resultado for `True`, `valor_se_verdadeiro` é executado. Senão, `valor_se_falso` é executado.
+
+- tipos numéricos (`int`, `float`) são imutáveis. operações produzem novos objetos. sinais (`+`, `-`) são operadores e não fazem partes das declarações literais de números
+
+- se tipos numéricos diferentes (ex: `int` e `float`) forem usados na mesma expressão, todos são nivelados no tipo mais 'largo', `float`.
+
+```python
+>>> 2 + 3.14
+5.140000000000001
+>>> 
+```
+
+- é possível conveter entre tipos usando os nomes dos tipos:
+
+```python
+>>> # int despreza a parte decimal
+>>> int(3.14)
+3
+>>> 
+>>> # também é possível passar strings com literals para os tipos criarem objetos numéricos
+>>> int('3')
+3
+>>> float('3.14')
+3.14
+>>> float('3')
+3.0
+
+>>> # int suporta uma base para ser usada na conversão
+>>> int('101')
+101
+>>> int('101', 2)
+5
+>>> 
+```
+
+- As operações aritméticas atuam de maneira natural. Vale mencionar apenas a divisão:
+
+    - `/` divisão normal em v3, resultado é um ponto flutuante. em v2, use:
+
+    ```python
+    from __future__ import division
+    ```
+
+    - `//` retorna o resultado da divisão truncado:
+
+    ```python
+    >>> 3 // 2
+    1
+    >>> 
+    ```
+
+    - `divmod` retorna o quociente e o resto:
+
+    ```python
+    >>> divmod(5, 2)
+    (2, 1)
+    >>>
+    ```
+
 - 
