@@ -752,4 +752,758 @@ valor_se_verdadeiro if condicao else valor_se_falso
     >>>
     ```
 
-- 
+- `sequences` são containers ordenados acessíveis por indexação ou slices. 
+
+- algumas funções aplicáveis a sequências:
+
+    - `len()`, retorna o tamanho:
+    ```python
+    >>> a = [1, 2, 3]
+    >>> b = "spam"
+    >>> 
+    >>> len(a)
+    3
+    >>> len(b)
+    4
+    >>> 
+    ```
+
+    - `max()` retorna o maior valor na sequência, ou o maior entre dois parâmetros:
+    ```python
+    >>> a = [15, 7, 10]
+    >>> max(a)
+    15
+    >>> 
+    >>> max(5, 19)
+    19
+    >>> 
+    ```
+
+    - `min()` retorna o valor mínimo de uma sequência ou o menor entre dois parâmetros:
+    ```python
+    >>> lst = [14, 2, 311]
+    >>> min(lst)
+    2
+    >>> 
+    >>> min(13, 17)
+    13
+    >>>
+    ```
+
+    - `sum()` retorna o somatório de uma sequência:
+    ```python
+    >>> lst = [14, 21, 33]
+    >>> sum(lst)
+    68
+    ```
+
+- é possível converter sequências como `tuple` ou `list` passando os objetos para o construtor do tipo:
+
+```python
+>>> tpl = (10, 20, 30)
+>>> lst = [1, 2, 3]
+>>> 
+>>> tuple(lst)
+(1, 2, 3)
+>>> 
+>>> list(tpl)
+[10, 20, 30]
+>>> 
+```
+
+- sequências do mesmo tipo podem ser concatenadas com `+`:
+
+```python
+>>> lst = [1, 2, 3]
+>>> 
+>>> lst = lst + [10, 20, 30]
+>>> lst
+[1, 2, 3, 10, 20, 30]
+>>> 
+```
+
+- sequências podem ser repetidas, usando `*`:
+
+```python
+>>> lst = [1, 2, 3]
+>>> lst = lst * 3
+>>> lst
+[1, 2, 3, 1, 2, 3, 1, 2, 3]
+>>>
+```
+
+- o operador `in` permite testar pertencimento a uma sequência ou se o valor é chave de um dicionário ou se é substring de uma string maior:
+
+```python
+>>> valor = 'a'
+>>> valor in [1, 2, 'a', 4, 5]
+True
+>>> valor in {'a': 10, 'b': 12}
+True
+>>> valor in 'spam'
+True
+>>> 
+```
+
+- Indexação de sequências começa em zero e vai até `len(sequencia) - 1`. 
+
+```python
+>>> lst = ['a', 'b', 'c', 'd', 'e']
+>>> lst[0]
+'a'
+>>> lst[ len(lst) - 1 ]
+'e'
+>>> 
+>>> # negativo tambem pode. -1 e o ultimo. -2 penultimo.
+... lst[-1]
+'e'
+>>> lst[-2]
+'d'
+>>> 
+
+>>> lst[10] # exceçao!
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+IndexError: list index out of range
+>>> 
+```
+
+###### Slicing
+
+- Para obter um pedaço de uma sequência, use slices: `sequencia[inicio:fim]`, onde `inicio` e `fim` são índices, sendo `inicio` incluido no resultado e `fim` **não** incluído:
+
+```python
+>>> lst = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+>>> lst[1:5] # 1 = 'b', 5 = 'f'
+['b', 'c', 'd', 'e']
+>>> 
+``` 
+
+- `inicio` tem como valor padrão `0` e `fim`, `len(sequencia)`. Você pode omitir um, ou ambos:
+
+```python
+>>> lst = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+>>> lst[0:len(lst)]
+['a', 'b', 'c', 'd', 'e', 'f', 'g']
+>>> lst[:]
+['a', 'b', 'c', 'd', 'e', 'f', 'g']
+>>> lst[0:]
+['a', 'b', 'c', 'd', 'e', 'f', 'g']
+>>> lst[:len(lst)]
+['a', 'b', 'c', 'd', 'e', 'f', 'g']
+```
+
+- Slices tem uma indexação `graciosa`. Ou seja, indexar a maior que `length` ou a menor (indexação negativa), não causam exceções. :
+
+```python
+>>> lst = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+>>> lst[100:200]
+[]
+>>> 
+>>> lst[-100:0]
+[]
+>>> lst[-100:1]
+['a']
+>>> 
+>>> lst[1000:-123]
+[]
+>>> 
+```
+
+- o parâmetro `stride` permite indicar a distância entre os índices gerados no slice:
+
+```python
+>>> lst = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+>>> 
+>>> lst[0:len(lst):-1]
+[]
+>>> lst[len(lst):0:-1] # vai de um em um, no sentido contrario
+['g', 'f', 'e', 'd', 'c', 'b']
+>>> 
+>>> lst[::2] # two in two
+['a', 'c', 'e', 'g']
+>>> 
+```
+
+- `strings` são imutáveis. toda operação produz uma nova string, inclusive a indexação, que produz uma string de `length = 1`.
+
+- contudo, em `v3`, o tipo `bytes` ao ser indexado, retorna um `int`.
+
+- `tuples` são imutáveis. seus slices também são `tuples`. apresentam apenas dois métodos, `count` e `index`. Suportam qualquer tipo de objeto, inclusive mutáveis, mas não é recomendado:
+
+```python
+>>> t = ('a', 'b', 'c')
+>>> t[0:2]
+('a', 'b')
+>>> 
+>>> t.count('a')
+1
+>>> t.index('c')
+2
+>>> t[2]
+'c'
+>>> 
+```
+
+- `list` são mutáveis. Podendo ser alteradas por indexação ou atribuição em slices. Se alterada por slices, o lado direito deve ser um iterável:
+
+```python
+>>> lst = ['a', 'b', 'c', 'd', 'e']
+>>> lst[0] = 'x'
+>>> lst
+['x', 'b', 'c', 'd', 'e']
+>>> 
+>>> lst[0:3] = ['y', 'z', 'w']
+>>> lst
+['y', 'z', 'w', 'd', 'e']
+>>> 
+>>> lst[0:3] = ['k']
+>>> lst
+['k', 'd', 'e']
+>>> 
+```
+
+- Algumas sintaxes comuns envolvendo listas e slices:
+
+```python
+>>> lst = ['a', 'b', 'c', 'd', 'e']
+>>> 
+>>> # Copia
+... lst_copy = lst[:]
+>>> lst_copy
+['a', 'b', 'c', 'd', 'e']
+>>> 
+>>> # Excluir elementos. mesmo que del lst[0:3]...
+... lst[0:3] = []
+>>> lst
+['d', 'e']
+>>> 
+
+>>> # Inserir numa posiçao. Inclui elementos just before the position.
+... lst
+['d', 'e']
+>>> lst[1:1] = ['f', 'g', 'h']
+>>> lst
+['d', 'f', 'g', 'h', 'e']
+>>> 
+
+>>> # Substituir todo o conteudo
+... lst = ['a', 'b', 'c']
+>>> lst
+['a', 'b', 'c']
+>>> 
+>>> lst[:] = ['d', 'e', 'f']
+>>> lst
+['d', 'e', 'f']
+>>> 
+```
+
+- Além da deleção por slices, `del` também permite excluir um objeto ou um slice de objetos:
+
+```python
+>>> lst = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+>>> 
+>>> del lst[3]
+>>> lst
+['a', 'b', 'c', 'e', 'f', 'g']
+>>> 
+>>> del lst[0:3]
+>>> lst
+['e', 'f', 'g']
+>>> 
+```
+
+- Listas permitem algumas operações inplace:
+
+```python
+>>> # Concatenaçao
+>>> lst = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+>>> 
+>>> lst += ['h', 'i'] 
+>>> lst
+['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']
+>>> 
+>>> # o mesmo que o metodo extend()
+... 
+>>> lst.extend(['j', 'l'])
+>>> lst
+['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'l']
+>>> 
+>>> # repetiçao com *
+... lst = ['a', 'b']
+>>> lst *= 2
+>>> lst
+['a', 'b', 'a', 'b']
+>>> 
+>>> # Multiplicar por um valor negativo esvazia:
+... lst = ['a', 'b']
+>>> lst *= 10
+>>> lst
+['a', 'b', 'a', 'b', 'a', 'b', 'a', 'b', 'a', 'b', 'a', 'b', 'a', 'b', 'a', 'b', 'a', 'b', 'a', 'b']
+>>> 
+>>> lst *= -5
+>>> lst
+[]
+>>> 
+```
+
+- `list` tem métodos modificadores e não-modificadores. Apenas dois métodos, `count()` e `index()`, não modificam as listas:
+
+```python
+>>> lst = ['a', 'b', 'c', 'a']
+>>> lst.count('a')
+2
+>>> 
+>>> lst.index('b')
+1
+>>> lst[1]
+'b'
+>>> 
+```
+
+- Métodos que modificam:
+
+```python
+>>> lst = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+>>> 
+>>> lst += ['h', 'i'] 
+>>> lst
+['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']
+>>> 
+>>> # o mesmo que o metodo extend()
+... 
+>>> lst.extend(['j', 'l'])
+>>> lst
+['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'l']
+>>> 
+>>> # repetiçao com *
+... lst = ['a', 'b']
+>>> lst = ['a', 'b', 'c']
+>>> lst.append('d')
+>>> lst
+['a', 'b', 'c', 'd']
+>>> 
+>>> lst.extend(['e', 'f', 'g'])
+>>> lst
+['a', 'b', 'c', 'd', 'e', 'f', 'g']
+>>> 
+>>> 
+>>> lst.insert(1, 'x')
+>>> lst
+['a', 'x', 'b', 'c', 'd', 'e', 'f', 'g']
+>>> 
+>>>
+>>> lst.remove('x')
+>>> 
+>>> lst
+['a', 'b', 'c', 'd', 'e', 'f', 'g']
+>>> 
+>>> lst.pop()
+'g'
+>>> lst
+['a', 'b', 'c', 'd', 'e', 'f']
+>>> 
+>>> lst.sort()
+>>> lst
+['a', 'b', 'c', 'd', 'e', 'f']
+>>> 
+>>> lst.reverse()
+>>> lst
+['f', 'e', 'd', 'c', 'b', 'a']
+>>> 
+>>> 
+```
+
+- Ordenando listas:
+
+```python
+>>> lst
+['a', 'b', 'c', 'd', 'e', 'f', 'g']
+>>> 
+>>> # inplace, usando .sort()
+... lst = ['d', 'a', 'e', 'f']
+>>> lst.sort()
+>>> lst
+['a', 'd', 'e', 'f']
+>>> 
+>>> # inplace, invertido
+... lst.sort(reverse=True)
+>>> lst
+['f', 'e', 'd', 'a']
+>>> 
+>>> # criando novo objeto, usando o builtin sorted()
+... lst_sorted = sorted(lst)
+>>> lst_sorted
+['a', 'd', 'e', 'f']
+>>> 
+>>> lst
+['f', 'e', 'd', 'a']
+>>> 
+>>> 
+>>> # tambem e possivel utilizar uma funcao key, que sera executada em cada objeto antes da comparacao
+... lst = ['Plone', 'javascript', 'Zope', 'ASP']
+>>> 
+>>> lst.sort(key=str.lower)
+KeyboardInterrupt
+>>> lst.sort()
+>>> lst
+['ASP', 'Plone', 'Zope', 'javascript']
+>>> 
+>>> lst.sort(key=str.lower)
+>>> lst
+['ASP', 'javascript', 'Plone', 'Zope']
+>>> 
+```
+
+- Em Python 3 o parâmetro `cmp`, que permitia definir uma função e comparação personalizada deixou de existir. Contudo, você pode usar `functools.cmp_to_key` e o parâmetro `key=` para obter o mesmo resultado.
+
+- O módulo `operator` fornece os métodos `attrgetter` e `itemgetter` que retornam funções personalizadas para buscar itens específicos em sequências:
+
+```python
+>>> import operator
+>>> 
+>>> lst = ['python', 'perl', 'javascript', 'java', 'bash']
+>>> 
+>>> # ordenando pelo ultimo caractere
+... lst.sort(key=operator.itemgetter(-1))
+>>> lst
+['java', 'bash', 'perl', 'python', 'javascript']
+>>> 
+```
+
+###### Operações com `set`
+
+- As operações com `set` a seguir não modificam, mas sim, produzem novos `sets`. Logo, são aplicáveis a `frozenset` também:
+
+```python
+>>> sA = {1, 3, 4, 5, 12, 33, 98}
+>>> sB = {2, 4, 5, 87, 88, 89}
+>>> 
+>>> # diferenca todos em sA que nao estao em sB
+... sA.difference(sB)
+{1, 98, 3, 33, 12}
+>>> 
+>>> # intersecao: todos em sA e em sB
+... sA.intersection(sB)
+{4, 5}
+>>> 
+>>> # subset: todos de sA estao em sB
+... sA.issubset(sB)
+False
+>>> 
+>>> # superset: todos de sB estao em sA ?
+... sA.issuperset(sB)
+False
+>>> 
+>>> # symmetric_difference: todos que estao apenas em sA ou apenas em sB
+... sA.symmetric_difference(sB)
+{1, 2, 3, 12, 87, 88, 89, 33, 98}
+>>> 
+>>> # uniao
+... sA.union(sB)
+{1, 33, 3, 4, 5, 98, 2, 12, 87, 88, 89}
+>>> 
+```
+
+- Métodos que alteram o `set`. Não são aplicáveis a `frozensets`:
+
+```python
+>>> s = {'a', 'b', 'c'}
+>>>
+>>> # Adicione item ao set
+>>> s.add('d')
+>>> s
+{'d', 'c', 'b', 'a'}
+>>> # Tente remover. Se não existir, não gera exceção.
+>>> s.discard('c')
+>>> s
+{'d', 'b', 'a'}
+>>> 
+>>> # remove o último inserido
+>>> s.pop() # retorna e remove um item qualquer do conjunto
+'d'
+>>> 
+>>> s
+{'b', 'a'}
+>>> 
+>>> # Remove o elemento. Se não existir, gera KeyError
+>>> s.remove('b')
+>>> s
+{'a'}
+>>> s.remove('x')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+KeyError: 'x'
+>>> 
+```
+
+- Você pode fazer um loop destrutivo usando `pop()`, inclusive modificando o conjunto. Com um for convencional, isto não é possível:
+
+```python
+>>> while s:
+...     print(s.pop())
+... 
+c
+b
+a
+>>> 
+
+>>> s = {'a', 'b', 'c'}
+>>> for elem in a:
+...     a.insert('x')
+... 
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+NameError: name 'a' is not defined
+>>> 
+```
+
+- `sets` tem outros métodos mutáveis, como `symmetric_difference_update`, `difference_update` (todos terminam com `_update`) que realizam a operação mas modificam o `inplace`:
+
+```python
+>>> s1 = {'a', 'b', 'c'}
+>>> s2 = {'c', 'd', 'e'}
+>>> 
+>>> s1.symmetric_difference_update(s2)
+>>> s1
+{'b', 'e', 'a', 'd'}
+>>> 
+
+>>> s1 = {'a', 'b', 'c'}
+>>> s2 = {'c', 'd', 'e'}
+>>> s1.intersection_update(s2)
+>>> s1
+{'c'}
+>>> 
+```
+
+- Os métodos de `sets` podem ser aplicados com qualquer sequência, pois esta será convertida para um `set(sequencia)`. Já os `operadores`, só podem ser aplicados entre `sets` ou `sets` e `frozensets`:
+
+```python
+>>> s1 = {'a', 'b', 'c'}
+>>> s2 = {'c', 'd', 'e'}
+>>> 
+>>> s1 & s2
+{'c'}
+>>> s1 | s2
+{'e', 'b', 'a', 'd', 'c'}
+>>> s1 - s2
+{'b', 'a'}
+>>> s1 + s2
+```
+
+### Operações com dicionários
+
+- Métodos que modificam:
+
+```python
+>>> d = {'a': 10, 'b': 2, 'c': 30}
+>>> 
+>>> # copy() retorna uma copia 'shallow' (nao cria copia dos objetos contidos)
+... d2 = d.copy()
+>>> d2
+{'a': 10, 'b': 2, 'c': 30}
+>>> 
+>>> # dict(d) tem o mesmo efeito que d.copy():
+... d3 = dict(d)
+>>> d3
+{'a': 10, 'b': 2, 'c': 30}
+>>> 
+>>> # se voce indexar um dicionario com uma chave inexistente uma excecao e produzida
+... # para evitar isso, utilize o metodo .get(chave), que retorna None
+... # se None nao for um bom valor, voce pode passar um segundo parametro que sera o retorno padrao
+... 
+>>> d.get('x')
+>>> print( d.get('x') )
+None
+>>> print( d.get('x', 0) )
+0
+>>> 
+>>> # .items() retorna um iterable dict_items
+... d.items()
+dict_items([('a', 10), ('b', 2), ('c', 30)])
+>>> 
+>>> # .keys() retornas as chaves presentes no dicionario
+... d.keys()
+dict_keys(['a', 'b', 'c'])
+>>> 
+>>> # .values() retorna os valores
+... d.values()
+dict_values([10, 2, 30])
+>>> 
+>>> 
+```
+
+- Métodos que **não** modificam:
+
+```python
+>>> d = {'a': 10, 'b': 2, 'c': 30}
+>>> 
+>>> # copy() retorna uma copia 'shallow' (nao cria copia dos objetos contidos)
+... d2 = d.copy()
+>>> d2
+{'a': 10, 'b': 2, 'c': 30}
+>>> 
+>>> # dict(d) tem o mesmo efeito que d.copy():
+... d3 = dict(d)
+>>> d3
+{'a': 10, 'b': 2, 'c': 30}
+>>> 
+>>> # se voce indexar um dicionario com uma chave inexistente uma excecao e produzida
+... # para evitar isso, utilize o metodo .get(chave), que retorna None
+... # se None nao for um bom valor, voce pode passar um segundo parametro que sera o retorno padrao
+... 
+>>> d.get('x')
+>>> print( d.get('x') )
+None
+>>> print( d.get('x', 0) )
+0
+>>> 
+>>> # .items() retorna um iterable dict_items
+... d.items()
+dict_items([('a', 10), ('b', 2), ('c', 30)])
+>>> 
+>>> # .keys() retornas as chaves presentes no dicionario
+... d.keys()
+dict_keys(['a', 'b', 'c'])
+>>> 
+>>> # .values() retorna os valores
+... d.values()
+dict_values([10, 2, 30])
+>>> 
+>>> 
+```
+
+> Nunca modifique um dicionário enquanto itera sobre ele.
+
+- Se você iterar diretamente sobre o dicionário, sem especificar um método, o método `.keys()` é utilizado:
+
+```python
+>>> d = {'a': 1, 'b': 2, 'c': 3}
+>>> for chave in d:
+...     print(chave)
+... 
+a
+b
+c
+>>> 
+```
+
+- Evite usar o método `setdefault`. Dê preferência a coleção `collections.defaultdict`.
+
+- Use o método `popitem()` em conjunto com um loop `while` para consumir um dicionário de maneira destrutiva:
+
+```python
+>>> d = {'a': 1, 'b': 2, 'c': 3}
+>>> bool(d)
+True
+>>> while d:
+...     print( d.popitem() )
+...     
+... 
+('c', 3)
+('b', 2)
+('a', 1)
+>>> d
+{}
+>>> 
+```
+
+- O método `update()` também suporta uma lista com pares `chave, valor` ou parâmetros nomeados:
+
+```python
+>>> d = {'a': 1, 'b': 2, 'c': 3}
+>>> 
+>>> d.update([ ('a', 10), ('d', 99) ])
+>>> d
+{'a': 10, 'b': 2, 'c': 3, 'd': 99}
+>>> 
+>>> d.update(b=35, f=50)
+>>> d
+{'a': 10, 'b': 35, 'c': 3, 'd': 99, 'f': 50}
+>>> 
+```
+
+### Fluxos de controle
+
+- `if`, `elif` e `else`. São opcionais: `elif` e `else`. Não há `switch`, use um conjunto de `elif` para essa finalidade.
+
+```python
+>>> num = int( input('enter the num:') )
+enter the num: 25
+>>> if num < 0:
+...     print('negative')
+... elif num % 2:
+...     print('positivo e par')
+... else:
+...     print('positivo e impar')
+...     
+... 
+positivo e par
+```
+
+- `while`. Repete até uma condição se tornar `False`.
+
+```python
+>>> x = 5
+>>> while x:
+...     print(x)
+...     x -= 1
+...     
+... 
+5
+4
+3
+2
+1
+>>> 
+```
+
+- Pode conter um bloco `else`, executado quando o loop termina **sem** ser interrompido por um `break`:
+
+```python
+>>> x = 5
+>>> while x:
+...     print(x)
+...     x -= 1
+... else:
+...     print('x e zero!')
+...     
+... 
+5
+4
+3
+2
+1
+x e zero!
+>>> 
+```
+
+- `continue` e `break` podem ser utilizados:
+
+```python
+>>> x = 10
+>>> while x:
+...     if x % 2 == 0:
+...         print(x)
+...         x -= 1
+...         continue
+...     elif x == 5:
+...         print(x)
+...         break
+...     else:
+...         x -= 1
+... else:
+...     print('* Loop terminou sem interrupcoes')
+...     
+... 
+10
+8
+6
+5
+>>>
+```
+
+- Loops `while` terminam quando a condição é avaliada para `False` ou quando a função em que está inserido executa um `return`.
+
+
