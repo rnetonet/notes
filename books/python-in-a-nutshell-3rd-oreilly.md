@@ -1507,3 +1507,247 @@ x e zero!
 - Loops `while` terminam quando a condição é avaliada para `False` ou quando a função em que está inserido executa um `return`.
 
 
+- `for` itera sobre uma sequência.
+
+```python
+>>> for letra in 'abcdef':
+...     print(letra)
+... 
+a
+b
+c
+d
+e
+f
+>>> 
+```
+
+Pode conter claúsulas `break`, `continue` e o `else`:
+
+```python
+>>> for letra in 'abcdef':
+...     if letra == 'c':
+...             continue
+...     elif letra == 'e':
+...             break
+...     else:
+...             print(letra)
+... else:
+...     print('Loop concluido sem nenhuma interrupcao')
+... 
+a
+b
+d
+>>> 
+```
+
+- `for` pode iterar sobre sequências com mais de um item por vez:
+
+```python
+>>> d = {'a': 1, 'b': 2, 'c': 3}
+>>> for chave, valor in d.items():
+...     print(chave, ' -> ', valor)
+... 
+a  ->  1
+b  ->  2
+c  ->  3
+>>> 
+```
+
+- o identificar que é atribuído em cada iteração do `for` pode ser qualquer identificador de atribuição (lado esquerdo) válido:
+
+```python
+>>> lst = ['a', 999]
+>>> for lst[1] in ('b', 'c', 'd', 'e', 'f'):
+...     print(lst)
+... 
+['a', 'b']
+['a', 'c']
+['a', 'd']
+['a', 'e']
+['a', 'f']
+>>> 
+```
+
+- **Não altere o objeto sendo iterado durante o** `for`.
+
+- O identificador só é atribuído se houver pelo menos uma execução do loop, ou seja, a sequência tiver pelo menos um item. Esse identificar fica disponível no escopo após a execução do loop:
+
+```python
+>>> lista = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+>>> for par in lista[0::2]:
+...     print(par)
+... 
+0
+2
+4
+6
+8
+>>> print('Ultimo par na sequencia: ', par)
+Ultimo par na sequencia:  8
+>>> 
+```
+
+entenda como:
+
+```python
+>>> lista = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+>>> 
+>>> par = None
+>>> for par in lista[0::2]:
+...     print(par)
+... 
+0
+2
+4
+6
+8
+>>> print('Ultimo par na sequencia: ', par)
+Ultimo par na sequencia:  8
+>>> 
+```
+
+Mas lembre-se: `par` só existirá se o loop for executado pelo menos uma vez.
+
+### Iterators
+
+- `iterators` são objetos que podem ser usados na função `next(iterator)`. Estes objetos retornam um objeto cada vez que são chamados e produzem uma exceção `StopIteration` quando não existem mais objetos a serem retornados.
+
+- A função `next(iterator)` também aceita um segundo parâmetro como valor `default`, `next(iterator, default)`. Neste caso, quando não existem mais objetos a serem retornados, não é gerada uma exceção, mas sim o valor `default` é retornado.
+
+- Você pode tornar qualquer classe um iterator, bastando implementar nela um método `__next__(self)` que retorna um próximo objeto ou lança a exceção `StopIteration` quando termina.
+
+- A maioria dos iterators são produzidos através de chamadas implícitas ou explícitas a função `iter`:
+
+```python
+>>> # Chamando de forma explicita
+... lst = [1, 2, 3]
+>>> lst_iterator = iter(lst)
+>>> next(lst_iterator)
+1
+>>> next(lst_iterator)
+2
+>>> next(lst_iterator)
+3
+>>> next(lst_iterator)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+StopIteration
+>>> 
+```
+
+O loop `for` chama `iter` implicitamente:
+
+```python
+>>> for el in [1, 2, 3]:
+...     print(el)
+... 
+1
+2
+3
+>>> 
+```
+
+- Muitos padrões e funções conveniente para lidar com iteradores encontram-se no módulo `itertools`.
+
+### `range()`
+
+É comum precisar iterar sobre uma lista de números, para gerar essa sequência Python provê uma função denominada `range()`.
+
+Seus parâmetros são equivalentes ao de um slice. Existindo, portanto, três formas de chamá-la:
+
+```python
+>>> list( range(3) )
+[0, 1, 2]
+>>> 
+>>> list( range(1, 3) )
+[1, 2]
+>>> 
+>>> list( range(0, 7, 2) )
+[0, 2, 4, 6]
+>>> 
+```
+
+A partir de `v3`, `range()` sempre retorna um objeto especializado. Para obter uma lista sequencial comum, use `list( range(...) )`.
+
+### Comprehensions
+
+É muito comum criar novas listas através do processamento de listas existente. Isto pode ser feito de forma simplificada com `list comprehensions`:
+
+```python
+>>> lst = [1, 2, 3]
+>>> n_lst = [i * 10 for i in lst] # sem clausulas, apenas expressao e iteracao
+>>> n_lst
+[10, 20, 30]
+>>> 
+```
+
+Este tipo de expressão também permite condicionais, `if`:
+
+```python
+>>> lst = [1, 2, 3, 4, 5]
+>>> pares = [i for i in lst if i % 2 == 0]
+>>> pares
+[2, 4]
+>>> 
+```
+
+Também é possível fazer `for` aninhados:
+
+```python
+>>> matrix = [
+...     [1, 2, 3],
+...     [4, 5, 6],
+...     [7, 8, 9]
+... ]
+>>> 
+>>> flat = [y for row in matrix for y in row]
+>>> flat
+[1, 2, 3, 4, 5, 6, 7, 8, 9]
+>>> 
+>>> # mesmo que
+... flat = []
+>>> for row in matrix:
+...     for y in row:
+...             flat.append(y)
+... 
+>>> flat
+[1, 2, 3, 4, 5, 6, 7, 8, 9]
+>>> 
+```
+
+Os condicionais `if` podem ser usados com cada `for`. Mas evite, vai ficando cada vez mais complexo:
+
+```python
+>>> flat = [y for row in matrix if row[1] == 5 for y in row]
+>>> flat
+[4, 5, 6]
+>>> flat = [y for row in matrix if row[1] == 5 for y in row if y == 6]
+>>> flat
+[6]
+>>> 
+```
+
+Lembre-se: os `for` consecutivos são considerados aninhados ao `for` anterior.
+
+`set` também podem ser criados a partir de comprehensions, basta usar chaves ao invés de colchetes:
+
+```python
+>>> lst = [1, 2, 3, 4, 1, 5, 1, 6]
+>>> s = {x for x in lst}
+>>> s
+{1, 2, 3, 4, 5, 6}
+>>> 
+```
+
+Os dicionários também podem ser criados dessa maneira:
+
+```python
+>>> lst = range(6)
+>>> letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']
+>>> dct = {i:letters[i] for i in lst}
+>>> dct
+{0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e', 5: 'f'}
+>>> 
+```
+
