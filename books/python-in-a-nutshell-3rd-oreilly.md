@@ -1751,3 +1751,524 @@ Os dicionários também podem ser criados dessa maneira:
 >>> 
 ```
 
+### break
+
+- Permitido dentro de loops. Pausa apenas o loop no qual está inserido. Caso esteja aninhado a um loop superior, este não é impactado.
+
+```python
+>>> x = 10
+>>> while x:
+...     print(x)
+...     x -= 1
+...     if x == 4: break
+... 
+10
+9
+8
+7
+6
+5
+>>> 
+```
+
+### continue
+
+- Pula para próxima iteração do loop, ignorando o restante do bloco.
+
+- Assim como o `break`, tem efeito apenas no loop em que está contido.
+
+```python
+>>> x = 10
+>>> while x:
+...     x -= 1
+...     if x % 2 == 0: continue
+...     else: print(x)
+... 
+9
+7
+5
+3
+1
+>>> 
+```
+
+- Por vezes, o `continue` permite implementar uma estrutura mais `flat`, logo mais Pythonica. Pois permite substituir um `if` em alguns casos:
+
+```python
+>>> lst = [1, 3, 45, 89, 3, 33, 45, 98]
+>>> for n in lst:
+...     if n > 50: continue
+...     print(n)
+... 
+1
+3
+45
+3
+33
+45
+>>> 
+```
+
+### `else` em loops
+
+- `while` e `for` suportam uma clausula `else`, executada apenas quando o loop termina naturalmente (sem `break`, `return` ou `Exception`)
+
+```python
+>>> lst = [1, 2, 3, 4, 5]
+>>> for n in lst:
+...     if n > 10: break
+...     print(n)
+... else:
+...     print('sem interrupcoes')
+... 
+1
+2
+3
+4
+5
+sem interrupcoes
+>>> 
+>>> lst = [1, 2, 3, 100, 4, 5]
+>>> for n in lst:
+...     if n > 10: break
+...     print(n)
+... else:
+...     print('sem interrupcoes')
+... 
+1
+2
+3
+>>>
+```
+
+### `pass`
+
+- Algumas instruções de Python são compostas e requerem uma segunda instrução ou bloco de instruções. Quando isto é exigido e você não tem nada a executar de fato, você pode atender esse requisito com a instrução `pass`:
+
+```python
+>>> lst = [1, 2, 3]
+>>> for n in lst:
+...     if n == 1: print('um')
+...     elif n == 2: pass
+...     elif n == 3: print('tres')
+... 
+um
+tres
+>>> 
+```
+
+- Obs: funções `def` e classes não precisam de uma instrução `pass`, quando estão vazias. O ideal é colocar uma `docstring`:
+
+```python
+>>> def nada():
+...     """ faz nada """
+... 
+>>> class Nada:
+...     """ Naaada """
+... 
+>>> 
+```
+
+## Funções
+
+- Sempre que possível, encapsule seu código em funções ao invés de colocá-lo diretamente no corpo de um módulo. É mais rápido e fica mais organizado.
+
+- Funções sempre retornam um valor, se não for utilizado o `return`,  `None` será retornado.
+
+- Funções definidas no escopo de uma classe são chamadas de métodos (`bound functions`).
+
+- Funções **são** objetos. Podem ser passadas como parâmetros, podem estar presentes em listas, dicionários, ser atribuídas a variáveis, etc.
+
+Um exemplo disso é o mapeamento da inversa da função em um dicionário:
+
+```python
+>>> def soma(a, b):
+...     return a + b
+... 
+>>> def subtracao(a, b):
+...     return a - b
+... 
+>>> inversa = {soma: subtracao, subtracao: soma}
+>>> inversa
+{<function soma at 0x7f9f87a58d08>: <function subtracao at 0x7f9f87a58d90>, <function subtracao at 0x7f9f87a58d90>: <function soma at 0x7f9f87a58d08>}
+>>> 
+>>> soma(10, 20), inversa[soma](10, 20)
+(30, -10)
+>>> 
+```
+
+- Funções são declaradas usando `def` e podem aceitar parâmetros:
+
+```python
+>>> def nome_funcao(parametro1, parametro2):
+...     # corpo. executado apenas quando a funcao é chamada.
+...     pass
+... 
+>>> 
+```
+
+- Se houver parâmetros definidos, no momento da chamada da função estes devem ser fornecidos. No momento da chamada, esses valores são chamados de argumentos e são atribuídos a variáveis locais no escopo da função.
+
+- Funções podem conter parâmetros obrigatórios, quando são listados apenas o identificador:
+
+```python
+>>> def soma(a, b):
+...     return a + b
+... 
+>>> soma(10)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: soma() missing 1 required positional argument: 'b'
+>>> 
+>>> soma(10, 31)
+41
+>>> 
+```
+
+- Parâmetros nomeados com valor padrão:
+
+```python
+>>> def soma(a, b=2):
+...     return a + b
+... 
+>>> soma(10, 31)
+41
+>>> 
+>>> soma(10)
+12
+>>> 
+```
+
+- A expressão que representa o valor padrão de cada argumento é avaliada e salva entre os atributos do objeto função criado. Dessa forma, quando o argumento não é passado, esse valor é utilizado.
+
+Cuidado: a expressão que define o valor padrão é executada apenas durante a declaração e a referência perdura durante toda a vida da função:
+
+```python
+>>> lst = [1, 2, 3, 4, 5]
+>>> for n in lst:
+...     if n > 10: break
+...     print(n)
+... else:
+...     print('sem interrupcoes')
+... 
+1
+>>> def incluir(valor, lst=[]):
+...     lst.append(valor)
+...     return lst
+... 
+>>> incluir(1)
+[1]
+>>> incluir(2)
+[1, 2]
+>>> 
+>>> nova_lst = []
+>>> incluir(1, nova_lst)
+[1]
+>>> incluir(2, nova_lst)
+[1, 2]
+>>> 
+>>> # volta para referencia padrao. lembre-se que so eh amarrado durante a declaracao.
+... incluir(3) # volta para lst criada na declaracao
+[1, 2, 3]
+>>> 
+>>> # nova_lst segue sem o 3
+... nova_lst
+[1, 2]
+>>> 
+```
+
+- Use o seguinte idioma para evitar parâmetros `default` mutáveis em funções:
+
+```python
+>>> def inserir(valor, lst=None):
+...     if lst is None: lst = []
+...     lst.append(valor)
+...     return lst
+... 
+>>> inserir(1)
+[1]
+>>> inserir(2)
+[2]
+>>> 
+>>> lista = []
+>>> inserir(1, lista)
+[1]
+>>> inserir(2, lista)
+[1, 2]
+>>> 
+```
+
+- Contudo, por vezes esse comportamento é útil. Exemplo: quando queremos fazer cache de alguma computação (memoization):
+
+```python
+>>> def fib(a, _cache={0: 1, 1: 1}):
+...     print(_cache)
+...     if a in _cache: return _cache[a]
+...     _cache[a] = a + fib(a - 1)
+...     return _cache[a]
+... 
+>>> fib(10)
+{0: 1, 1: 1}
+{0: 1, 1: 1}
+{0: 1, 1: 1}
+{0: 1, 1: 1}
+{0: 1, 1: 1}
+{0: 1, 1: 1}
+{0: 1, 1: 1}
+{0: 1, 1: 1}
+{0: 1, 1: 1}
+{0: 1, 1: 1}
+55
+>>> fib(10)
+{0: 1, 1: 1, 2: 3, 3: 6, 4: 10, 5: 15, 6: 21, 7: 28, 8: 36, 9: 45, 10: 55}
+55
+>>> 
+```
+
+Contudo, é possível obter melhores resultados usando o decorador disponível no módulo `functools`: `functools.lru_cache`.
+
+- `*args` e `**kwargs` permitem uma chamada de função flexível. `*args` recebe uma lista de argumentos posicionais e atribui como uma tupla em uma variável `args`. `**kwargs` permite que seja passada uma lista de argumentos nomeados (`argumento=valor, argumento2=valor2`) e os atribui na forma de dicionário à variável `kwargs`:
+
+```python
+>>> def exemplo(posicional, *args, **kwargs):
+...     print(posicional)
+...     print(args)
+...     print(kwargs)
+... 
+>>> exemplo('spam', 1, 2, 3, a=10, b=20, c=30)
+spam
+(1, 2, 3)
+{'a': 10, 'b': 20, 'c': 30}
+>>> 
+```
+
+- Lembre-se: cada chamada de função cria um escopo próprio e os argumentos são atribuidos e existem apenas nesse escopo.
+
+- A partir da versão 3 é possível definir argumentos obrigatoriamente nomeados. Eles devem vir entre `*args` e `**kwargs`. Se forem postos apenas como identificador `argumento`, são obrigatórios. Se forem postos como `argumento=valor_padrao` são opcionais:
+
+```python
+>>> def teste(a, *args, k1, k2='spam', **kwargs):
+...     print(f'a={a}')
+...     print(f'args={args}')
+...     print(f'k1={k1}')
+...     print(f'k2={k2}')
+...     print(f'kwargs={kwargs}')
+... 
+>>> teste(10, 33, 44, 55, k1=100)
+a=10
+args=(33, 44, 55)
+k1=100
+k2=spam
+kwargs={}
+>>> 
+```
+
+- Se você não desejar flexibilidade para os argumentos posicionais, use um `*` puro no lugar de `*args`. Dessa maneira, apenas argumentos posicionais existentes na assinatura podem ser passados:
+
+```python
+>>> def teste(a, *, k1, k2='spam', **kwargs):
+...     print(f'a={a}')
+...     print(f'k1={k1}')
+...     print(f'k2={k2}')
+...     print(f'kwargs={kwargs}')
+... 
+>>> teste(10, k1=100, k2='eggs', k3='bacon')
+a=10
+k1=100
+k2=eggs
+kwargs={'k3': 'bacon'}
+
+>>> # Não pode passar mais posicionais do que o esperado
+>>> teste(10, 20, 30,  k1=100, k2='eggs', k3='bacon')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: teste() takes 1 positional argument but 3 positional arguments (and 2 keyword-only arguments) were given
+>>> 
+```
+
+- `def` produz alguns atributos no objeto função definido:
+
+`__name__` é o nome da função.
+
+`__defaults__` é uma tupla com os valores `default` dos parâmetros:
+
+```python
+>>> def soma(a=2, b=5):
+...     print(soma.__name__)
+...     print(soma.__defaults__)
+... 
+>>> soma()
+soma
+(2, 5)
+>>> 
+```
+
+- Outro atributo magicamente definido é o `__doc__` que recebe, caso a função seja iniciada com, uma docstring:
+
+```python
+>>> def soma(a, b):
+...     """ soma a + b """
+...     return a + b
+... 
+>>> soma.__doc__
+' soma a + b '
+>>> 
+>>> help(soma) # chama .__doc__
+
+>>> 
+```
+
+- Funções, por serem objetos, podem manter diferentes atributos. Exemplo, contar quantas vezes foi chamada. 
+
+```python
+>>> def counter():
+...     counter.count += 1
+...     print(counter.count)
+... 
+>>> counter.count = 0
+>>> counter()
+1
+>>> counter()
+2
+>>> counter()
+3
+>>> 
+```
+
+Contudo, não é um idioma de programação comum. Se quer manter estado, utilize orientação a objetos.
+
+### Anotação de funções
+
+- Você pode anotar os parâmetros da função usando `:` e o retorno da função usando `->`. Qualquer objeto pode ser usado nessas anotações. Esse mapeamento fica salvo no atributo `__annotations__` do objeto da função:
+
+```python
+>>> def soma(a: 'inteiro', b: 'inteiro') -> 'inteiro':
+...     return a + b
+... 
+>>> soma.__annotations__
+{'a': 'inteiro', 'b': 'inteiro', 'return': 'inteiro'}
+>>> 
+```
+
+- A partir de Python 3.6, é possível anotar variáveis também:
+
+```python
+>>> a:int = 10
+>>> b:int = 20
+```
+
+- Para mais informações sobre anotações de tipo e sua análise, veja:
+
+https://docs.python.org/3/library/typing.html
+
+e
+
+https://mypy.readthedocs.io/en/latest/
+
+### Python é "passe por referência de objeto"
+
+- Traduzindo: **referências dos objetos são passadas por valor**.
+
+Para simplificar, entenda variáveis em Python como hyperlinks para os objetos. Quando acessadas, retornam o objeto referenciado.
+
+Quando essas variáveis são passadas como argumentos, o hyperlink é copiado para o argumento e uma novo hyperlink é criado no escopo da função. Ambos hyperlinks, ambas variáveis, apontam para o mesmo objeto.
+
+```python
+>>> a = 10
+>>> b = 20
+>>> 
+>>> def exemplo(x, y):
+...     print(id(x))
+...     print(id(y))
+... 
+>>> id(a)
+10969088
+>>> id(b)
+10969408
+>>> 
+>>> exemplo(a, b)
+10969088
+10969408
+>>> 
+```
+
+Contudo, dentro do escopo da função, o hyperlink-argumento criado pode ser alterado, sem afetar o hyperlink de fora:
+
+```python
+>>> x = 10
+>>> id(x)
+10969088
+>>> 
+>>> def exemplo2(z):
+...     z = 100
+...     print(id(z))
+... 
+>>> exemplo2(x)
+10971968
+>>> 
+>>> print(x, id(x)) # inalterado
+10 10969088
+>>> 
+```
+
+Para objetos imutáveis (números, strings, tuplas), esse comportamento não traz surpresas. Mas para objetos modificáveis, é possível que uma operação através do escopo da função reflita em todo o sistema, pois o objeto é compartilhado:
+
+```python
+>>> lista = [1, 2, 3]
+>>> print(lista, id(lista))
+[1, 2, 3] 139632946475208
+>>> 
+>>> def exemplo(l):
+...     l.append(9)
+... 
+>>> exemplo(lista)
+>>> print(lista, id(lista))
+[1, 2, 3, 9] 139632946475208
+>>> 
+```
+
+Por fim, se você reatribuir o link no escopo local para um novo objeto, o hyperlink original não é modificado:
+
+```python
+>>> lista = [1, 2, 3]
+>>> 
+>>> def exemplo(l):
+...     l = [14, 15, 16]
+...     print(l, id(l))
+
+>>> exemplo(lista)
+[14, 15, 16] 139632886589064
+>>> 
+>>> print(lista, id(lista))
+[1, 2, 3] 139632946478792
+>>> 
+```
+
+- Em funções puramente Python, é possível alterar a ordem dos argumentos posicionais usando argumentos nomeados:
+
+```python
+>>> def subtrai(a, b):
+...     return a - b
+... 
+>>> print( subtrai(b=3, a=10) )
+7
+>>> 
+```
+
+- É possível "desempactor" argumentos passados como `*args` ou `**kwargs` e passá-los para outras funções:
+
+```python
+>>> def soma(*, a, b):
+...     return a + b
+... 
+>>> def exemplo(*args, **kwargs):
+...     print( *args ) # arg1, arg2, arg3...
+...     print( soma(**kwargs) ) # soma(..=...)...
+... 
+>>> exemplo(1, 2, 3, a=10, b=20)
+1 2 3
+30
+>>> 
+```
+
+### Namespaces
