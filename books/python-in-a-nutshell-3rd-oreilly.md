@@ -2272,3 +2272,604 @@ Por fim, se você reatribuir o link no escopo local para um novo objeto, o hyper
 ```
 
 ### Namespaces
+
+- Funções produzem um escopo local próprio, com as variáveis definidas em seu corpo e os argumentos passados.
+
+- Variáveis fora do escopo de uma função são variáveis globais e são atributos do objeto do módulo em que foram declaradas. 
+
+- Se o escopo local tem uma variável com o nome igual de uma global, ela "esconde" a global.
+
+```python
+>>> valor = 10
+>>> 
+>>> def soma(a, b):
+...     valor = a + b
+...     return valor
+... 
+>>> 
+>>> soma(100, 100)
+200
+>>> valor
+10
+>>> 
+```
+
+- Caso queira alterar de fato uma variável do escopo global, declare-a no início da função com a palavra-chave `global`:
+
+```python
+>>> valor = 10
+>>> 
+>>> def soma(a, b):
+...     global valor
+...     valor = a + b
+...     return valor
+... 
+>>> soma(35, 39)
+74
+>>> valor
+74
+>>> 
+```
+
+- Funções podem ser declaradas dentro de outras funções. A função interna, conhecida como `nested function` ou `inner function`. A função que engloba, é denominada `outer function`.
+
+- As funções internas podem ler variáveis definidas na `outer function`, mas não alterá-las:
+
+```python
+>>> def create_incrementer(value):
+...     def incrementer(parameter):
+...             return parameter + value
+...     return incrementer
+... 
+>>> inc10 = create_incrementer(10)
+>>> inc10(5)
+15
+>>> 
+>>> inc2 = create_incrementer(2)
+>>> inc2(5)
+7
+>>> 
+```
+
+As `nested function` que acessam variáveis do escopo superior são chamadas de `closures`.
+
+- Ao invés de se valer do acesso ao escopo superior, é de bom tom passar as variáveis necessárias como parâmetro durante a definição da `inner function`:
+
+```python
+>>> def create_incrementer(value):
+...     def incrementer(param, increment=value):
+...             return param + increment
+...     return incrementer
+... 
+>>> inc10 = create_incrementer(10)
+>>> inc10(2)
+12
+>>> 
+>>> inc2 = create_incrementer(2)
+>>> inc2(5)
+7
+>>> 
+```
+
+- Caso você queira alterar a variável do escopo da `outer function`, você deve declarar a variável com a palavra chave `nonlocal` logo no início da função:
+
+```python
+>>> def make_counter():
+...     count = 0
+...     def counter():
+...             nonlocal count
+...             count += 1
+...             return count
+...     return counter
+... 
+>>> c1 = make_counter()
+>>> c2 = make_counter()
+>>> 
+>>> c1()
+1
+>>> c1()
+2
+>>> c2()
+1
+>>> c2()
+2
+>>> 
+```
+
+Lembre-se que cada chamada de função tem um escopo próprio.
+
+### Expressões lambda
+
+- Permite criar funções anônimas de apenas uma linha. Não requer o uso de `return`, o resultado da expressão é o resultado da função:
+
+```python
+# Filtrando uma lista usando o builtin filter()
+>>> lst = range(0, 11) # 0, 1, 2....10
+>>> list( filter(lambda x: x % 2 == 0, lst) )
+[0, 2, 4, 6, 8, 10]
+>>> 
+```
+
+### Generators
+
+- Funções que usam `yield` são chamadas de `generators` e automagicamente encapsuladas em um iterator. Quando o `yield valor` é executado, a excução da função é pausada e `valor` retornado. Quando `next(generator)` é chamado novamente, a função resume sua execução de onde parou.
+
+É possível chamar `yield` sem passar nenhum valor, o que equivale a passar `None`,  `yield None`:
+
+```python
+>>> def make_counter():
+...     count = 0
+...     def counter():
+>>> def g():
+...     for i in range(0, 11):
+...             yield i
+... 
+>>> g
+<function g at 0x7ff182399400>
+>>> for it in g():
+...     print(it)
+... 
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+```
+
+- Generators podem ser úteis para produzir sequências complexas:
+
+```python
+>>> def seq():
+...     for i in range(0, 6):
+...             yield i
+...     for i in range(6, 0, -1):
+...             yield i
+... 
+>>> for i in seq():
+...     print(i)
+... 
+0
+1
+2
+3
+4
+5
+6
+5
+4
+3
+2
+1
+>>> 
+```
+
+- A partir de v3 é possível realizar um `yield from iterator`, para que não seja necessário replicar um `yield`:
+
+```python
+>>> def seq():
+...     yield from range(0, 6)
+...     yield from range(5, -1, -1)
+... 
+>>> list( seq() )
+[0, 1, 2, 3, 4, 5, 5, 4, 3, 2, 1, 0]
+>>> 
+```
+
+- É possível criar generators simples de forma similar as `list comprehensions`:
+
+```python
+>>> for double in (x * x for x in range(2, 11, 2)):
+...     print(double)
+... 
+4
+16
+36
+64
+100
+>>> 
+```
+
+São delimitadas por parênteses e apresentam um `yield` implícito.
+
+As `generator expressions` ou `genexp` aceitam as mesmas construções das `list comprehensions`: vários `for`, `if`...
+
+```python
+>>> for num in (x * 2 for x in range(0, 11) if x % 2 == 0):
+...     print(num)
+... 
+0
+4
+8
+12
+16
+20
+>>> 
+```
+
+### Generators como coroutines
+
+- As funções generators podem ser utilizadas como corotinas. As chamadas `yield` são expressões, logo produzem um valor. Esse valor pode ser informado pelo `caller` do generator, utilizando o método `send(valor)` que funciona de forma similar ao `next(generator)`, mas passa um valor:
+
+```python
+>>> def repeater():
+...     while True:
+...             recv = yield
+...             print(recv)
+... 
+>>> rp = repeater() # cria o generator
+>>> next(rp) # inicia a corotina
+>>> rp.send('Oi!')
+Oi!
+>>> rp.send('Tchau!')
+Tchau!
+>>> 
+```
+
+Outro exemplo, que sempre retorna o menor valor recebido:
+
+```python
+>>> def the_minimizer():
+...     current = yield
+...     while True:
+...             new_value = yield current
+...             current = min(current, new_value)
+... 
+>>> 
+>>> g_the_minimizer = the_minimizer()
+>>> next(g_the_minimizer) # inicializa, passo obrigatorio
+>>> print( g_the_minimizer.send(1) )
+1
+>>> print( g_the_minimizer.send(3) )
+1
+>>> print( g_the_minimizer.send(123) )
+1
+>>> print( g_the_minimizer.send(-9) )
+-9
+>>> 
+```
+
+### recursividade
+
+- Python suporte recursividade. Mas tem um limite de aproximadamente 1.000 níveis. É possível alterar via `sys.setrecursionlimit`.
+
+- Evite recursão com Python. Não há `tail-call optimization` e a quantidade de níveis é limitada, podendo, se extrapolada, causar um `hard crash` na sua aplicação (não será tratável via exceções)
+
+## Orientação a Objetos
+
+- Classes são tipos definidos pelo usuário.
+
+- Classes podem ser instanciadas para criar novos objetos.
+
+- O processo de instanciação é similar a uma chamada de função, só que o nome da classe é utilizado:
+
+```python
+objeto = Tipo()
+```
+
+- Classes podem conter atributos. Estes atributos podem ser modificados e referenciados:
+
+```python
+>>> class Ponto:
+...     x = 0
+...     y = 0
+... 
+>>> Ponto.x
+0
+>>> Ponto.y
+0
+>>> Ponto.x = 10
+>>> Ponto.y = 99
+>>> 
+>>> Ponto.x
+10
+>>> Ponto.y
+99
+>>> 
+```
+
+- Os atributos das classes podem ser funções. Nestes casos, elas são chamadas de métodos.
+
+- Classes podem implementar diferentes métodos especiais, ex: `__init__` (chamado durante a criação da instância). Estes métodos são chamados durante diferentes operações aplicadas sobre o objeto.
+
+```python
+>>> class Ponto:
+...     def __init__(self, x, y):
+...             self.x = x
+...             self.y = y
+...             print(self.x, self.y)
+... 
+>>> 
+>>> p = Ponto(3, 6)
+3 6
+>>> 
+```
+
+- Classes podem herdar de outra classes, delegando para estas quando um atributo buscado não é encontrado:
+
+```python
+>>> class Cachorro:
+...     barulho = "Huf huf"
+... 
+>>> class Beagle(Cachorro):
+...     def fazer_barulho(self):
+...             print(self.barulho)
+... 
+>>> b = Beagle()
+>>> b.fazer_barulho()
+Huf huf
+>>> 
+>>> # Perceba que ele foi até a classe pai, buscando pelo atributo
+>>> Cachorro.barulho = "Au au!"
+>>> b.fazer_barulho()
+Au au!
+>>> 
+```
+
+- Uma instância de uma class é um objeto Python e poder ter atributos, que podem ser modificados ou referenciados. 
+
+- Objetos delegam a busca de atributos não encontrados para a classe, que por sua vez pode delegar - caso não tenha o atributo - para classes pai:
+
+```python
+>>> class Pai:
+...     atributo = 'bacon'
+... 
+>>> class Filho(Pai):
+...     pass
+... 
+>>> instancia = Filho()
+>>> print( instancia.atributo )
+bacon
+>>> 
+>>> 
+```
+
+- E claro, classes são objetos! Ou seja, podem ser passadas como argumento, ser criadas e retornadas a partir de funções, vinculadas a variáveis, fazer parte de um container (lista, dicionário, etc)...
+
+- A herança em Python é transitiva. Se `C` herda de `B` e `B` herda de `A`, então `C` também herda de `A`:
+
+```python
+>>> class A:
+...     pass
+... 
+>>> class B(A):
+...     pass
+... 
+>>> class C(B):
+...     pass
+... 
+```
+
+- Você pode verificar a hierarquia usando `issubclass` ou `isinstance`:
+
+```python
+>>> # verifica a relaçao de herança
+... issubclass(C, B)
+True
+>>> issubclass(C, A)
+True
+>>> isinstance(C(), B)
+True
+>>> isinstance(C(), A)
+True
+```
+
+- O corpo identado da classe é executado e só então o nome da classe é vinculado como variável
+
+- Lembre-se: `class` não cria nenhuma instância. Apenas define o `objeto tipo`, seus `atributos` (compartilhados entre todas instâncias) e métodos.
+
+- No corpo da classe são definidos os atributos. Que podem ser objetos normais, funções (métodos) ou até outras classes (`nested classes`).
+
+Você pode defini-los no corpo da classe:
+
+```python
+>>> class Ponto:
+...     x = 0
+...     y = 1
+... 
+>>> print( Ponto.x, Ponto.y )
+0 1
+>>> 
+```
+
+Inclusive, criá-los ou alterá-los de fora do corpo:
+
+```python
+>>> class Ponto: pass
+... 
+>>> Ponto.x = 10
+>>> Ponto.y = 99
+>>> 
+>>> print( Ponto.x, Ponto.y )
+10 99
+```
+
+- Os atributos da classe são `compartilhados` por todas instâncias.
+
+- Ao declarar uma classe, alguns atributos são definidos implicitamente no objeto-tipo criado:
+
+```python
+>>> class Animal: pass
+... 
+>>> class Mamifero:
+...     amamentacao = True
+... 
+>>> print(Mamifero.__name__, Mamifero.__bases__, Mamifero.__dict__)
+Mamifero (<class 'object'>,) {'__module__': '__main__', 'amamentacao': True, '__dict__': <attribute '__dict__' of 'Mamifero' objects>, '__weakref__': <attribute '__weakref__' of '
+Mamifero' objects>, '__doc__': None}
+>>> 
+```
+
+`__name__` é o nome de classe
+`__bases__` são as superclasses
+`__dict__` é o mapeamento dos atributos existentes na classe.
+
+- Lembre-se que funções tem um escopo próprio e que podem se comunicar apenas com o escopo de uma outra `função` que a contenha. Pontanto, em métodos, `atributos de classe` devem SEMPRE ser qualificados:
+
+```python
+>>> class Teste:
+...     atributo = 'spam'
+...     def imprimir(self):
+...             print( self.atributo )
+...             print( Teste.atributo )
+...             print( atributo ) # Ops! Sem qualificar
+... 
+>>> 
+>>> t = Teste()
+>>> t.imprimir()
+spam
+spam
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "<stdin>", line 7, in imprimir
+NameError: name 'atributo' is not defined
+>>> 
+```
+
+- Mas no corpo da classe, você pode referenciar sem qualificar.
+
+```python
+>>> class Teste:
+...     atributo = 'spam'
+...     atributo_maiusculo = atributo.upper()
+... 
+>>> Teste.atributo
+'spam'
+>>> Teste.atributo_maiusculo
+'SPAM'
+>>> 
+```
+
+- Inclusive, se você tentar qualificar no corpo da classe, vai gerar exceção, pois a classe só passa a existir ao final do bloco:
+
+```python
+>>> class Teste:
+...     atributo = 'spam'
+...     atributo_maiusculo = Teste.atributo.upper()
+... 
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "<stdin>", line 3, in Teste
+NameError: name 'Teste' is not defined
+>>> 
+```
+
+- O corpo das classes permite a declaração de funções / métodos usando `def`. Contudo, essas funções `devem` ter um primeiro parâmetro chamado (convencionalmente) de `self`:
+
+```python
+>>> class Test:
+...     def hello(self):
+...             print('Hello World')
+... 
+
+>>> t = Test()
+>>> t.hello()
+Hello World
+
+>>> # Implicitamente essa chamada equivale a:
+>>> Test.hello(t)
+Hello World
+```
+
+- Mas, por que obrigar um parâmetro `self` ? Pois funções têm um escopo próprio que não se comunica com o escopo da classe diretamente. Além disso, normalmente, métodos têm como objetivo alterar o estado do `objeto`, não da classe. Perceba:
+
+```python
+>>> class Exemplo:
+...     atributo = 'Atributo da classe Exemplo'
+...     def tornar_atributo_maiusculo(self):
+...             self.atributo = self.atributo.upper()
+... 
+>>> e = Exemplo()
+>>> e.atributo
+'Atributo da classe Exemplo'
+>>> 
+>>> e.tornar_atributo_maiusculo()
+>>> e.atributo # o metodo transformou em uma variavel da instancia, "sobreescrevendo" o atributo da classe, que permanece inalterado
+'ATRIBUTO DA CLASSE EXEMPLO'
+>>> 
+>>> Exemplo.atributo
+'Atributo da classe Exemplo'
+>>> 
+```
+
+- Python não tem, nativamente, controle de acesso aos atributos das classes. Isto é feitos através de convenções, `name mangling`.
+
+- Atributos prefixados com dois underline `__` são convertidos para `_NomeClase__atributo`, de forma a dificultar seu acesso externo.
+No corpo da classe e em métodos dentro do corpo da classe, você pode referenciar a versão curta `__atributo` que o interpretador implicitamente substituirá pela versão extensa `_NomeClase__atributo`:
+
+```python
+>>> class Ponto:
+...     __x = 0
+...     __y = 0
+...     def imprimir(self):
+...             print(self.__x, self.__y)
+... 
+>>> p = Ponto()
+>>> p.imprimir()
+0 0
+>>> Ponto.__dict__
+mappingproxy({'__module__': '__main__', '_Ponto__x': 0, '_Ponto__y': 0, 'imprimir': <function Ponto.imprimir at 0x7f764940a400>, '__dict__': <attribute '__dict__' of 'Ponto' objec
+ts>, '__weakref__': <attribute '__weakref__' of 'Ponto' objects>, '__doc__': None})
+>>> 
+```
+
+- Atributos privados, pontanto devem - fora da classe original - ser acessados com o prefixo da classe em que são declarados:
+
+```python
+>>> class Pai:
+...     __sobrenome = 'Silva'
+... 
+>>> class Filho(Pai):
+...     __nome = 'Joao'
+...     def imprimir(self):
+...             print(self.__nome, self._Pai__sobrenome) # A traducao so e feita na classe original. Objetivo e dificultar acesso.
+... 
+>>> f = Filho()
+>>> f.imprimir()
+Joao Silva
+>>> 
+```
+
+- Por fim, identificadores de classe que começam com apenas um underscore devem ser considerados privados. Mas Python não muda nome, nem evita que sejam usados. O programador que deve ser responsável e não se basear neles.
+
+- Assim como funções, se a primeira instrução de uma classe for uma string, ela é atribuída ao atributo `__doc__` e é considerada a `docstring` da classe:
+
+```python
+>>> class Teste:
+...     """ Meu texto de ajuda """
+...     pass
+... 
+
+>>> Teste.__doc__
+' Meu texto de ajuda '
+>>> 
+```
+
+- `Descritores` são classes que controlam a leitura e modificação de seus atributos através da implementação dos métodos `__get__` e `__set__`:
+
+Uma classe que representa uma constante pode ser implementada:
+
+```python
+>>> class Contante:
+...     def __init__(self, v):
+...             self.v = v
+...     def __get__(self, instance, owner):
+...             return self.v
+...     def __set__(self, instance, value):
+...             pass
+
+>>> class Exemplo:
+...     c = Constante(42)
+... 
+>>> e = Exemplo()
+>>> e.c
+42
+>>> e.c = 10
+>>> e.c
+42
+```
