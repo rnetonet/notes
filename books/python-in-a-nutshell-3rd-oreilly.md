@@ -22,7 +22,7 @@
 
 - Apenas módulos importados são compilados e armazenados (cache). Em Python 2, salvos como `.pyc`, em Python 3, dentro de `__pycache__`, no mesmo *path* que o arquivo `.py` do módulo.
 
-- Em ambientes UNIX, é possível tornar um script Python executável dando-o permissão de leitura e execução, `r+x`, e incluindo uma linha *shebang* em seu início: 
+- Em ambientes UNIX, é possível tornar um script Python executável dando-o permissão de leitura e execução, `r+x`, e incluindo uma linha *shebang* em seu início:
 
 ```python
 #!/usr/bin/env python
@@ -48,25 +48,25 @@ print("Meu nome é " + \
 - Linhas físicas dentro de chaves `{}`, colchetes `[]` ou parênteses `()`. Nesses casos, a indentação é relevante apenas para primeira linha:
 
 ```python
-In [1]: print( "a",  
-   ...: "b", 
-   ...: "c")                                                                                                                                                 
+In [1]: print( "a",
+   ...: "b",
+   ...: "c")
 a b c
 
-In [3]: [1, 
-   ...: 2, 
-   ...: 3, 
-   ...: 4, 
-   ...: 5]                                                                                                                                                   
+In [3]: [1,
+   ...: 2,
+   ...: 3,
+   ...: 4,
+   ...: 5]
 Out[3]: [1, 2, 3, 4, 5]
 
-In [4]:                                                                                                                                                      
+In [4]:
 
-In [4]: {"a": 1, 
-   ...: "b": 2, 
-   ...: "c": 3, 
-   ...: "d": 4, 
-   ...: "e": 5}                                                                                                                                              
+In [4]: {"a": 1,
+   ...: "b": 2,
+   ...: "c": 3,
+   ...: "d": 4,
+   ...: "e": 5}
 Out[4]: {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5}
 ```
 
@@ -87,7 +87,7 @@ Out[4]: {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5}
 
 - Recomenda-se sempre usar `utf-8`.
 
-- Identificadores são tokens que dão nomes a variáveis, módulos, funções, classes, etc. Devem começar com uma letra ou `_` e não podem ter espaços. 
+- Identificadores são tokens que dão nomes a variáveis, módulos, funções, classes, etc. Devem começar com uma letra ou `_` e não podem ter espaços.
 
 - A versão 3 suporta unicode em identificadores, mas evite.
 
@@ -115,7 +115,7 @@ Out[4]: {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5}
 - Tipos numéricos:
     - `int`
     - `float`
-    - `decimal`   * módulo 
+    - `decimal`   * módulo
     - `fractions` * módulo
 
 - Todos tipos numéricos são imutáveis. Operações produzem novos objetos.
@@ -161,7 +161,7 @@ SyntaxError: invalid token
 1.1
 >>> 1.234
 1.234
->>> 
+>>>
 ```
 
 - **Pontos flutuantes** são implementados como `doubles` na implementação **CPython**. Os limites de precisão e tamanho podem ser vistos em `sys.float_info`:
@@ -169,9 +169,9 @@ SyntaxError: invalid token
 ```python
 >>> import sys
 >>> sys.float_info
-sys.float_info(max=1.7976931348623157e+308, max_exp=1024, max_10_exp=308, min=2.2250738585072014e-308, 
+sys.float_info(max=1.7976931348623157e+308, max_exp=1024, max_10_exp=308, min=2.2250738585072014e-308,
 min_exp=-1021, min_10_exp=-307, dig=15, mant_dig=53, epsilon=2.220446049250313e-16, radix=2, rounds=1)
->>> 
+>>>
 ```
 
 - A partir da versão **3.6**, é possível separar grupos de dígitos com `_` em números de Python:
@@ -183,12 +183,12 @@ min_exp=-1021, min_10_exp=-307, dig=15, mant_dig=53, epsilon=2.220446049250313e-
 1.345678
 >>> 123_456.789
 123456.789
->>> 
+>>>
 ```
 
 - Sequências são containers de objetos indexáveis através de índices. Python tem três tipos sequenciais: `string, tuple e list`.
 
-- Todas sequências são iteráveis. 
+- Todas sequências são iteráveis.
 
 - Strings **str** são sequências (um posição por caractere). Também são imutáveis, toda operação produz uma nova string.
 
@@ -203,23 +203,23 @@ min_exp=-1021, min_10_exp=-307, dig=15, mant_dig=53, epsilon=2.220446049250313e-
 'ola mundo'
 >>> "ola mundo"
 'ola mundo'
->>> 
+>>>
 >>> # Use \ para quebrar strings longas
 >>> "ola \
 ... mundo"
 'ola mundo'
->>> 
+>>>
 >>> 'ola \
 ... mundo'
 'ola mundo'
->>> 
+>>>
 >>> # Use caracteres de escape, para quebra de linha, tabulação...
 >>> 'ola \t mundo'
 'ola \t mundo'
 >>> print('ola \t mundo')
 ola      mundo
 >>> print('ola \n mundo')
-ola 
+ola
  mundo
 >>> # Para evitar escape codes e preservar quebra de linhas, use aspas triplas
 >>> print("""
@@ -234,19 +234,19 @@ banco spam eggs
 ... spam bacon eggs""")
 ola mundo
 spam bacon eggs
->>> 
+>>>
 >>> # Para evitar uma diferenca de indentacao, comece a string tripla com \
 >>> text = """\
 ... ola mundo
 ... spam bacon eggs"""
 >>> text
 'ola mundo\nspam bacon eggs'
->>> 
+>>>
 >>> # Aspas triplas duplas são mais pythonico, mas é possível usar aspas simples também
 >>> '''ola
 ... mundo'''
 'ola\nmundo'
->>> 
+>>>
 ```
 
 - String prefixadas com `r` (*raw strings*) permitem criar strings ignorando possíveis sequências escape. Útil para expressões regulares, paths:
@@ -254,14 +254,14 @@ spam bacon eggs
 ```python
 >>> print(r'ola \n mundo')
 ola \n mundo
->>> 
+>>>
 >>> print(r"""ola
 ... \n mundo
 ... spam bacon eggs""")
 ola
 \n mundo
 spam bacon eggs
->>> 
+>>>
 ```
 
 - *raw strings* são apenas um açúcar sintático. Elas produzem strings normais, não foram um tipo diferente.
@@ -271,7 +271,7 @@ spam bacon eggs
 ```python
 >>> 'ola' " " 'mundo'
 'ola mundo'
->>> 
+>>>
 ```
 
 - **tuple** são sequência imutáveis. Podem incluir qualquer tipo, inclusive sequências mutáveis (*melhor evitar!*).
@@ -282,11 +282,11 @@ spam bacon eggs
 >>> tupla_vazia = ()
 >>> tupla_vazia
 ()
->>> 
+>>>
 >>> tupla_unitaria = (123,)
 >>> tupla_unitaria
 (123,)
->>> 
+>>>
 >>> tupla_complexa = (1, 'oi', 3.14, ('a', 'b', 'c'))
 >>> tupla_complexa
 (1, 'oi', 3.14, ('a', 'b', 'c'))
@@ -299,13 +299,13 @@ spam bacon eggs
 >>> # É possível criar tuplas usando o tipo 'tuple'
 >>> tuple('abc')
 ('a', 'b', 'c')
->>> 
+>>>
 >>> tupla_vazia = tuple()
 >>> tupla_vazia
 ()
 ```
 
-- **list** são sequências **mutáveis** que podem conter qualquer tipo de objeto. 
+- **list** são sequências **mutáveis** que podem conter qualquer tipo de objeto.
 Suas principais formas de declaração são:
 
 ```python
@@ -318,48 +318,48 @@ Suas principais formas de declaração são:
 >>> lista = list('teste')
 >>> lista
 ['t', 'e', 's', 't', 'e']
->>> 
+>>>
 ```
 
-- `set` e `frozenset` são conjuntos de objetos de qualquer tipos. 
+- `set` e `frozenset` são conjuntos de objetos de qualquer tipos.
 Nestes conjuntos, cada objeto é único e não pode se repetir.
 `set` é mutável. `frozenset` é imutável.
 
 - `set` e `frozenset` não são, necessariamente, ordenados. Não se fie nisto.
 
-- Todos objetos dentro de um `set` ou `frozent` set devem ser *hashable*, logo, imutáveis. Portanto, um `set` não pode conter outro `set`. 
+- Todos objetos dentro de um `set` ou `frozent` set devem ser *hashable*, logo, imutáveis. Portanto, um `set` não pode conter outro `set`.
 
 - Entretanto, um `set` pode conter um `frozenset`
 
 - Formas de declarar um `set` ou `frozenset`:
 
 ```python
->>> set_vazio = set() # cuidado! {} cria um dicionário ! 
+>>> set_vazio = set() # cuidado! {} cria um dicionário !
 >>> set_vazio
 set()
->>> 
->>> set_unitario = {1} # 
+>>>
+>>> set_unitario = {1} #
 >>> set_unitario
 {1}
 >>>
 >>> set_simples = set([1, 2, 3])
 >>> set_simples
 {1, 2, 3}
->>> 
+>>>
 >>> set_literal = {1, 2, 3}
 >>> set_literal
 {1, 2, 3}
->>> 
+>>>
 >>> fset = frozenset([1, 2, 3])
 >>> fset
 frozenset({1, 2, 3})
->>> 
+>>>
 >>> # set() permite remover letras duplicadas de uma string
 >>> set('abacaxi')
 {'x', 'i', 'b', 'c', 'a'}
 ```
 
-- `dict` são mapeamentos mutáveis de um objeto *chave* com um objeto *valor*. 
+- `dict` são mapeamentos mutáveis de um objeto *chave* com um objeto *valor*.
 `valor` pode ser de qualquer tipo. `chave` pode ser *quase* de qualquer tipo (tem que ser *hashable*).
 
 - `dict` não são, necessariamente, ordenados. A partir da versão 3.6 passaram a ser. Mas tem uma implementação ordenada específica (`collections.OrderedDict`)
@@ -370,12 +370,12 @@ frozenset({1, 2, 3})
 
 ```python
 >>> dic_vazio = {}
->>> dic_simples = {'nome': 'John'}              
+>>> dic_simples = {'nome': 'John'}
 >>> dic_simples
 {'nome': 'John'}
 
->>> dic_variado = {'nome': 'John', 'idade': 30}              
->>> dic_variado              
+>>> dic_variado = {'nome': 'John', 'idade': 30}
+>>> dic_variado
 {'nome': 'John', 'idade': 30}
 ```
 
@@ -385,7 +385,7 @@ frozenset({1, 2, 3})
 >>> dct = {'a': 1, 'a': 2, 'a': 3}
 >>> dct
 {'a': 3}
->>> 
+>>>
 ```
 
 - o tipo `dict` também permite a criação de dicionários:
@@ -395,7 +395,7 @@ frozenset({1, 2, 3})
 >>> dic_simples = dict(a=1, b=2, c=3)
 >>> dic_simples
 {'a': 1, 'b': 2, 'c': 3}
->>> 
+>>>
 >>> # Usando pairs - tuplas com dois valores
 >>> dict([('a', 1), ('b', 2), ('c', 3)])
 {'a': 1, 'b': 2, 'c': 3}
@@ -407,14 +407,14 @@ frozenset({1, 2, 3})
 >>> lst = ['nome', 'sobrenome', 'apelido']
 >>>
 >>> # Valor atribuido = None, se nenhum parâmetro for passado
->>> dct = dict.fromkeys(lst) 
+>>> dct = dict.fromkeys(lst)
 >>> dct
 {'nome': None, 'sobrenome': None, 'apelido': None}
->>> 
+>>>
 >>> dct = dict.fromkeys(lst, 15)
 >>> dct
 {'nome': 15, 'sobrenome': 15, 'apelido': 15}
->>> 
+>>>
 ```
 
 - `None` é o objeto nulo de Python. Não tem métodos ou atributos.
@@ -459,7 +459,7 @@ False
 1
 >>> True + True
 2
->>> 
+>>>
 ```
 
 - O tipo `bool()` pode ser usado para converter qualquer objeto passado para `True` ou `False`:
@@ -481,14 +481,14 @@ True
 # sim!
 >>> valor = 10
 >>> if valor: print('valor eh valido')
-... 
+...
 valor eh valido
 
 # nao!
 >>> if bool(valor) == True: print('valor eh valido')
-... 
+...
 valor eh valido
->>> 
+>>>
 ```
 
 - Variáveis são criadas na primeira atribuição. Não há declaração:
@@ -500,7 +500,7 @@ valor eh valido
 1
 >>> b
 2
->>> 
+>>>
 ```
 
 - Podem ser desvinculadas com o operador `del`:
@@ -508,9 +508,9 @@ valor eh valido
 ```python
 >>> a = 10
 >>> b = 20
->>> 
+>>>
 >>> del a
->>> 
+>>>
 >>> a
 Traceback (most recent call last):
   File "<input>", line 1, in <module>
@@ -518,7 +518,7 @@ Traceback (most recent call last):
 NameError: name 'a' is not defined
 >>> b
 20
->>> 
+>>>
 ```
 
 - Variáveis podem ser revinculadas, a um novo objeto. A revinculação não tem efeito no objeto que era referenciado. Entretanto, `objetos sem nenhuma referência são` *garbage collected*
@@ -527,11 +527,11 @@ NameError: name 'a' is not defined
 >>> var = 10
 >>> print(var)
 10
->>> 
+>>>
 >>> var = 'spam'
 >>> print(var)
 spam
->>> 
+>>>
 ```
 
 - Variáveis podem ser `global`, quando são declaradas no corpo de um módulo (lembre-se: todo arquivo `.py` é um módulo) ou `local`, quando declaradas no escopo de uma função
@@ -546,11 +546,11 @@ spam
     >>> valor = 99
     >>> valor
     99
-    >>> 
+    >>>
     >>> valor = 10
     >>> valor
     10
-    >>> 
+    >>>
     ```
 
     - se for um atributo de um objeto ou o item de uma lista, a operação é `delegada` para o objeto ou container (vide `__setattr__, __setitem__`):
@@ -560,12 +560,12 @@ spam
     >>> lst[0] = 100
     >>> lst
     [100, 2, 3]
-    >>> 
+    >>>
     >>> # implicitamente o objeto é chamado
     >>> lst.__setitem__(0, 999)
     >>> lst
     [999, 2, 3]
-    >>> 
+    >>>
     ```
 
 - múltiplas variáveis podem ser atribuídas a um mesmo valor:
@@ -590,7 +590,7 @@ spam
 100
 >>> a
 100
->>> 
+>>>
 ```
 
 - múltiplas variáveis podem ser atribuídas para valores distintos, usando um container no `right side`. `unpacking assignment`:
@@ -612,14 +612,14 @@ spam
 ```python
 >>> a = 10
 >>> b = 20
->>> 
+>>>
 >>> a, b = b, a
->>> 
+>>>
 >>> a
 20
 >>> b
 10
->>> 
+>>>
 ```
 
 - a partir da versão 3, `um` dos identificadores do lado esquerdo pode ser prefixado com um asterisco `*` para que ele obtenha todos valores do lado direito que não foram diretamente mapeados:
@@ -632,7 +632,7 @@ spam
 [2, 3, 4, 5, 6, 7, 8]
 >>> last
 9
->>> 
+>>>
 ```
 
 - `augmented assignments` permitem uma variável apenas, previamente existente, no lado esquerdo. Como em toda atribuição, o lado direito é avaliado primeiro, então a operação acontece e um dos argumentos é a variável do lado esquerdo:
@@ -642,12 +642,12 @@ spam
 >>> a *= 2 # a = a * 2
 >>> a
 20
->>> 
+>>>
 ```
 
-- Todo operador Python tem um método especial correspondente, ex: `+ -> __add__`. 
+- Todo operador Python tem um método especial correspondente, ex: `+ -> __add__`.
 Este método é chamado para realizar a operação e recebe o outro objeto da operação como parâmetro.
-    
+
     - Quando o objeto implementa tais métodos os `augmented assignments` modificam o objeto do lado esquerdo, ao invés de simplesmente remapeá-lo:
 
     ```python
@@ -655,7 +655,7 @@ Este método é chamado para realizar a operação e recebe o outro objeto da op
     >>> lst += [4]
     >>> lst
     [1, 2, 3, 4]
-    >>> 
+    >>>
     ```
 
 - `del` apenas deleta a referência que está sendo feita pela variável a um objeto, não deleta o objeto. A deleção é feita pelo GC quando não existem referências para tal objeto.
@@ -669,20 +669,20 @@ Este método é chamado para realizar a operação e recebe o outro objeto da op
 ```python
 >>> a = 10
 >>> b = 25
->>> 
+>>>
 >>> if a < 18 <= b:
 ...     print('Can pass!')
-...     
-... 
+...
+...
 Can pass!
->>> 
+>>>
 >>> # O mesmo que
 >>> if a < 18 and 18 <= b:
 ...     print('Can pass!')
-...     
-... 
+...
+...
 Can pass!
->>> 
+>>>
 ```
 
 - `and` e `or` em Python avaliam as expressões necessárias apenas. Exemplo: em `x and y`, se `x` for `False`, este valor é retornado e `y` sequer é executado.
@@ -702,7 +702,7 @@ valor_se_verdadeiro if condicao else valor_se_falso
 ```python
 >>> 2 + 3.14
 5.140000000000001
->>> 
+>>>
 ```
 
 - é possível conveter entre tipos usando os nomes dos tipos:
@@ -711,7 +711,7 @@ valor_se_verdadeiro if condicao else valor_se_falso
 >>> # int despreza a parte decimal
 >>> int(3.14)
 3
->>> 
+>>>
 >>> # também é possível passar strings com literals para os tipos criarem objetos numéricos
 >>> int('3')
 3
@@ -725,7 +725,7 @@ valor_se_verdadeiro if condicao else valor_se_falso
 101
 >>> int('101', 2)
 5
->>> 
+>>>
 ```
 
 - As operações aritméticas atuam de maneira natural. Vale mencionar apenas a divisão:
@@ -741,7 +741,7 @@ valor_se_verdadeiro if condicao else valor_se_falso
     ```python
     >>> 3 // 2
     1
-    >>> 
+    >>>
     ```
 
     - `divmod` retorna o quociente e o resto:
@@ -752,7 +752,7 @@ valor_se_verdadeiro if condicao else valor_se_falso
     >>>
     ```
 
-- `sequences` são containers ordenados acessíveis por indexação ou slices. 
+- `sequences` são containers ordenados acessíveis por indexação ou slices.
 
 - algumas funções aplicáveis a sequências:
 
@@ -760,12 +760,12 @@ valor_se_verdadeiro if condicao else valor_se_falso
     ```python
     >>> a = [1, 2, 3]
     >>> b = "spam"
-    >>> 
+    >>>
     >>> len(a)
     3
     >>> len(b)
     4
-    >>> 
+    >>>
     ```
 
     - `max()` retorna o maior valor na sequência, ou o maior entre dois parâmetros:
@@ -773,10 +773,10 @@ valor_se_verdadeiro if condicao else valor_se_falso
     >>> a = [15, 7, 10]
     >>> max(a)
     15
-    >>> 
+    >>>
     >>> max(5, 19)
     19
-    >>> 
+    >>>
     ```
 
     - `min()` retorna o valor mínimo de uma sequência ou o menor entre dois parâmetros:
@@ -784,7 +784,7 @@ valor_se_verdadeiro if condicao else valor_se_falso
     >>> lst = [14, 2, 311]
     >>> min(lst)
     2
-    >>> 
+    >>>
     >>> min(13, 17)
     13
     >>>
@@ -802,24 +802,24 @@ valor_se_verdadeiro if condicao else valor_se_falso
 ```python
 >>> tpl = (10, 20, 30)
 >>> lst = [1, 2, 3]
->>> 
+>>>
 >>> tuple(lst)
 (1, 2, 3)
->>> 
+>>>
 >>> list(tpl)
 [10, 20, 30]
->>> 
+>>>
 ```
 
 - sequências do mesmo tipo podem ser concatenadas com `+`:
 
 ```python
 >>> lst = [1, 2, 3]
->>> 
+>>>
 >>> lst = lst + [10, 20, 30]
 >>> lst
 [1, 2, 3, 10, 20, 30]
->>> 
+>>>
 ```
 
 - sequências podem ser repetidas, usando `*`:
@@ -842,10 +842,10 @@ True
 True
 >>> valor in 'spam'
 True
->>> 
+>>>
 ```
 
-- Indexação de sequências começa em zero e vai até `len(sequencia) - 1`. 
+- Indexação de sequências começa em zero e vai até `len(sequencia) - 1`.
 
 ```python
 >>> lst = ['a', 'b', 'c', 'd', 'e']
@@ -853,19 +853,19 @@ True
 'a'
 >>> lst[ len(lst) - 1 ]
 'e'
->>> 
+>>>
 >>> # negativo tambem pode. -1 e o ultimo. -2 penultimo.
 ... lst[-1]
 'e'
 >>> lst[-2]
 'd'
->>> 
+>>>
 
 >>> lst[10] # exceçao!
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 IndexError: list index out of range
->>> 
+>>>
 ```
 
 ###### Slicing
@@ -876,8 +876,8 @@ IndexError: list index out of range
 >>> lst = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
 >>> lst[1:5] # 1 = 'b', 5 = 'f'
 ['b', 'c', 'd', 'e']
->>> 
-``` 
+>>>
+```
 
 - `inicio` tem como valor padrão `0` e `fim`, `len(sequencia)`. Você pode omitir um, ou ambos:
 
@@ -899,30 +899,30 @@ IndexError: list index out of range
 >>> lst = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
 >>> lst[100:200]
 []
->>> 
+>>>
 >>> lst[-100:0]
 []
 >>> lst[-100:1]
 ['a']
->>> 
+>>>
 >>> lst[1000:-123]
 []
->>> 
+>>>
 ```
 
 - o parâmetro `stride` permite indicar a distância entre os índices gerados no slice:
 
 ```python
 >>> lst = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
->>> 
+>>>
 >>> lst[0:len(lst):-1]
 []
 >>> lst[len(lst):0:-1] # vai de um em um, no sentido contrario
 ['g', 'f', 'e', 'd', 'c', 'b']
->>> 
+>>>
 >>> lst[::2] # two in two
 ['a', 'c', 'e', 'g']
->>> 
+>>>
 ```
 
 - `strings` são imutáveis. toda operação produz uma nova string, inclusive a indexação, que produz uma string de `length = 1`.
@@ -935,14 +935,14 @@ IndexError: list index out of range
 >>> t = ('a', 'b', 'c')
 >>> t[0:2]
 ('a', 'b')
->>> 
+>>>
 >>> t.count('a')
 1
 >>> t.index('c')
 2
 >>> t[2]
 'c'
->>> 
+>>>
 ```
 
 - `list` são mutáveis. Podendo ser alteradas por indexação ou atribuição em slices. Se alterada por slices, o lado direito deve ser um iterável:
@@ -952,32 +952,32 @@ IndexError: list index out of range
 >>> lst[0] = 'x'
 >>> lst
 ['x', 'b', 'c', 'd', 'e']
->>> 
+>>>
 >>> lst[0:3] = ['y', 'z', 'w']
 >>> lst
 ['y', 'z', 'w', 'd', 'e']
->>> 
+>>>
 >>> lst[0:3] = ['k']
 >>> lst
 ['k', 'd', 'e']
->>> 
+>>>
 ```
 
 - Algumas sintaxes comuns envolvendo listas e slices:
 
 ```python
 >>> lst = ['a', 'b', 'c', 'd', 'e']
->>> 
+>>>
 >>> # Copia
 ... lst_copy = lst[:]
 >>> lst_copy
 ['a', 'b', 'c', 'd', 'e']
->>> 
+>>>
 >>> # Excluir elementos. mesmo que del lst[0:3]...
 ... lst[0:3] = []
 >>> lst
 ['d', 'e']
->>> 
+>>>
 
 >>> # Inserir numa posiçao. Inclui elementos just before the position.
 ... lst
@@ -985,32 +985,32 @@ IndexError: list index out of range
 >>> lst[1:1] = ['f', 'g', 'h']
 >>> lst
 ['d', 'f', 'g', 'h', 'e']
->>> 
+>>>
 
 >>> # Substituir todo o conteudo
 ... lst = ['a', 'b', 'c']
 >>> lst
 ['a', 'b', 'c']
->>> 
+>>>
 >>> lst[:] = ['d', 'e', 'f']
 >>> lst
 ['d', 'e', 'f']
->>> 
+>>>
 ```
 
 - Além da deleção por slices, `del` também permite excluir um objeto ou um slice de objetos:
 
 ```python
 >>> lst = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
->>> 
+>>>
 >>> del lst[3]
 >>> lst
 ['a', 'b', 'c', 'e', 'f', 'g']
->>> 
+>>>
 >>> del lst[0:3]
 >>> lst
 ['e', 'f', 'g']
->>> 
+>>>
 ```
 
 - Listas permitem algumas operações inplace:
@@ -1018,33 +1018,33 @@ IndexError: list index out of range
 ```python
 >>> # Concatenaçao
 >>> lst = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
->>> 
->>> lst += ['h', 'i'] 
+>>>
+>>> lst += ['h', 'i']
 >>> lst
 ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']
->>> 
+>>>
 >>> # o mesmo que o metodo extend()
-... 
+...
 >>> lst.extend(['j', 'l'])
 >>> lst
 ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'l']
->>> 
+>>>
 >>> # repetiçao com *
 ... lst = ['a', 'b']
 >>> lst *= 2
 >>> lst
 ['a', 'b', 'a', 'b']
->>> 
+>>>
 >>> # Multiplicar por um valor negativo esvazia:
 ... lst = ['a', 'b']
 >>> lst *= 10
 >>> lst
 ['a', 'b', 'a', 'b', 'a', 'b', 'a', 'b', 'a', 'b', 'a', 'b', 'a', 'b', 'a', 'b', 'a', 'b', 'a', 'b']
->>> 
+>>>
 >>> lst *= -5
 >>> lst
 []
->>> 
+>>>
 ```
 
 - `list` tem métodos modificadores e não-modificadores. Apenas dois métodos, `count()` e `index()`, não modificam as listas:
@@ -1053,65 +1053,65 @@ IndexError: list index out of range
 >>> lst = ['a', 'b', 'c', 'a']
 >>> lst.count('a')
 2
->>> 
+>>>
 >>> lst.index('b')
 1
 >>> lst[1]
 'b'
->>> 
+>>>
 ```
 
 - Métodos que modificam:
 
 ```python
 >>> lst = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
->>> 
->>> lst += ['h', 'i'] 
+>>>
+>>> lst += ['h', 'i']
 >>> lst
 ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']
->>> 
+>>>
 >>> # o mesmo que o metodo extend()
-... 
+...
 >>> lst.extend(['j', 'l'])
 >>> lst
 ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'l']
->>> 
+>>>
 >>> # repetiçao com *
 ... lst = ['a', 'b']
 >>> lst = ['a', 'b', 'c']
 >>> lst.append('d')
 >>> lst
 ['a', 'b', 'c', 'd']
->>> 
+>>>
 >>> lst.extend(['e', 'f', 'g'])
 >>> lst
 ['a', 'b', 'c', 'd', 'e', 'f', 'g']
->>> 
->>> 
+>>>
+>>>
 >>> lst.insert(1, 'x')
 >>> lst
 ['a', 'x', 'b', 'c', 'd', 'e', 'f', 'g']
->>> 
+>>>
 >>>
 >>> lst.remove('x')
->>> 
+>>>
 >>> lst
 ['a', 'b', 'c', 'd', 'e', 'f', 'g']
->>> 
+>>>
 >>> lst.pop()
 'g'
 >>> lst
 ['a', 'b', 'c', 'd', 'e', 'f']
->>> 
+>>>
 >>> lst.sort()
 >>> lst
 ['a', 'b', 'c', 'd', 'e', 'f']
->>> 
+>>>
 >>> lst.reverse()
 >>> lst
 ['f', 'e', 'd', 'c', 'b', 'a']
->>> 
->>> 
+>>>
+>>>
 ```
 
 - Ordenando listas:
@@ -1119,40 +1119,40 @@ IndexError: list index out of range
 ```python
 >>> lst
 ['a', 'b', 'c', 'd', 'e', 'f', 'g']
->>> 
+>>>
 >>> # inplace, usando .sort()
 ... lst = ['d', 'a', 'e', 'f']
 >>> lst.sort()
 >>> lst
 ['a', 'd', 'e', 'f']
->>> 
+>>>
 >>> # inplace, invertido
 ... lst.sort(reverse=True)
 >>> lst
 ['f', 'e', 'd', 'a']
->>> 
+>>>
 >>> # criando novo objeto, usando o builtin sorted()
 ... lst_sorted = sorted(lst)
 >>> lst_sorted
 ['a', 'd', 'e', 'f']
->>> 
+>>>
 >>> lst
 ['f', 'e', 'd', 'a']
->>> 
->>> 
+>>>
+>>>
 >>> # tambem e possivel utilizar uma funcao key, que sera executada em cada objeto antes da comparacao
 ... lst = ['Plone', 'javascript', 'Zope', 'ASP']
->>> 
+>>>
 >>> lst.sort(key=str.lower)
 KeyboardInterrupt
 >>> lst.sort()
 >>> lst
 ['ASP', 'Plone', 'Zope', 'javascript']
->>> 
+>>>
 >>> lst.sort(key=str.lower)
 >>> lst
 ['ASP', 'javascript', 'Plone', 'Zope']
->>> 
+>>>
 ```
 
 - Em Python 3 o parâmetro `cmp`, que permitia definir uma função e comparação personalizada deixou de existir. Contudo, você pode usar `functools.cmp_to_key` e o parâmetro `key=` para obter o mesmo resultado.
@@ -1161,14 +1161,14 @@ KeyboardInterrupt
 
 ```python
 >>> import operator
->>> 
+>>>
 >>> lst = ['python', 'perl', 'javascript', 'java', 'bash']
->>> 
+>>>
 >>> # ordenando pelo ultimo caractere
 ... lst.sort(key=operator.itemgetter(-1))
 >>> lst
 ['java', 'bash', 'perl', 'python', 'javascript']
->>> 
+>>>
 ```
 
 ###### Operações com `set`
@@ -1178,31 +1178,31 @@ KeyboardInterrupt
 ```python
 >>> sA = {1, 3, 4, 5, 12, 33, 98}
 >>> sB = {2, 4, 5, 87, 88, 89}
->>> 
+>>>
 >>> # diferenca todos em sA que nao estao em sB
 ... sA.difference(sB)
 {1, 98, 3, 33, 12}
->>> 
+>>>
 >>> # intersecao: todos em sA e em sB
 ... sA.intersection(sB)
 {4, 5}
->>> 
+>>>
 >>> # subset: todos de sA estao em sB
 ... sA.issubset(sB)
 False
->>> 
+>>>
 >>> # superset: todos de sB estao em sA ?
 ... sA.issuperset(sB)
 False
->>> 
+>>>
 >>> # symmetric_difference: todos que estao apenas em sA ou apenas em sB
 ... sA.symmetric_difference(sB)
 {1, 2, 3, 12, 87, 88, 89, 33, 98}
->>> 
+>>>
 >>> # uniao
 ... sA.union(sB)
 {1, 33, 3, 4, 5, 98, 2, 12, 87, 88, 89}
->>> 
+>>>
 ```
 
 - Métodos que alteram o `set`. Não são aplicáveis a `frozensets`:
@@ -1218,14 +1218,14 @@ False
 >>> s.discard('c')
 >>> s
 {'d', 'b', 'a'}
->>> 
+>>>
 >>> # remove o último inserido
 >>> s.pop() # retorna e remove um item qualquer do conjunto
 'd'
->>> 
+>>>
 >>> s
 {'b', 'a'}
->>> 
+>>>
 >>> # Remove o elemento. Se não existir, gera KeyError
 >>> s.remove('b')
 >>> s
@@ -1234,7 +1234,7 @@ False
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 KeyError: 'x'
->>> 
+>>>
 ```
 
 - Você pode fazer um loop destrutivo usando `pop()`, inclusive modificando o conjunto. Com um for convencional, isto não é possível:
@@ -1242,20 +1242,20 @@ KeyError: 'x'
 ```python
 >>> while s:
 ...     print(s.pop())
-... 
+...
 c
 b
 a
->>> 
+>>>
 
 >>> s = {'a', 'b', 'c'}
 >>> for elem in a:
 ...     a.insert('x')
-... 
+...
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 NameError: name 'a' is not defined
->>> 
+>>>
 ```
 
 - `sets` tem outros métodos mutáveis, como `symmetric_difference_update`, `difference_update` (todos terminam com `_update`) que realizam a operação mas modificam o `inplace`:
@@ -1263,18 +1263,18 @@ NameError: name 'a' is not defined
 ```python
 >>> s1 = {'a', 'b', 'c'}
 >>> s2 = {'c', 'd', 'e'}
->>> 
+>>>
 >>> s1.symmetric_difference_update(s2)
 >>> s1
 {'b', 'e', 'a', 'd'}
->>> 
+>>>
 
 >>> s1 = {'a', 'b', 'c'}
 >>> s2 = {'c', 'd', 'e'}
 >>> s1.intersection_update(s2)
 >>> s1
 {'c'}
->>> 
+>>>
 ```
 
 - Os métodos de `sets` podem ser aplicados com qualquer sequência, pois esta será convertida para um `set(sequencia)`. Já os `operadores`, só podem ser aplicados entre `sets` ou `sets` e `frozensets`:
@@ -1282,7 +1282,7 @@ NameError: name 'a' is not defined
 ```python
 >>> s1 = {'a', 'b', 'c'}
 >>> s2 = {'c', 'd', 'e'}
->>> 
+>>>
 >>> s1 & s2
 {'c'}
 >>> s1 | s2
@@ -1298,80 +1298,80 @@ NameError: name 'a' is not defined
 
 ```python
 >>> d = {'a': 10, 'b': 2, 'c': 30}
->>> 
+>>>
 >>> # copy() retorna uma copia 'shallow' (nao cria copia dos objetos contidos)
 ... d2 = d.copy()
 >>> d2
 {'a': 10, 'b': 2, 'c': 30}
->>> 
+>>>
 >>> # dict(d) tem o mesmo efeito que d.copy():
 ... d3 = dict(d)
 >>> d3
 {'a': 10, 'b': 2, 'c': 30}
->>> 
+>>>
 >>> # se voce indexar um dicionario com uma chave inexistente uma excecao e produzida
 ... # para evitar isso, utilize o metodo .get(chave), que retorna None
 ... # se None nao for um bom valor, voce pode passar um segundo parametro que sera o retorno padrao
-... 
+...
 >>> d.get('x')
 >>> print( d.get('x') )
 None
 >>> print( d.get('x', 0) )
 0
->>> 
+>>>
 >>> # .items() retorna um iterable dict_items
 ... d.items()
 dict_items([('a', 10), ('b', 2), ('c', 30)])
->>> 
+>>>
 >>> # .keys() retornas as chaves presentes no dicionario
 ... d.keys()
 dict_keys(['a', 'b', 'c'])
->>> 
+>>>
 >>> # .values() retorna os valores
 ... d.values()
 dict_values([10, 2, 30])
->>> 
->>> 
+>>>
+>>>
 ```
 
 - Métodos que **não** modificam:
 
 ```python
 >>> d = {'a': 10, 'b': 2, 'c': 30}
->>> 
+>>>
 >>> # copy() retorna uma copia 'shallow' (nao cria copia dos objetos contidos)
 ... d2 = d.copy()
 >>> d2
 {'a': 10, 'b': 2, 'c': 30}
->>> 
+>>>
 >>> # dict(d) tem o mesmo efeito que d.copy():
 ... d3 = dict(d)
 >>> d3
 {'a': 10, 'b': 2, 'c': 30}
->>> 
+>>>
 >>> # se voce indexar um dicionario com uma chave inexistente uma excecao e produzida
 ... # para evitar isso, utilize o metodo .get(chave), que retorna None
 ... # se None nao for um bom valor, voce pode passar um segundo parametro que sera o retorno padrao
-... 
+...
 >>> d.get('x')
 >>> print( d.get('x') )
 None
 >>> print( d.get('x', 0) )
 0
->>> 
+>>>
 >>> # .items() retorna um iterable dict_items
 ... d.items()
 dict_items([('a', 10), ('b', 2), ('c', 30)])
->>> 
+>>>
 >>> # .keys() retornas as chaves presentes no dicionario
 ... d.keys()
 dict_keys(['a', 'b', 'c'])
->>> 
+>>>
 >>> # .values() retorna os valores
 ... d.values()
 dict_values([10, 2, 30])
->>> 
->>> 
+>>>
+>>>
 ```
 
 > Nunca modifique um dicionário enquanto itera sobre ele.
@@ -1382,11 +1382,11 @@ dict_values([10, 2, 30])
 >>> d = {'a': 1, 'b': 2, 'c': 3}
 >>> for chave in d:
 ...     print(chave)
-... 
+...
 a
 b
 c
->>> 
+>>>
 ```
 
 - Evite usar o método `setdefault`. Dê preferência a coleção `collections.defaultdict`.
@@ -1399,29 +1399,29 @@ c
 True
 >>> while d:
 ...     print( d.popitem() )
-...     
-... 
+...
+...
 ('c', 3)
 ('b', 2)
 ('a', 1)
 >>> d
 {}
->>> 
+>>>
 ```
 
 - O método `update()` também suporta uma lista com pares `chave, valor` ou parâmetros nomeados:
 
 ```python
 >>> d = {'a': 1, 'b': 2, 'c': 3}
->>> 
+>>>
 >>> d.update([ ('a', 10), ('d', 99) ])
 >>> d
 {'a': 10, 'b': 2, 'c': 3, 'd': 99}
->>> 
+>>>
 >>> d.update(b=35, f=50)
 >>> d
 {'a': 10, 'b': 35, 'c': 3, 'd': 99, 'f': 50}
->>> 
+>>>
 ```
 
 ### Fluxos de controle
@@ -1437,8 +1437,8 @@ enter the num: 25
 ...     print('positivo e par')
 ... else:
 ...     print('positivo e impar')
-...     
-... 
+...
+...
 positivo e par
 ```
 
@@ -1449,14 +1449,14 @@ positivo e par
 >>> while x:
 ...     print(x)
 ...     x -= 1
-...     
-... 
+...
+...
 5
 4
 3
 2
 1
->>> 
+>>>
 ```
 
 - Pode conter um bloco `else`, executado quando o loop termina **sem** ser interrompido por um `break`:
@@ -1468,15 +1468,15 @@ positivo e par
 ...     x -= 1
 ... else:
 ...     print('x e zero!')
-...     
-... 
+...
+...
 5
 4
 3
 2
 1
 x e zero!
->>> 
+>>>
 ```
 
 - `continue` e `break` podem ser utilizados:
@@ -1495,8 +1495,8 @@ x e zero!
 ...         x -= 1
 ... else:
 ...     print('* Loop terminou sem interrupcoes')
-...     
-... 
+...
+...
 10
 8
 6
@@ -1512,14 +1512,14 @@ x e zero!
 ```python
 >>> for letra in 'abcdef':
 ...     print(letra)
-... 
+...
 a
 b
 c
 d
 e
 f
->>> 
+>>>
 ```
 
 Pode conter claúsulas `break`, `continue` e o `else`:
@@ -1534,11 +1534,11 @@ Pode conter claúsulas `break`, `continue` e o `else`:
 ...             print(letra)
 ... else:
 ...     print('Loop concluido sem nenhuma interrupcao')
-... 
+...
 a
 b
 d
->>> 
+>>>
 ```
 
 - `for` pode iterar sobre sequências com mais de um item por vez:
@@ -1547,11 +1547,11 @@ d
 >>> d = {'a': 1, 'b': 2, 'c': 3}
 >>> for chave, valor in d.items():
 ...     print(chave, ' -> ', valor)
-... 
+...
 a  ->  1
 b  ->  2
 c  ->  3
->>> 
+>>>
 ```
 
 - o identificar que é atribuído em cada iteração do `for` pode ser qualquer identificador de atribuição (lado esquerdo) válido:
@@ -1560,13 +1560,13 @@ c  ->  3
 >>> lst = ['a', 999]
 >>> for lst[1] in ('b', 'c', 'd', 'e', 'f'):
 ...     print(lst)
-... 
+...
 ['a', 'b']
 ['a', 'c']
 ['a', 'd']
 ['a', 'e']
 ['a', 'f']
->>> 
+>>>
 ```
 
 - **Não altere o objeto sendo iterado durante o** `for`.
@@ -1577,7 +1577,7 @@ c  ->  3
 >>> lista = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 >>> for par in lista[0::2]:
 ...     print(par)
-... 
+...
 0
 2
 4
@@ -1585,18 +1585,18 @@ c  ->  3
 8
 >>> print('Ultimo par na sequencia: ', par)
 Ultimo par na sequencia:  8
->>> 
+>>>
 ```
 
 entenda como:
 
 ```python
 >>> lista = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
->>> 
+>>>
 >>> par = None
 >>> for par in lista[0::2]:
 ...     print(par)
-... 
+...
 0
 2
 4
@@ -1604,7 +1604,7 @@ entenda como:
 8
 >>> print('Ultimo par na sequencia: ', par)
 Ultimo par na sequencia:  8
->>> 
+>>>
 ```
 
 Mas lembre-se: `par` só existirá se o loop for executado pelo menos uma vez.
@@ -1633,7 +1633,7 @@ Mas lembre-se: `par` só existirá se o loop for executado pelo menos uma vez.
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 StopIteration
->>> 
+>>>
 ```
 
 O loop `for` chama `iter` implicitamente:
@@ -1641,11 +1641,11 @@ O loop `for` chama `iter` implicitamente:
 ```python
 >>> for el in [1, 2, 3]:
 ...     print(el)
-... 
+...
 1
 2
 3
->>> 
+>>>
 ```
 
 - Muitos padrões e funções conveniente para lidar com iteradores encontram-se no módulo `itertools`.
@@ -1659,13 +1659,13 @@ Seus parâmetros são equivalentes ao de um slice. Existindo, portanto, três fo
 ```python
 >>> list( range(3) )
 [0, 1, 2]
->>> 
+>>>
 >>> list( range(1, 3) )
 [1, 2]
->>> 
+>>>
 >>> list( range(0, 7, 2) )
 [0, 2, 4, 6]
->>> 
+>>>
 ```
 
 A partir de `v3`, `range()` sempre retorna um objeto especializado. Para obter uma lista sequencial comum, use `list( range(...) )`.
@@ -1679,7 +1679,7 @@ A partir de `v3`, `range()` sempre retorna um objeto especializado. Para obter u
 >>> n_lst = [i * 10 for i in lst] # sem clausulas, apenas expressao e iteracao
 >>> n_lst
 [10, 20, 30]
->>> 
+>>>
 ```
 
 Este tipo de expressão também permite condicionais, `if`:
@@ -1689,7 +1689,7 @@ Este tipo de expressão também permite condicionais, `if`:
 >>> pares = [i for i in lst if i % 2 == 0]
 >>> pares
 [2, 4]
->>> 
+>>>
 ```
 
 Também é possível fazer `for` aninhados:
@@ -1700,20 +1700,20 @@ Também é possível fazer `for` aninhados:
 ...     [4, 5, 6],
 ...     [7, 8, 9]
 ... ]
->>> 
+>>>
 >>> flat = [y for row in matrix for y in row]
 >>> flat
 [1, 2, 3, 4, 5, 6, 7, 8, 9]
->>> 
+>>>
 >>> # mesmo que
 ... flat = []
 >>> for row in matrix:
 ...     for y in row:
 ...             flat.append(y)
-... 
+...
 >>> flat
 [1, 2, 3, 4, 5, 6, 7, 8, 9]
->>> 
+>>>
 ```
 
 Os condicionais `if` podem ser usados com cada `for`. Mas evite, vai ficando cada vez mais complexo:
@@ -1725,7 +1725,7 @@ Os condicionais `if` podem ser usados com cada `for`. Mas evite, vai ficando cad
 >>> flat = [y for row in matrix if row[1] == 5 for y in row if y == 6]
 >>> flat
 [6]
->>> 
+>>>
 ```
 
 Lembre-se: os `for` consecutivos são considerados aninhados ao `for` anterior.
@@ -1737,7 +1737,7 @@ Lembre-se: os `for` consecutivos são considerados aninhados ao `for` anterior.
 >>> s = {x for x in lst}
 >>> s
 {1, 2, 3, 4, 5, 6}
->>> 
+>>>
 ```
 
 Os dicionários também podem ser criados dessa maneira:
@@ -1748,7 +1748,7 @@ Os dicionários também podem ser criados dessa maneira:
 >>> dct = {i:letters[i] for i in lst}
 >>> dct
 {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e', 5: 'f'}
->>> 
+>>>
 ```
 
 ### break
@@ -1761,14 +1761,14 @@ Os dicionários também podem ser criados dessa maneira:
 ...     print(x)
 ...     x -= 1
 ...     if x == 4: break
-... 
+...
 10
 9
 8
 7
 6
 5
->>> 
+>>>
 ```
 
 ### continue
@@ -1783,13 +1783,13 @@ Os dicionários também podem ser criados dessa maneira:
 ...     x -= 1
 ...     if x % 2 == 0: continue
 ...     else: print(x)
-... 
+...
 9
 7
 5
 3
 1
->>> 
+>>>
 ```
 
 - Por vezes, o `continue` permite implementar uma estrutura mais `flat`, logo mais Pythonica. Pois permite substituir um `if` em alguns casos:
@@ -1799,14 +1799,14 @@ Os dicionários também podem ser criados dessa maneira:
 >>> for n in lst:
 ...     if n > 50: continue
 ...     print(n)
-... 
+...
 1
 3
 45
 3
 33
 45
->>> 
+>>>
 ```
 
 ### `else` em loops
@@ -1820,21 +1820,21 @@ Os dicionários também podem ser criados dessa maneira:
 ...     print(n)
 ... else:
 ...     print('sem interrupcoes')
-... 
+...
 1
 2
 3
 4
 5
 sem interrupcoes
->>> 
+>>>
 >>> lst = [1, 2, 3, 100, 4, 5]
 >>> for n in lst:
 ...     if n > 10: break
 ...     print(n)
 ... else:
 ...     print('sem interrupcoes')
-... 
+...
 1
 2
 3
@@ -1851,10 +1851,10 @@ sem interrupcoes
 ...     if n == 1: print('um')
 ...     elif n == 2: pass
 ...     elif n == 3: print('tres')
-... 
+...
 um
 tres
->>> 
+>>>
 ```
 
 - Obs: funções `def` e classes não precisam de uma instrução `pass`, quando estão vazias. O ideal é colocar uma `docstring`:
@@ -1862,11 +1862,11 @@ tres
 ```python
 >>> def nada():
 ...     """ faz nada """
-... 
+...
 >>> class Nada:
 ...     """ Naaada """
-... 
->>> 
+...
+>>>
 ```
 
 ## Funções
@@ -1884,17 +1884,17 @@ Um exemplo disso é o mapeamento da inversa da função em um dicionário:
 ```python
 >>> def soma(a, b):
 ...     return a + b
-... 
+...
 >>> def subtracao(a, b):
 ...     return a - b
-... 
+...
 >>> inversa = {soma: subtracao, subtracao: soma}
 >>> inversa
 {<function soma at 0x7f9f87a58d08>: <function subtracao at 0x7f9f87a58d90>, <function subtracao at 0x7f9f87a58d90>: <function soma at 0x7f9f87a58d08>}
->>> 
+>>>
 >>> soma(10, 20), inversa[soma](10, 20)
 (30, -10)
->>> 
+>>>
 ```
 
 - Funções são declaradas usando `def` e podem aceitar parâmetros:
@@ -1903,8 +1903,8 @@ Um exemplo disso é o mapeamento da inversa da função em um dicionário:
 >>> def nome_funcao(parametro1, parametro2):
 ...     # corpo. executado apenas quando a funcao é chamada.
 ...     pass
-... 
->>> 
+...
+>>>
 ```
 
 - Se houver parâmetros definidos, no momento da chamada da função estes devem ser fornecidos. No momento da chamada, esses valores são chamados de argumentos e são atribuídos a variáveis locais no escopo da função.
@@ -1914,15 +1914,15 @@ Um exemplo disso é o mapeamento da inversa da função em um dicionário:
 ```python
 >>> def soma(a, b):
 ...     return a + b
-... 
+...
 >>> soma(10)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: soma() missing 1 required positional argument: 'b'
->>> 
+>>>
 >>> soma(10, 31)
 41
->>> 
+>>>
 ```
 
 - Parâmetros nomeados com valor padrão:
@@ -1930,13 +1930,13 @@ TypeError: soma() missing 1 required positional argument: 'b'
 ```python
 >>> def soma(a, b=2):
 ...     return a + b
-... 
+...
 >>> soma(10, 31)
 41
->>> 
+>>>
 >>> soma(10)
 12
->>> 
+>>>
 ```
 
 - A expressão que representa o valor padrão de cada argumento é avaliada e salva entre os atributos do objeto função criado. Dessa forma, quando o argumento não é passado, esse valor é utilizado.
@@ -1950,31 +1950,31 @@ Cuidado: a expressão que define o valor padrão é executada apenas durante a d
 ...     print(n)
 ... else:
 ...     print('sem interrupcoes')
-... 
+...
 1
 >>> def incluir(valor, lst=[]):
 ...     lst.append(valor)
 ...     return lst
-... 
+...
 >>> incluir(1)
 [1]
 >>> incluir(2)
 [1, 2]
->>> 
+>>>
 >>> nova_lst = []
 >>> incluir(1, nova_lst)
 [1]
 >>> incluir(2, nova_lst)
 [1, 2]
->>> 
+>>>
 >>> # volta para referencia padrao. lembre-se que so eh amarrado durante a declaracao.
 ... incluir(3) # volta para lst criada na declaracao
 [1, 2, 3]
->>> 
+>>>
 >>> # nova_lst segue sem o 3
 ... nova_lst
 [1, 2]
->>> 
+>>>
 ```
 
 - Use o seguinte idioma para evitar parâmetros `default` mutáveis em funções:
@@ -1984,18 +1984,18 @@ Cuidado: a expressão que define o valor padrão é executada apenas durante a d
 ...     if lst is None: lst = []
 ...     lst.append(valor)
 ...     return lst
-... 
+...
 >>> inserir(1)
 [1]
 >>> inserir(2)
 [2]
->>> 
+>>>
 >>> lista = []
 >>> inserir(1, lista)
 [1]
 >>> inserir(2, lista)
 [1, 2]
->>> 
+>>>
 ```
 
 - Contudo, por vezes esse comportamento é útil. Exemplo: quando queremos fazer cache de alguma computação (memoization):
@@ -2006,7 +2006,7 @@ Cuidado: a expressão que define o valor padrão é executada apenas durante a d
 ...     if a in _cache: return _cache[a]
 ...     _cache[a] = a + fib(a - 1)
 ...     return _cache[a]
-... 
+...
 >>> fib(10)
 {0: 1, 1: 1}
 {0: 1, 1: 1}
@@ -2022,7 +2022,7 @@ Cuidado: a expressão que define o valor padrão é executada apenas durante a d
 >>> fib(10)
 {0: 1, 1: 1, 2: 3, 3: 6, 4: 10, 5: 15, 6: 21, 7: 28, 8: 36, 9: 45, 10: 55}
 55
->>> 
+>>>
 ```
 
 Contudo, é possível obter melhores resultados usando o decorador disponível no módulo `functools`: `functools.lru_cache`.
@@ -2034,12 +2034,12 @@ Contudo, é possível obter melhores resultados usando o decorador disponível n
 ...     print(posicional)
 ...     print(args)
 ...     print(kwargs)
-... 
+...
 >>> exemplo('spam', 1, 2, 3, a=10, b=20, c=30)
 spam
 (1, 2, 3)
 {'a': 10, 'b': 20, 'c': 30}
->>> 
+>>>
 ```
 
 - Lembre-se: cada chamada de função cria um escopo próprio e os argumentos são atribuidos e existem apenas nesse escopo.
@@ -2053,14 +2053,14 @@ spam
 ...     print(f'k1={k1}')
 ...     print(f'k2={k2}')
 ...     print(f'kwargs={kwargs}')
-... 
+...
 >>> teste(10, 33, 44, 55, k1=100)
 a=10
 args=(33, 44, 55)
 k1=100
 k2=spam
 kwargs={}
->>> 
+>>>
 ```
 
 - Se você não desejar flexibilidade para os argumentos posicionais, use um `*` puro no lugar de `*args`. Dessa maneira, apenas argumentos posicionais existentes na assinatura podem ser passados:
@@ -2071,7 +2071,7 @@ kwargs={}
 ...     print(f'k1={k1}')
 ...     print(f'k2={k2}')
 ...     print(f'kwargs={kwargs}')
-... 
+...
 >>> teste(10, k1=100, k2='eggs', k3='bacon')
 a=10
 k1=100
@@ -2083,7 +2083,7 @@ kwargs={'k3': 'bacon'}
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: teste() takes 1 positional argument but 3 positional arguments (and 2 keyword-only arguments) were given
->>> 
+>>>
 ```
 
 - `def` produz alguns atributos no objeto função definido:
@@ -2096,11 +2096,11 @@ TypeError: teste() takes 1 positional argument but 3 positional arguments (and 2
 >>> def soma(a=2, b=5):
 ...     print(soma.__name__)
 ...     print(soma.__defaults__)
-... 
+...
 >>> soma()
 soma
 (2, 5)
->>> 
+>>>
 ```
 
 - Outro atributo magicamente definido é o `__doc__` que recebe, caso a função seja iniciada com, uma docstring:
@@ -2109,22 +2109,22 @@ soma
 >>> def soma(a, b):
 ...     """ soma a + b """
 ...     return a + b
-... 
+...
 >>> soma.__doc__
 ' soma a + b '
->>> 
+>>>
 >>> help(soma) # chama .__doc__
 
->>> 
+>>>
 ```
 
-- Funções, por serem objetos, podem manter diferentes atributos. Exemplo, contar quantas vezes foi chamada. 
+- Funções, por serem objetos, podem manter diferentes atributos. Exemplo, contar quantas vezes foi chamada.
 
 ```python
 >>> def counter():
 ...     counter.count += 1
 ...     print(counter.count)
-... 
+...
 >>> counter.count = 0
 >>> counter()
 1
@@ -2132,7 +2132,7 @@ soma
 2
 >>> counter()
 3
->>> 
+>>>
 ```
 
 Contudo, não é um idioma de programação comum. Se quer manter estado, utilize orientação a objetos.
@@ -2144,10 +2144,10 @@ Contudo, não é um idioma de programação comum. Se quer manter estado, utiliz
 ```python
 >>> def soma(a: 'inteiro', b: 'inteiro') -> 'inteiro':
 ...     return a + b
-... 
+...
 >>> soma.__annotations__
 {'a': 'inteiro', 'b': 'inteiro', 'return': 'inteiro'}
->>> 
+>>>
 ```
 
 - A partir de Python 3.6, é possível anotar variáveis também:
@@ -2176,20 +2176,20 @@ Quando essas variáveis são passadas como argumentos, o hyperlink é copiado pa
 ```python
 >>> a = 10
 >>> b = 20
->>> 
+>>>
 >>> def exemplo(x, y):
 ...     print(id(x))
 ...     print(id(y))
-... 
+...
 >>> id(a)
 10969088
 >>> id(b)
 10969408
->>> 
+>>>
 >>> exemplo(a, b)
 10969088
 10969408
->>> 
+>>>
 ```
 
 Contudo, dentro do escopo da função, o hyperlink-argumento criado pode ser alterado, sem afetar o hyperlink de fora:
@@ -2198,17 +2198,17 @@ Contudo, dentro do escopo da função, o hyperlink-argumento criado pode ser alt
 >>> x = 10
 >>> id(x)
 10969088
->>> 
+>>>
 >>> def exemplo2(z):
 ...     z = 100
 ...     print(id(z))
-... 
+...
 >>> exemplo2(x)
 10971968
->>> 
+>>>
 >>> print(x, id(x)) # inalterado
 10 10969088
->>> 
+>>>
 ```
 
 Para objetos imutáveis (números, strings, tuplas), esse comportamento não traz surpresas. Mas para objetos modificáveis, é possível que uma operação através do escopo da função reflita em todo o sistema, pois o objeto é compartilhado:
@@ -2217,31 +2217,31 @@ Para objetos imutáveis (números, strings, tuplas), esse comportamento não tra
 >>> lista = [1, 2, 3]
 >>> print(lista, id(lista))
 [1, 2, 3] 139632946475208
->>> 
+>>>
 >>> def exemplo(l):
 ...     l.append(9)
-... 
+...
 >>> exemplo(lista)
 >>> print(lista, id(lista))
 [1, 2, 3, 9] 139632946475208
->>> 
+>>>
 ```
 
 Por fim, se você reatribuir o link no escopo local para um novo objeto, o hyperlink original não é modificado:
 
 ```python
 >>> lista = [1, 2, 3]
->>> 
+>>>
 >>> def exemplo(l):
 ...     l = [14, 15, 16]
 ...     print(l, id(l))
 
 >>> exemplo(lista)
 [14, 15, 16] 139632886589064
->>> 
+>>>
 >>> print(lista, id(lista))
 [1, 2, 3] 139632946478792
->>> 
+>>>
 ```
 
 - Em funções puramente Python, é possível alterar a ordem dos argumentos posicionais usando argumentos nomeados:
@@ -2249,10 +2249,10 @@ Por fim, se você reatribuir o link no escopo local para um novo objeto, o hyper
 ```python
 >>> def subtrai(a, b):
 ...     return a - b
-... 
+...
 >>> print( subtrai(b=3, a=10) )
 7
->>> 
+>>>
 ```
 
 - É possível "desempactor" argumentos passados como `*args` ou `**kwargs` e passá-los para outras funções:
@@ -2260,55 +2260,55 @@ Por fim, se você reatribuir o link no escopo local para um novo objeto, o hyper
 ```python
 >>> def soma(*, a, b):
 ...     return a + b
-... 
+...
 >>> def exemplo(*args, **kwargs):
 ...     print( *args ) # arg1, arg2, arg3...
 ...     print( soma(**kwargs) ) # soma(..=...)...
-... 
+...
 >>> exemplo(1, 2, 3, a=10, b=20)
 1 2 3
 30
->>> 
+>>>
 ```
 
 ### Namespaces
 
 - Funções produzem um escopo local próprio, com as variáveis definidas em seu corpo e os argumentos passados.
 
-- Variáveis fora do escopo de uma função são variáveis globais e são atributos do objeto do módulo em que foram declaradas. 
+- Variáveis fora do escopo de uma função são variáveis globais e são atributos do objeto do módulo em que foram declaradas.
 
 - Se o escopo local tem uma variável com o nome igual de uma global, ela "esconde" a global.
 
 ```python
 >>> valor = 10
->>> 
+>>>
 >>> def soma(a, b):
 ...     valor = a + b
 ...     return valor
-... 
->>> 
+...
+>>>
 >>> soma(100, 100)
 200
 >>> valor
 10
->>> 
+>>>
 ```
 
 - Caso queira alterar de fato uma variável do escopo global, declare-a no início da função com a palavra-chave `global`:
 
 ```python
 >>> valor = 10
->>> 
+>>>
 >>> def soma(a, b):
 ...     global valor
 ...     valor = a + b
 ...     return valor
-... 
+...
 >>> soma(35, 39)
 74
 >>> valor
 74
->>> 
+>>>
 ```
 
 - Funções podem ser declaradas dentro de outras funções. A função interna, conhecida como `nested function` ou `inner function`. A função que engloba, é denominada `outer function`.
@@ -2320,15 +2320,15 @@ Por fim, se você reatribuir o link no escopo local para um novo objeto, o hyper
 ...     def incrementer(parameter):
 ...             return parameter + value
 ...     return incrementer
-... 
+...
 >>> inc10 = create_incrementer(10)
 >>> inc10(5)
 15
->>> 
+>>>
 >>> inc2 = create_incrementer(2)
 >>> inc2(5)
 7
->>> 
+>>>
 ```
 
 As `nested function` que acessam variáveis do escopo superior são chamadas de `closures`.
@@ -2340,15 +2340,15 @@ As `nested function` que acessam variáveis do escopo superior são chamadas de 
 ...     def incrementer(param, increment=value):
 ...             return param + increment
 ...     return incrementer
-... 
+...
 >>> inc10 = create_incrementer(10)
 >>> inc10(2)
 12
->>> 
+>>>
 >>> inc2 = create_incrementer(2)
 >>> inc2(5)
 7
->>> 
+>>>
 ```
 
 - Caso você queira alterar a variável do escopo da `outer function`, você deve declarar a variável com a palavra chave `nonlocal` logo no início da função:
@@ -2361,10 +2361,10 @@ As `nested function` que acessam variáveis do escopo superior são chamadas de 
 ...             count += 1
 ...             return count
 ...     return counter
-... 
+...
 >>> c1 = make_counter()
 >>> c2 = make_counter()
->>> 
+>>>
 >>> c1()
 1
 >>> c1()
@@ -2373,7 +2373,7 @@ As `nested function` que acessam variáveis do escopo superior são chamadas de 
 1
 >>> c2()
 2
->>> 
+>>>
 ```
 
 Lembre-se que cada chamada de função tem um escopo próprio.
@@ -2387,7 +2387,7 @@ Lembre-se que cada chamada de função tem um escopo próprio.
 >>> lst = range(0, 11) # 0, 1, 2....10
 >>> list( filter(lambda x: x % 2 == 0, lst) )
 [0, 2, 4, 6, 8, 10]
->>> 
+>>>
 ```
 
 ### Generators
@@ -2403,12 +2403,12 @@ Lembre-se que cada chamada de função tem um escopo próprio.
 >>> def g():
 ...     for i in range(0, 11):
 ...             yield i
-... 
+...
 >>> g
 <function g at 0x7ff182399400>
 >>> for it in g():
 ...     print(it)
-... 
+...
 0
 1
 2
@@ -2430,10 +2430,10 @@ Lembre-se que cada chamada de função tem um escopo próprio.
 ...             yield i
 ...     for i in range(6, 0, -1):
 ...             yield i
-... 
+...
 >>> for i in seq():
 ...     print(i)
-... 
+...
 0
 1
 2
@@ -2446,7 +2446,7 @@ Lembre-se que cada chamada de função tem um escopo próprio.
 3
 2
 1
->>> 
+>>>
 ```
 
 - A partir de v3 é possível realizar um `yield from iterator`, para que não seja necessário replicar um `yield`:
@@ -2455,10 +2455,10 @@ Lembre-se que cada chamada de função tem um escopo próprio.
 >>> def seq():
 ...     yield from range(0, 6)
 ...     yield from range(5, -1, -1)
-... 
+...
 >>> list( seq() )
 [0, 1, 2, 3, 4, 5, 5, 4, 3, 2, 1, 0]
->>> 
+>>>
 ```
 
 - É possível criar generators simples de forma similar as `list comprehensions`:
@@ -2466,13 +2466,13 @@ Lembre-se que cada chamada de função tem um escopo próprio.
 ```python
 >>> for double in (x * x for x in range(2, 11, 2)):
 ...     print(double)
-... 
+...
 4
 16
 36
 64
 100
->>> 
+>>>
 ```
 
 São delimitadas por parênteses e apresentam um `yield` implícito.
@@ -2482,14 +2482,14 @@ As `generator expressions` ou `genexp` aceitam as mesmas construções das `list
 ```python
 >>> for num in (x * 2 for x in range(0, 11) if x % 2 == 0):
 ...     print(num)
-... 
+...
 0
 4
 8
 12
 16
 20
->>> 
+>>>
 ```
 
 ### Generators como coroutines
@@ -2501,14 +2501,14 @@ As `generator expressions` ou `genexp` aceitam as mesmas construções das `list
 ...     while True:
 ...             recv = yield
 ...             print(recv)
-... 
+...
 >>> rp = repeater() # cria o generator
 >>> next(rp) # inicia a corotina
 >>> rp.send('Oi!')
 Oi!
 >>> rp.send('Tchau!')
 Tchau!
->>> 
+>>>
 ```
 
 Outro exemplo, que sempre retorna o menor valor recebido:
@@ -2519,8 +2519,8 @@ Outro exemplo, que sempre retorna o menor valor recebido:
 ...     while True:
 ...             new_value = yield current
 ...             current = min(current, new_value)
-... 
->>> 
+...
+>>>
 >>> g_the_minimizer = the_minimizer()
 >>> next(g_the_minimizer) # inicializa, passo obrigatorio
 >>> print( g_the_minimizer.send(1) )
@@ -2531,7 +2531,7 @@ Outro exemplo, que sempre retorna o menor valor recebido:
 1
 >>> print( g_the_minimizer.send(-9) )
 -9
->>> 
+>>>
 ```
 
 ### recursividade
@@ -2558,19 +2558,19 @@ objeto = Tipo()
 >>> class Ponto:
 ...     x = 0
 ...     y = 0
-... 
+...
 >>> Ponto.x
 0
 >>> Ponto.y
 0
 >>> Ponto.x = 10
 >>> Ponto.y = 99
->>> 
+>>>
 >>> Ponto.x
 10
 >>> Ponto.y
 99
->>> 
+>>>
 ```
 
 - Os atributos das classes podem ser funções. Nestes casos, elas são chamadas de métodos.
@@ -2583,11 +2583,11 @@ objeto = Tipo()
 ...             self.x = x
 ...             self.y = y
 ...             print(self.x, self.y)
-... 
->>> 
+...
+>>>
 >>> p = Ponto(3, 6)
 3 6
->>> 
+>>>
 ```
 
 - Classes podem herdar de outra classes, delegando para estas quando um atributo buscado não é encontrado:
@@ -2595,38 +2595,38 @@ objeto = Tipo()
 ```python
 >>> class Cachorro:
 ...     barulho = "Huf huf"
-... 
+...
 >>> class Beagle(Cachorro):
 ...     def fazer_barulho(self):
 ...             print(self.barulho)
-... 
+...
 >>> b = Beagle()
 >>> b.fazer_barulho()
 Huf huf
->>> 
+>>>
 >>> # Perceba que ele foi até a classe pai, buscando pelo atributo
 >>> Cachorro.barulho = "Au au!"
 >>> b.fazer_barulho()
 Au au!
->>> 
+>>>
 ```
 
-- Uma instância de uma class é um objeto Python e poder ter atributos, que podem ser modificados ou referenciados. 
+- Uma instância de uma class é um objeto Python e poder ter atributos, que podem ser modificados ou referenciados.
 
 - Objetos delegam a busca de atributos não encontrados para a classe, que por sua vez pode delegar - caso não tenha o atributo - para classes pai:
 
 ```python
 >>> class Pai:
 ...     atributo = 'bacon'
-... 
+...
 >>> class Filho(Pai):
 ...     pass
-... 
+...
 >>> instancia = Filho()
 >>> print( instancia.atributo )
 bacon
->>> 
->>> 
+>>>
+>>>
 ```
 
 - E claro, classes são objetos! Ou seja, podem ser passadas como argumento, ser criadas e retornadas a partir de funções, vinculadas a variáveis, fazer parte de um container (lista, dicionário, etc)...
@@ -2636,13 +2636,13 @@ bacon
 ```python
 >>> class A:
 ...     pass
-... 
+...
 >>> class B(A):
 ...     pass
-... 
+...
 >>> class C(B):
 ...     pass
-... 
+...
 ```
 
 - Você pode verificar a hierarquia usando `issubclass` ou `isinstance`:
@@ -2671,20 +2671,20 @@ Você pode defini-los no corpo da classe:
 >>> class Ponto:
 ...     x = 0
 ...     y = 1
-... 
+...
 >>> print( Ponto.x, Ponto.y )
 0 1
->>> 
+>>>
 ```
 
 Inclusive, criá-los ou alterá-los de fora do corpo:
 
 ```python
 >>> class Ponto: pass
-... 
+...
 >>> Ponto.x = 10
 >>> Ponto.y = 99
->>> 
+>>>
 >>> print( Ponto.x, Ponto.y )
 10 99
 ```
@@ -2695,14 +2695,14 @@ Inclusive, criá-los ou alterá-los de fora do corpo:
 
 ```python
 >>> class Animal: pass
-... 
+...
 >>> class Mamifero:
 ...     amamentacao = True
-... 
+...
 >>> print(Mamifero.__name__, Mamifero.__bases__, Mamifero.__dict__)
 Mamifero (<class 'object'>,) {'__module__': '__main__', 'amamentacao': True, '__dict__': <attribute '__dict__' of 'Mamifero' objects>, '__weakref__': <attribute '__weakref__' of '
 Mamifero' objects>, '__doc__': None}
->>> 
+>>>
 ```
 
 `__name__` é o nome de classe
@@ -2718,8 +2718,8 @@ Mamifero' objects>, '__doc__': None}
 ...             print( self.atributo )
 ...             print( Teste.atributo )
 ...             print( atributo ) # Ops! Sem qualificar
-... 
->>> 
+...
+>>>
 >>> t = Teste()
 >>> t.imprimir()
 spam
@@ -2728,7 +2728,7 @@ Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
   File "<stdin>", line 7, in imprimir
 NameError: name 'atributo' is not defined
->>> 
+>>>
 ```
 
 - Mas no corpo da classe, você pode referenciar sem qualificar.
@@ -2737,12 +2737,12 @@ NameError: name 'atributo' is not defined
 >>> class Teste:
 ...     atributo = 'spam'
 ...     atributo_maiusculo = atributo.upper()
-... 
+...
 >>> Teste.atributo
 'spam'
 >>> Teste.atributo_maiusculo
 'SPAM'
->>> 
+>>>
 ```
 
 - Inclusive, se você tentar qualificar no corpo da classe, vai gerar exceção, pois a classe só passa a existir ao final do bloco:
@@ -2751,12 +2751,12 @@ NameError: name 'atributo' is not defined
 >>> class Teste:
 ...     atributo = 'spam'
 ...     atributo_maiusculo = Teste.atributo.upper()
-... 
+...
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
   File "<stdin>", line 3, in Teste
 NameError: name 'Teste' is not defined
->>> 
+>>>
 ```
 
 - O corpo das classes permite a declaração de funções / métodos usando `def`. Contudo, essas funções `devem` ter um primeiro parâmetro chamado (convencionalmente) de `self`:
@@ -2765,7 +2765,7 @@ NameError: name 'Teste' is not defined
 >>> class Test:
 ...     def hello(self):
 ...             print('Hello World')
-... 
+...
 
 >>> t = Test()
 >>> t.hello()
@@ -2783,18 +2783,18 @@ Hello World
 ...     atributo = 'Atributo da classe Exemplo'
 ...     def tornar_atributo_maiusculo(self):
 ...             self.atributo = self.atributo.upper()
-... 
+...
 >>> e = Exemplo()
 >>> e.atributo
 'Atributo da classe Exemplo'
->>> 
+>>>
 >>> e.tornar_atributo_maiusculo()
 >>> e.atributo # o metodo transformou em uma variavel da instancia, "sobreescrevendo" o atributo da classe, que permanece inalterado
 'ATRIBUTO DA CLASSE EXEMPLO'
->>> 
+>>>
 >>> Exemplo.atributo
 'Atributo da classe Exemplo'
->>> 
+>>>
 ```
 
 - Python não tem, nativamente, controle de acesso aos atributos das classes. Isto é feitos através de convenções, `name mangling`.
@@ -2808,14 +2808,14 @@ No corpo da classe e em métodos dentro do corpo da classe, você pode referenci
 ...     __y = 0
 ...     def imprimir(self):
 ...             print(self.__x, self.__y)
-... 
+...
 >>> p = Ponto()
 >>> p.imprimir()
 0 0
 >>> Ponto.__dict__
 mappingproxy({'__module__': '__main__', '_Ponto__x': 0, '_Ponto__y': 0, 'imprimir': <function Ponto.imprimir at 0x7f764940a400>, '__dict__': <attribute '__dict__' of 'Ponto' objec
 ts>, '__weakref__': <attribute '__weakref__' of 'Ponto' objects>, '__doc__': None})
->>> 
+>>>
 ```
 
 - Atributos privados, pontanto devem - fora da classe original - ser acessados com o prefixo da classe em que são declarados:
@@ -2823,16 +2823,16 @@ ts>, '__weakref__': <attribute '__weakref__' of 'Ponto' objects>, '__doc__': Non
 ```python
 >>> class Pai:
 ...     __sobrenome = 'Silva'
-... 
+...
 >>> class Filho(Pai):
 ...     __nome = 'Joao'
 ...     def imprimir(self):
 ...             print(self.__nome, self._Pai__sobrenome) # A traducao so e feita na classe original. Objetivo e dificultar acesso.
-... 
+...
 >>> f = Filho()
 >>> f.imprimir()
 Joao Silva
->>> 
+>>>
 ```
 
 - Por fim, identificadores de classe que começam com apenas um underscore devem ser considerados privados. Mas Python não muda nome, nem evita que sejam usados. O programador que deve ser responsável e não se basear neles.
@@ -2843,16 +2843,19 @@ Joao Silva
 >>> class Teste:
 ...     """ Meu texto de ajuda """
 ...     pass
-... 
+...
 
 >>> Teste.__doc__
 ' Meu texto de ajuda '
->>> 
+>>>
 ```
 
-- `Descritores` são classes que controlam a leitura e modificação de seus atributos através da implementação dos métodos `__get__` e `__set__`:
+- `Descritores` são objetos que sobreescrevem o comportamento padrão da leitura e escrita de seus atributos.
 
-Uma classe que representa uma constante pode ser implementada:
+São utilizados para implementar métodos, métodos de classes, etc.
+
+Existem dois tipos de descritor, `data` e `non-data`.
+Os descritores `data` implementam `__set__(self, obj, value)` e `__get__(self, obj, type=None)`. Exemplo:
 
 ```python
 >>> class Contante:
@@ -2860,16 +2863,81 @@ Uma classe que representa uma constante pode ser implementada:
 ...             self.v = v
 ...     def __get__(self, instance, owner):
 ...             return self.v
-...     def __set__(self, instance, value):
-...             pass
+...     def __set__(self, instance, value): # readonly descriptor
+...             raise AttributeError()
 
 >>> class Exemplo:
 ...     c = Constante(42)
-... 
+...
 >>> e = Exemplo()
 >>> e.c
 42
->>> e.c = 10
+>>> e.c = 10 # Exception: AttributeError
+```
+
+Perceba que para criar um descritor `data` `readonly` bastou produzir uma exceção no método `__set__`.
+
+Os descritores `non-data` implementam apenas o `__get__`:
+
+```python
+>>> class NDTeste:
+...     def __get__(self, obj, type=None):
+...         return 42
+...
+>>>
+```
+
+Agora quando os descritores são chamados ? Para utilizá-los, eles precisam ser uma instância-atributo de alguma outra classe.
+
+```python
+>>> class Constante:
+...     def __get__(self, obj, type=None):
+...         print(f'__get__(obj={obj}, type={type})')
+...         return 42
+...
+...     def __set__(self, obj, value):
+...         print(f'__set__(obj, value)')
+...         raise AttributeError('readonly')
+...
+>>>
+>>> class Exemplo:
+...     atributo = Constante()
+...
+>>>
+>>> e = Exemplo()
+>>> e.atributo
+__get__(obj=<__main__.Exemplo object at 0x7f3d8a69a978>, type=<class '__main__.Exemplo'>)
+42
+>>>
+```
+
+Por ser um descriptor do tipo `data`, ou seja, tem `__get__` e `__set__` ao ser chamado, ele toma precedência sobre o dict do objeto. Há uma inversão de controle:
+
+A instância `Exemplo`, `e.atributo`, é identificada como descritor e tem seu método `__get__` chamado. Magicamente, Python passa como parâmetros a instância que o chamou (tá vendo como `self` é implementado?) e o tipo dessa instância.
+
+E se fosse um descriptor `non-data` ?
+
+```python
+>>> class Constante:
+...     def __get__(self, obj, type=None):
+...         return 42
+...
+>>>
+>>> class Exemplo:
+...     c = Constante()
+...
+>>>
+>>> e = Exemplo()
 >>> e.c
 42
+
+# Se o descritor for 'non-data' (apenas implementar __get__)
+# e o atributo estiver definido no __dict__ do objeto,
+# o valor em __dict__ será retornado. O descritor só tem prioridade
+# quando implementa __get__ e __set__ (é data)
+>>> e.c = 100
+>>> e.c
+100
+>>>
 ```
+
