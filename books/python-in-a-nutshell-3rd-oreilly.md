@@ -3154,4 +3154,128 @@ Na verdade, este é o método responsável por retornar a instância. Depois de 
 >>>
 ```
 
--
+- Classes apresentam alguns atributos especiais:
+
+`__name__` - nome da classe
+`__bases__` - tupla com as classes pai
+`__dict__` - contém os atributos da `classe`
+
+```python
+>>> class Ponto2D:
+...     x = 0
+...     y = 0
+...
+>>> class Ponto3D(Ponto2D):
+...     z = 0
+...
+>>>
+>>> Ponto3D.__name__
+'Ponto3D'
+>>>
+>>> Ponto3D.__bases__
+(__main__.Ponto2D,)
+>>>
+>>> class Ponto2D:
+...     x = 0
+...     y = 0
+...
+>>> class Ponto3D(Ponto2D):
+...     z = 0
+...
+>>>
+>>> Ponto3D.__name__
+'Ponto3D'
+>>>
+>>> Ponto3D.__bases__
+(__main__.Ponto2D,)
+>>>
+>>> Ponto2D.__dict__
+mappingproxy({'__module__': '__main__',
+              'x': 0,
+              'y': 0,
+              '__dict__': <attribute '__dict__' of 'Ponto2D' objects>,
+              '__weakref__': <attribute '__weakref__' of 'Ponto2D' objects>,
+              '__doc__': None})
+>>> Ponto3D.__dict__
+mappingproxy({'__module__': '__main__', 'z': 0, '__doc__': None})
+>>>
+```
+
+- As instâncias, por sua vez, também apresentam alguns atributos especiais:
+
+`__class__` - referência para a classe do objeto
+`__dict__` - atributos da `instância`
+
+```python
+>>> p = Ponto3D()
+>>> p.__class__
+__main__.Ponto3D
+>>> p.__dict__
+{}
+>>> p.z = 10
+>>> p.__dict__
+{'z': 10}
+>>>
+```
+
+Lembre-se: o atributo não encontrado na `instância` é procurado na classe e vai sendo procurado nas superclasses.
+
+- Quando referenciamos um atributo de um objeto: `obj.atributo`, os seguintes passos acontecem:
+
+1. Se `atributo` não está no `__dict__` do objeto, a busca é delegada para a classe do objeto e suas classes pai.
+
+**Obs: lembre-se que descritores têm que pertencer ao `__dict__` da Classe. Não podem ser atributos de instâncias.**
+
+1.1 E se o `objeto_valor` em `type(obj).__dict__['atributo']` é um descritor do tipo `data`, ou seja, implementa `__get__` e `__set__`, o resultado do lookup não é o objeto em si, mas a chamada:
+
+```python
+>>> class Descritor:
+...     def __get__(self, obj, objtype):
+...         print('__get__')
+...         return 2 + 2
+...
+>>>
+>>> class Exemplo:
+...     e = Descritor()
+...
+>>>
+>>> x = Exemplo()
+>>> x.e
+__get__
+4
+>>>
+```
+
+- Resumindo:
+
+1. Ao acessar um atributo de um objeto, se ele estiver no `__dict__` do objeto, o valor do atributo é retornado.
+2. Caso não esteja no `__dict__` do objeto, o lookup é delegado para a classe do objeto e as suas classes pai.
+2.1. Caso seja encontrado no `__dict__` de alguma dessas classes e for um descritor (lembre-se: descritores `devem` ser atributos de classe),
+o retorno é computado através da chamada:
+
+`type(objeto).__get__(objeto, type(objeto))`
+
+No caso, `objeto` é um atributo de classe que ao ser acesso `não` se retorna, mas sim, retorna um valor `computado` através da chamada a `__get__`.
+
+Por fim, caso o objeto/classe implemente `__getattr__(instance, attr)`, ele será chamado caso o atributo não exista em todo esse `lookup` descrito acima.
+Se não for implementado, uma exceção é lançada por Python.
+
+```python
+>>> class Teste:
+...     def __getattr__(self, attr_name):
+...         if attr_name in self.__dict__: return self.__dict__[attr_name]
+...         else:
+...             print(f'trying to access: {attr_name}')
+...
+>>> t = Teste()
+>>> t.x = 10
+>>> t.x
+10
+>>>
+>>> t. y
+trying to access: y
+>>>
+```
+
+- Definindo um atributo
+
