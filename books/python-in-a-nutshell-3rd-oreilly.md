@@ -2941,3 +2941,217 @@ E se fosse um descriptor `non-data` ?
 >>>
 ```
 
+- Para criar novas instãncias, chame o tipo como se fosse uma função: `Tipo()`:
+
+```python
+>>> class Ponto: pass
+>>> p = Ponto()
+>>> p
+<__main__.Ponto at 0x7fd518356da0>
+>>>
+```
+
+- Para verificar se um objeto é uma instância de um determinado objeto, utilize o `builtin` `isinstance(objeto, classe)`. `isinstance` retorna `True` se `objeto` for uma instância de `classe` ou de uma possível `subclasse` de `classe`:
+
+```python
+>>> class Ponto: pass
+>>>
+>>> p1 = Ponto()
+>>>
+>>> isinstance(p1, Ponto)
+True
+>>>
+```
+
+- Você pode especializar a chamada de criação do objeto, definindo o método `__init__`. Este método deve apenas atribuir variáveis à instância sendo criada e não deve retornar nenhum valor que não seja `None`, senão produzirá exceção:
+
+```python
+>>> class Ponto:
+...     def __init__(self, x, y):
+...         self.x = x
+...         self.y = y
+...
+>>>
+>>> p = Ponto() # Não pode criar assim! Tem que respeitar o __init__...
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-2-522cb827c960> in <module>
+----> 1 p = Ponto() # Não pode criar assim! Tem que respeitar o __init__...
+
+TypeError: __init__() missing 2 required positional arguments: 'x' and 'y'
+>>>
+>>> p = Ponto(10, 34)
+>>> p.x
+10
+>>> p.y
+34
+>>>
+```
+
+- Se `__init__()` não está presente, é possível criar a instância chamando apenas o tipo como uma função: `Tipo()`.
+Nesse caso, a instância não terá nenhum atributo inicializado.
+
+- Se `__init__()` está presente, deve-se respeitar a sua assinatura. O inicializador padrão `Tipo()` sem parâmetros deixa de existir,
+a não ser que o método `__init__` seja construído para não precisar de nenhum argumento.
+
+- Logicamente, atributos podem ser criados ou alterados depois da instância ter sido criada:
+
+```python
+>>> class Ponto: pass
+>>>
+>>> p = Ponto()
+>>> p.x = 10
+>>> p.y = 23
+>>>
+```
+
+- Essa atribuição é interceptada pelo método `__setattr__`, se presente.
+
+- Contudo, se o atributo sendo alterado for um descritor `data`, com `__get__` e `__set__`, ocorre a inversão de controle, e a chamada vira:
+
+`p.atributo.__set__(p, valor)`.
+
+- Toda instância tem, automaticamente, dois atributos `__class__` (que aponta para o tipo do objeto) e `__dict__` que guarda as variáveis atribuidas na instância:
+
+```python
+>>> class Ponto: pass
+>>>
+>>> p = Ponto()
+>>> p.x = 10
+>>> p.y = 23
+>>>
+>>> p.__class__
+__main__.Ponto
+>>>
+>>> p.__dict__
+{'x': 10, 'y': 23}
+>>>
+```
+
+- Se não houver interceptação por um método `__setattr__` ou `__set__`, atribuit um valor a um objeto é o mesmo que adicionar um par chave valor ao `__dict__` desse objeto:
+
+```python
+>>> class Ponto: pass
+>>>
+>>> p = Ponto()
+>>> p.x = 10
+>>> p.y = 23
+>>>
+>>> p.__class__
+__main__.Ponto
+>>>
+>>> p.__dict__
+{'x': 10, 'y': 23}
+>>>
+>>> p.__dict__['x'] = 44
+>>> p.__dict__['y'] = 91
+>>>
+>>> p
+<__main__.Ponto at 0x7f858997ea90>
+>>> p.__dict__
+{'x': 44, 'y': 91}
+>>>
+>>>
+```
+
+- Por não permitir que se retorne valor ou objeto em seu `__init__`, o design pattern `factory` deve ser criado utilizando funções:
+
+```python
+>>> class Gato: pass
+>>> class Cachorro: pass
+>>>
+>>> def animal_estimacao_factory(nome_em_ingle='dog'):
+...     if nome_em_ingle == 'dog': return Cachorro()
+...     elif nome_em_ingle == 'cat': return Gato()
+...
+>>>
+>>> d = animal_estimacao_factory('dog')
+>>> d
+<__main__.Cachorro at 0x7f8190d0f550>
+>>>
+>>> c = animal_estimacao_factory('cat')
+>>> c
+<__main__.Gato at 0x7f8190cf0fd0>
+>>>
+```
+
+- Mesma coisa para singletons:
+
+```python
+>>> class _Singleton:
+...     pass
+...
+>>>
+>>> def make_singleton():
+...     if not hasattr(make_singleton, 'instance'):
+...         make_singleton.instance = _Singleton()
+...     return make_singleton.instance
+...
+>>>
+>>> a = make_singleton()
+>>> a
+<__main__._Singleton at 0x7f510b644b70>
+>>> id(a)
+139986060200816
+>>>
+>>> b = make_singleton()
+>>> b
+<__main__._Singleton at 0x7f510b644b70>
+>>> id(b)
+139986060200816
+>>>
+```
+
+- Toda `classe` tem um método de classe `__new__` que é chamado implicitamente durante a criação de uma instância.
+Na verdade, este é o método responsável por retornar a instância. Depois de retornada, o método `__init__` dessa instância é executado.
+
+```python
+# O procedimento comum
+>>> class Ponto:
+...     def __init__(self, x, y):
+...         self.x = x
+...         self.y = y
+...
+>>> p = Ponto(10, 33)
+>>> p.x
+10
+>>> p.y
+33
+>>>
+
+>>> # Equivalente a:
+>>> p2 = Ponto.__new__(Ponto) # classmethod
+>>> p2
+<__main__.Ponto at 0x7f510b638320>
+>>> p2.__init__(55, 66)
+>>> p2
+<__main__.Ponto at 0x7f510b638320>
+>>> p2.x
+55
+>>> p2.y
+66
+>>>
+```
+
+- A existência do `__new__` permite criar classes singleton de maneira mais robusta:
+
+```python
+>>> class Singleton:
+...     __instance = None
+...     def __new__(cls, *args, **kwargs):
+...         if not cls.__instance:
+...             cls.__instance = super(Singleton, cls).__new__(cls, *args, **kwargs)
+...         return cls.__instance
+...
+>>>
+>>> s1 = Singleton()
+>>> s1, id(s1)
+(<__main__.Singleton at 0x7f919251c668>, 140263201818216)
+>>>
+>>> s2 = Singleton()
+>>> s2, id(s2)
+(<__main__.Singleton at 0x7f919251c668>, 140263201818216)
+>>>
+```
+
+-
