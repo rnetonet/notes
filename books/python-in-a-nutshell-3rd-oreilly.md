@@ -3277,5 +3277,355 @@ trying to access: y
 >>>
 ```
 
-- Definindo um atributo
+- O processo de lookup ocorre apenas durante a recuperação de um atributo. Para setar, não há isso, a não ser que `__setattr__` esteja definido ou seja um atributo de classe e descritor com o método `__set__` implementado. Do contrário, apenas o `__dict__` do objeto é alterado.
+
+- Bound and unbound methods
+
+`Bound methods`: vinculados a instâncias. O `self` é passado implicitamente pelo interpretador.
+`Unbound methods`: vinculados a classes. O `self` deve ser passado manualmente.
+
+- Mesmo os `bound methods` não tem relação de escopo com a classe. O escopo ou é local, da função, ou global, do módulo.
+Para acessar atributos da instância ou da classe, use o atributo passado: `self`, `cls` / `klass`:
+
+```python
+>>> class Teste:
+...     a = 10
+...     b = 22
+...     def soma1(self):
+...         return a + b
+...     def soma2(self):
+...         return self.a + self.b
+...
+>>>
+>>> t = Teste()
+>>> t.soma1()
+---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+<ipython-input-5-4407ac47b95a> in <module>
+----> 1 t.soma1()
+
+<ipython-input-3-1ecc46af6d47> in soma1(self)
+      3     b = 22
+      4     def soma1(self):
+----> 5         return a + b
+      6     def soma2(self):
+      7         return self.a + self.b
+
+NameError: name 'a' is not defined
+>>> t.soma2()
+32
+>>>
+```
+
+- `bound methods` são objetos de primeira ordem. Ou seja, podem ser passados como argumento, etc.
+Logo, é uma boa alternativa ao uso de closures:
+
+```python
+
+
+>>> def criar_somador(incremento):
+...     class Somador:
+...         def __init__(self, inc):
+...             self.inc = inc
+...         def somar(self, valor):
+...             return self.inc + valor
+...     return Somador(incremento).somar
+...
+...
+>>> s10 = criar_somador(10)
+>>> s10
+<bound method criar_somador.<locals>.Somador.somar of <__main__.criar_somador.<locals>.Somador object at 0x7ff34e7db470>>
+>>>
+>>> s10(2)
+12
+>>>
+>>> s20 = criar_somador(20)
+>>> s20(5)
+25
+>>>
+```
+
+Isto é super interessante, pois o `bound method` guarda uma referência para sua instância, podendo manter um estado próprio.
+
+Além disso, também é possível criar instâncias `callable`, que são objetos que podem ser chamados como funções:
+
+```python
+>>> class Somador:
+...     def __init__(self, inc):
+...         self.inc = inc
+...     def __call__(self, valor):
+...         return self.inc + valor
+...
+>>>
+>>> s10 = Somador(10)
+>>> s10(2)
+12
+>>>
+>>> s20 = Somador(20)
+>>> s20(5)
+25
+>>>
+```
+
+- O processo de lookup de um atributo segue a seguinte ordem:
+
+1. Instância
+2. Classe da instância
+3. Classes pai da classe da instância
+
+- Logo, é possível sobreescrever atributos de classes e métodos muito facilmente:
+
+```python
+>>> class Pai:
+...     sobrenome = 'Silva'
+...     def __init__(self, nome):
+...         self.nome = nome
+...     def imprimir_nome(self):
+...         print(f'{self.nome} {self.sobrenome}')
+...
+>>>
+>>> p = Pai('Epaminondas')
+>>> p.imprimir_nome()
+Epaminondas Silva
+>>>
+>>> class Filho(Pai):
+...     sobrenome = 'Swintchezel' # Revoltado. Mudou o sobrenome.
+...     def __init__(self, nome, idade):
+...         self.nome = nome
+...         self.idade = idade
+...     def imprimir_nome(self):
+...         print(f'{self.nome} {self.sobrenome} - {self.idade} anos')
+...
+>>>
+>>> f = Filho('Joao', 23)
+>>> f.imprimir_nome()
+Joao Swintchezel - 23 anos
+>>>
+```
+
+- É muito comum, quando sobreescrevemos um método (ex: `__init__` na classe `Filho`), querermos delegar parte da sua execução para classe pai.
+
+Uma forma é chamando explicitamente o método na classe pai:
+
+```python
+>>> class Pai:
+...     sobrenome = 'Silva'
+...     def __init__(self, nome):
+...         self.nome = nome
+...     def imprimir_nome(self):
+...         print(f'{self.nome} {self.sobrenome}')
+...
+>>>
+>>> p = Pai('Epaminondas')
+>>> p.imprimir_nome()
+Epaminondas Silva
+>>>
+>>> class Filho(Pai):
+...     sobrenome = 'Swintchezel' # Revoltado. Mudou o sobrenome.
+...     def __init__(self, nome, idade):
+...         self.nome = nome # Ops! Poderiamos ter chamado a classe Pai
+...         self.idade = idade
+...     def imprimir_nome(self):
+...         print(f'{self.nome} {self.sobrenome} - {self.idade} anos')
+...
+>>>
+>>> f = Filho('Joao', 23)
+>>> f.imprimir_nome()
+Joao Swintchezel - 23 anos
+>>>
+```
+
+- Uma forma, é chamar explicitamente o método na classe Pai e passar todos argumentos, inclusive `self`.
+
+```python
+>>> class Filho(Pai):
+...     sobrenome = 'Swintchezel' # Revoltado. Mudou o sobrenome.
+...     def __init__(self, nome, idade):
+...         # Tem que pôr o nome da classe, passar self, etc
+...         Pai.__init__(self, nome)
+... elf e os argumentos necessários
+...         self.idade = idade
+...     def imprimir_nome(self):
+...         print(f'{self.nome} {self.sobrenome} - {self.idade} anos')
+...
+>>>
+>>> f2 = Filho('John', 33)
+>>> f2.imprimir_nome()
+John Swintchezel - 33 anos
+>>>
+```
+
+- Atente-se Python diferentemente das outras linguagens, não chama o método da classe Pai automaticamente, quando há uma sobrescrita de métodos.
+
+- Mas também não é necessário sobreescrever um método apenas para chamar um método na classe Pai, deixe que o `lookup` faça isso por você. Isso funciona até para o `__init__`.
+
+- Chamar métodos da classe pai através do nome da classe é complicado em estruturas com herança múltipla:
+
+```python
+>>> class A:
+...     def met(self):
+...         print('A.met')
+... class B(A):
+...     def met(self):
+...         A.met(self)
+...         print('B.met')
+... class C(A):
+...     def met(self):
+...         A.met(self)
+...         print('C.met')
+... class D(B, C):
+...     def met(self):
+...         B.met(self)
+...         C.met(self)
+...         print('D.met')
+...
+>>>
+>>> d = D()
+>>> d.met()
+A.met
+B.met
+A.met
+C.met
+D.met
+>>>
+```
+
+Perceba que `A.met` é chamado duas vezes. Para resolver isso, use `super()`.
+
+
+`super(aclass, instance)` retorna um objeto proxy cujo lookup de métodos não encontrados pula a própria classe `aclass`. Ou seja, caso o objeto não tenha um método, o lookup pula a própria classe e vai para primeira classe pai, segundo o `__mro__`.
+
+É uma maneira de uma classe se referir a sua classe pai sem deixar isto hardcoded.
+
+Se o parâmetro `instance` não é passado, a busca servirá apenas para classmethods.
+
+- Deletando atributos de classe.
+
+Você pode sobreescrever um atributo na subclasse ou na instância facilmente. Python seguirá o lookup e respeitará essa modificação.
+
+Contudo, se você, em sua subclasse ou instância deseja bloquear o acesso a um atributo que está presente acima na hierarquia, é necessário fazer uma das três coisas:
+
+1. Sobreescrever e produzir uma exceção
+2. Não fazer herança e sobreescrever `__getattr__` para buscar os atributos em um outro objeto, encapsulado
+3. Ou sobreescrever `__getattribute__`
+
+---
+
+### *object*, o pai de todos objetos
+
+Todos objetos herdam do *built-in* **object**.
+
+**object** implementa o comportamento padrão de um objeto em Python.
+
+Os seguintes métodos são definidos por **object**:
+
+- `__new__`, `__init__`
+
+Sendo possível inclusive criar um `object()` puro, para atuar como sentinela:
+
+```python
+>>> sentinel = object()
+>>> sentinel
+<object at 0x7f9ce6056b30>
+>>>
+
+# Cuidado. Esses objetos sequer tem __dict__
+>>> sentinel.a = 10
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-3-8eea5ba009bd> in <module>
+----> 1 sentinel.a = 10
+
+AttributeError: 'object' object has no attribute 'a'
+>>>
+```
+
+- `__delattr__`, `__getattribute__`, `__setattr__`
+
+Em geral, todos objetos usam as implementações de **object**.
+
+- `__hash__`, `__repr__`, `__str__`
+
+Todos objetos respondem, por herdarem de **object**, as funções *built-in* `hash()`, `repr()` e `str()`.
+
+---
+
+### Métodos estáticos
+
+Métodos **estáticos** são funções normais, definidas dentro de uma classe.
+Esta função não apresenta nenhum comportamento especial ao ser chamada, em relação a passagem de parâmetros como **self** ou **cls**, podendo, inclusive, não receber nenhum parâmetro.
+
+Para criar um método estático, encapsule a função usando o tipo `staticmethod(funcao)` e atribua ao objeto ou classe.
+
+```python
+>>> class BasicMath:
+...     def sum(a, b):
+...         return a + b
+...     sum = staticmethod(sum)
+...
+>>>
+>>> BasicMath.sum(2, 3)
+5
+>>>
+>>>
+```
+
+Decoradores podem ser aplicados para uma sintaxe mais aprazível:
+
+```python
+>>> class BasicMath:
+...     @staticmethod
+...     def sum(a, b):
+...         return a + b
+...
+...
+>>> BasicMath.sum(5, 6)
+11
+>>>
+```
+
+---
+
+### Métodos de classe
+
+Métodos executáveis a partir de uma classe ou de suas instâncias. Contudo, seu primeiro parâmetro é sempre a classe em que foi chamado ou classe da
+instância em que foi chamado. Não há passagem de `self`, mas sim de `cls`.
+
+Para criar um método de classe, basta encapsular um método definido na classe através do built-in `classmethod(method)`. Lembre-se que o `method` deve receber pelo menos um parâmetro, normalmente denominado `cls`:
+
+```python
+>>> class BasicTenMath:
+...     basic_number = 10
+...
+...     def sum(cls, other_value):
+...         print(f'Running on class {cls}')
+...         return cls.basic_number + other_value
+...     sum = classmethod(sum)
+...
+>>> BasicTenMath.sum(2)
+Running on class <class '__main__.BasicTenMath'>
+12
+>>>
+```
+
+Também aplicável através de decoradores:
+
+```python
+>>> class BasicTenMath:
+...     basic_number = 10
+...     @classmethod
+...     def sum(cls, other_value):
+...         print(f'Running on class {cls}')
+...         return cls.basic_number + other_value
+...
+>>>
+>>> BasicTenMath.sum(2)
+Running on class <class '__main__.BasicTenMath'>
+12
+>>>
+```
+
+---
+
+### Propriedades, atributos inteligentes
 
