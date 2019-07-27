@@ -3842,3 +3842,54 @@ Se o acesso ao atributo se der pela classe, o método **não** é chamado:
 >>> Sample.cls_attr
 'spam'
 ```
+
+---
+
+### Sobreescrevendo métodos na instância
+
+Se você sobreescreve um método apenas na instância, ele passará a ser chamado. O lookup ignorará a classe, pois a busca se inicia na instância:
+
+```python
+>>> class Teste:
+...     def __init__(self, mensagem):
+...         self.mensagem = mensagem
+...
+...     def imprimir(self):
+...         print(f"class: {self.mensagem}")
+...
+...
+>>> t = Teste("spam")
+>>> t.imprimir()
+class: spam
+>>>
+
+# Quando você sobreescreve na instância, Python não faz mágica na passagem de self...
+>>> def _imprimir(self):
+...     print(f"obj: {self.mensagem}")
+...
+>>> t.imprimir = _imprimir
+>>> t.imprimir()
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-12-636ed01e3b66> in <module>
+----> 1 t.imprimir()
+
+TypeError: _imprimir() missing 1 required positional argument: 'self'
+>>>
+```
+
+Mas nada impede de sobreescrever com um método agnóstico de `self`:
+
+```python
+>>> def _imprimir():
+...     print(f"obj. cant reference self")
+...
+>>> t.imprimir = _imprimir
+>>> t.imprimir()
+obj. cant reference self
+>>>
+```
+
+---
+
+###
