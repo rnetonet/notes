@@ -3629,3 +3629,216 @@ Running on class <class '__main__.BasicTenMath'>
 
 ### Propriedades, atributos inteligentes
 
+**Propriedades** são atributos que podem ser lidos, setados e deletados, mas essas operações são delegados para métodos da instância em que foram chamados.
+
+Devem ser criadas através do tipo `property()`:
+
+```python
+>>> class Rectangle:
+...     def __init__(self, x, y):
+...         self.x = x
+...         self.y = y
+...     def get_area(self):
+...         return self.x * self.y
+...     area = property(get_area)
+...
+
+# Ao ser chamado na classe, retorna o objeto proxy
+>>> Rectangle.area
+<property at 0x7f334cb85d68>
+>>>
+# Em uma instância, de fato calcula
+>>> r = Rectangle(10, 2)
+>>> r.area
+20
+>>>
+```
+
+Podem ser criadas de forma mais elegante utilizando decoradores. A propriedade terá o mesmo nome que o método decorado:
+
+```python
+>>> class Rectangle:
+...     def __init__(self, x, y):
+...         self.x = x
+...         self.y = y
+...     @property
+...     def area(self):
+...         return self.x * self.y
+...
+>>>
+>>> r = Rectangle(2, 3)
+>>> r.area
+6
+>>>
+```
+
+Se quiser definir um `setter`, você deve criar uma **property** primeiro, e depois usar o decorador nomeado que se torna disponível. O nome do método pode ser repetido:
+
+```python
+>>> class Rectangle:
+...     def __init__(self, x, y):
+...         self.x = x
+...         self.y = y
+...     @property
+...     def area(self):
+...         return self.x * self.y
+...     @area.setter
+...     def area(self, value):
+...         print('setter')
+...         import math
+...         scale = math.sqrt(value/self.area)
+...         self.x *= scale
+...         self.y *= scale
+...
+>>>
+>>> Rectangle.__dict__
+mappingproxy({'__module__': '__main__',
+              '__init__': <function __main__.Rectangle.__init__(self, x, y)>,
+              'area': <property at 0x7f334dd853b8>,
+              '__dict__': <attribute '__dict__' of 'Rectangle' objects>,
+              '__weakref__': <attribute '__weakref__' of 'Rectangle' objects>,
+              '__doc__': None})
+>>>
+>>> r = Rectangle(33, 2)
+>>> r.area
+66
+>>>
+>>> r.area = 55
+setter
+>>> r.x
+30.124740662784138
+>>> r.y
+1.8257418583505538
+>>>
+
+```
+
+Sempre que pensar em escrever métodos tipos `get_` ou `set_`, utilize `propertys`.
+
+---
+
+### Propriedades e herança
+
+**Cuidado**. O lookup de propriedades é feita de forma a similar a qualquer atributo. Mas ao ser encontrada na classe pai, o método encapsulado no objeto `property` **é o da classe pai**.
+
+```python
+>>> class Father:
+...     def _slogan(self):
+...         print('some old joke')
+...     slogan = property(_slogan)
+...
+>>>
+>>> class Son(Father):
+...     def _slogan(self):
+...         print('a new joke')
+...
+>>> s = Son()
+>>> s.slogan
+some old joke
+>>>
+```
+
+Para mitigar isso, crie mais um nível de indireção:
+
+```python
+>>> class Father:
+...     def _slogan(self):
+...         print('some old joke')
+...     def _get_slogan(self):
+...         self._slogan()
+...     slogan = property(_get_slogan)
+...
+...
+>>> class Son(Father):
+...     def _slogan(self):
+...         print('a new joke')
+...
+>>> s = Son()
+>>> s.slogan
+a new joke
+>>>
+```
+
+---
+
+### `__slots__`, economizando memória
+
+Se você terá muitas instâncias de uma mesma classe e os atributos dessa classe são de um escopo delimitado, você pode definir o atributo `__slots__` da classe.
+
+Este atributo evita que Python atribua um `__dict__` para cada objeto, economizando bastante memória. Em compensação, os atributos possíveis ficam restritos:
+
+```python
+>>> class Point:
+...     __slots__ = ("x", "y")
+...
+>>> p1 = Point()
+>>> p1.x = 10
+>>> p1.y = 20
+>>> p1.z = 30 # ops!
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-35-832dd44a5c8a> in <module>
+----> 1 p1.z = 30 # ops!
+
+AttributeError: 'Point' object has no attribute 'z'
+>>>
+>>> p1
+<__main__.Point at 0x7f334e3fa240>
+>>> p1.__dict__
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-37-68be270a1cde> in <module>
+----> 1 p1.__dict__
+
+AttributeError: 'Point' object has no attribute '__dict__'
+```
+
+---
+
+### `__getattribute__`, interceptando todas referências a atributos de instâncias
+
+Você pode interceptar o acesso a **atributos** em **instâncias** implementando o método `__getattribute__(self, attr)`:
+
+```python
+>>> class Sample:
+...     cls_attr = 'spam'
+...
+...     def __getattribute__(self, name):
+...         print('__getattribute__')
+...         if name == 'x':
+...             raise AttributeError()
+...         else:
+...             return super().__getattribute__(name)
+...
+...
+>>>
+>>> s = Sample()
+>>> s.y = 10
+>>> s.x = 30
+>>>
+>>> s.y
+__getattribute__
+10
+>>> s.x
+__getattribute__
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-64-a903ec6b4f78> in <module>
+----> 1 s.x
+
+<ipython-input-59-17a67619c2e6> in __getattribute__(self, name)
+      5         print('__getattribute__')
+      6         if name == 'x':
+----> 7             raise AttributeError()
+      8         else:
+      9             return super().__getattribute__(name)
+
+AttributeError:
+```
+
+Se o acesso ao atributo se der pela classe, o método **não** é chamado:
+
+```python
+>>> Sample.cls_attr
+'spam'
+```
