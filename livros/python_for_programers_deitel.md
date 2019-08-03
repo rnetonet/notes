@@ -251,3 +251,123 @@ Hello"World
 Hello'World
 ```
 
+- É possível *escapar* uma quebra de linha, permitindo dividir um comando extenso em duas ou mais linhas:
+
+```python
+>>> print("Hello \
+... Darkness \
+... My \
+... Old \
+... Friend")
+Hello Darkness My Old Friend
+>>>
+```
+
+- Expressões podem ser passadas como parâmetros para a função `print()`. Seus valores serão calculados e só então impressos:
+
+```python
+>>> print("Result: ", 42 + 13)
+Result:  55
+>>>
+```
+
+- Strings podem ser criadas com três aspas simples ou duplas, permitindo a quebra em várias linhas. Útil para comentar, criar docstrings.
+
+```python
+>>> msg = """
+... What goes around
+... Comes aroung
+... """
+>>>
+>>> print(msg)
+
+What goes around
+Comes aroung
+
+>>> msg
+'\nWhat goes around\nComes aroung\n'
+>>>
+```
+
+- Aspas dentro de aspas.
+
+Pode-se incluir aspas simples dentro de strings formadas por aspas duplas, sem necessidade de *escape*.
+
+```python
+>>> print(" d'ior ")
+ d'ior
+```
+
+E vice-verca, é possível incluir aspas duplas dentro de strings delimitadas por aspas simples, sem precisar *escape*:
+
+```python
+>>> print(' he said "hello!" ')
+ he said "hello!"
+>>>
+```
+
+Por fim, é possível escapar ambos tipos de aspas:
+
+```python
+>>> print(" alo\"ha alo\'ha ")
+ alo"ha alo'ha
+>>> print(' alo\"ha alo\'ha ')
+ alo"ha alo'ha
+>>>
+```
+
+E dentro de strings triplas (simples ou duplas), pode-se incluir qualquer tipo simples ou duplo, desde que não tripla:
+
+```python
+>>> print(""" "teste" 'teste' """)
+ "teste" 'teste'
+>>> print(''' "teste" 'teste' ''')
+ "teste" 'teste'
+>>>
+```
+
+- Lendo dados do usuário: `input(prompt)`
+
+```python
+>>> print(""" "teste" 'teste' """)
+ "teste" 'teste'
+>>> print(''' "teste" 'teste' ''')
+ "teste" 'teste'
+>>>
+```
+
+- `input(prompt)` sempre retorna strings. Para ler um inteiro, convert com `int()`:
+
+```python
+>>> idade = input("Qual a sua idade ? ")
+Qual a sua idade ? 25
+>>> idade = int(idade)
+>>> idade
+25
+
+>>> # Ou, diretamente
+>>> idade = int(input("Qual sua idade? "))
+Qual sua idade? 31
+>>> idade
+31
+```
+
+Caso queira um ponto flutuante, use `float()` no lugar de `int()`:
+
+```python
+>>> valor_pi = input(" Qual o valor de pi ? ")
+ Qual o valor de pi ? 3.14
+>>> valor_pi = float(valor_pi)
+>>> valor_pi
+3.14
+>>>
+>>> # Ou, diretamente
+>>> valor_pi = float(input(" Qual o valor de pi ? "))
+ Qual o valor de pi ? 3.14
+>>> valor_pi
+3.14
+>>>
+```
+
+- Tomando decisões com `if`
+
