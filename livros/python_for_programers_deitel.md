@@ -1236,3 +1236,178 @@ True
 False
 >>>
 ```
+
+- **Funções** podem ser definidas com o comando `def`.
+
+A sintaxe de definição do `def` requer o nome da função, seus parâmetros (entre parênteses) - se algum for necessário, `:` e o bloco de código a ser executado:
+
+```python
+>>> def quadrado(numero):
+...     """ Retorna o quadrado do numero """
+...     return numero ** 2
+...
+```
+
+É de bom tom a primeira linha de uma função ser um comentário, *docstring*, explicando brevemente o que é feito.
+
+Após declaração, a função pode ser utilizada múltiplas vezes e com diferentes parâmetros.
+
+```python
+>>> quadrado(2)
+4
+>>> quadrado(3)
+9
+>>>
+```
+
+O comando `return` devolve um valor da função para quem a chamou, na função acima, o quadrado do número passado.
+
+Se uma função não contém um comando `return`, ela implicitamente retorna `None`:
+
+```python
+>>> def inutil1():
+...     print("inutil1")
+...
+>>>
+>>> valor = inutil1()
+inutil1
+>>> print(valor)
+None
+```
+
+Também é possível incluir um `return` sem valor algum ou retornando o próprio `None` explicitamente na função:
+
+```python
+>>> def inutil2():
+...     print("Inutil 2")
+...     return
+...
+>>> valor = inutil2()
+Inutil 2
+>>> print(valor)
+None
+>>>
+```
+
+```python
+>>> def inutil3():
+...     print("Inutil 3")
+...     return None
+...
+>>>
+>>> valor = inutil3()
+Inutil 3
+>>> print(valor)
+None
+```
+
+- Os parâmetros passados e as variáveis definidas são locais ao escopo da função, **enquanto estiver em execução**.
+
+Os parâmetros passados e variáveis declaradas no corpo da função tem escopo local e só existem durante a execução da função, não sendo possível referenciá-las *de fora*.
+
+```python
+>>> def soma(a, b):
+...     resultado = a + b
+...     return resultado
+...
+>>>
+>>> soma(10, 20)
+30
+>>>
+>>> a
+---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+<ipython-input-63-3f786850e387> in <module>
+----> 1 a
+
+NameError: name 'a' is not defined
+>>> b
+---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+<ipython-input-64-89e6c98d9288> in <module>
+----> 1 b
+
+NameError: name 'b' is not defined
+>>> resultado
+---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+<ipython-input-65-b2c5c9eb7548> in <module>
+----> 1 resultado
+
+NameError: name 'resultado' is not defined
+>>>
+```
+
+- Funções podem receber mais de um parâmetro:
+
+```python
+>>> def maximum(a, b, c):
+...     if a > b and a > c:
+...         return a
+...     elif b > a and b > c:
+...         return b
+...     else:
+...         return c
+...
+>>>
+>>> maximum(1, 2, 3)
+3
+>>> maximum(3, 2, 1)
+3
+>>> maximum(1, 3, 2)
+3
+>>> maximum(2, 3, 1)
+3
+>>>
+```
+
+Inclusive, por existir tipagem dinâmica, tipos distintos podem ser passados e se a interface for compatível, a função atuará sem maiores problemas:
+
+```python
+>>> maximum(1.5, 3.1, 2.2)
+3.1
+>>> maximum("a", "bc", "defg")
+'defg'
+>>>
+```
+
+- Python contém muitas funcionalidades pré-carregadas, inclusive a identificação de máximos (`max()`) e mínimo (`min()`).
+
+A função `maximum()` declarada acima, poderia ser substituida por uma chamada a função *builtin* `max()`:
+
+```python
+>>> max(1, 2, 3)
+3
+>>> max(45, 12, 11)
+45
+>>>
+```
+
+A função contrária, `min()`, pode ser utilizada para encontrar o menor valor:
+
+```python
+>>> min(12, 44, 3, 11, 1292)
+3
+>>>
+```
+
+- Inteiros grandes podem ser separados por `_` para facilitar a leitura:
+
+```python
+>>> valor = 6_000_000_000
+>>> valor
+6000000000
+>>>
+```
+
+- Funções podem retornar múltiplos valores ao mesmo tempo, através de um objeto *container*, tipo uma **tupla**:
+
+```python
+>>> def maiuscula_minuscula(palavra):
+...     return (palavra.upper(), palavra.lower())
+...
+>>>
+>>> maiuscula_minuscula("Spam")
+('SPAM', 'spam')
+>>>
+```
