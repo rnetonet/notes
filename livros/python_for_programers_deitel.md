@@ -990,8 +990,249 @@ ano=10, acumulado=1628.8946267774414062500000
 >>>
 ```
 
-Podemos deixar o resultado mais simpático com as opções de formatação das fstring:
+Podemos deixar o resultado mais simpático com as opções de formatação das *f-string*:
 
 ```python
+>>> montante = Decimal('1_000')
+>>> taxa = Decimal('0.05')
+>>> for ano in range(1, 11):
+...     print(f"ano = {ano:<2} / acumulado = {montante * (1 + taxa) ** ano:>10.2f}")
+...
+...
+ano = 1  / acumulado =    1050.00
+ano = 2  / acumulado =    1102.50
+ano = 3  / acumulado =    1157.62
+ano = 4  / acumulado =    1215.51
+ano = 5  / acumulado =    1276.28
+ano = 6  / acumulado =    1340.10
+ano = 7  / acumulado =    1407.10
+ano = 8  / acumulado =    1477.46
+ano = 9  / acumulado =    1551.33
+ano = 10 / acumulado =    1628.89
+>>>
+```
 
+O formato a ser aplicado vem depois do `:`.
+`<` ou `>` indicam o alinhamento. Após estes, deve a quantidade de *espaços* a serem utilizados. Este tamanho pode ser precedido por um `0`, caso queira preencher os espaços sobressalentes com `0`. Por fim, pode vir o `.`, o número de casas decimais e o formato numérico, geralmente um `f`.
+
+São muitas opções, de fato. Exemplos ajudam:
+
+```python
+>>> print(f"{123:>10}") # alinhado a direita, ocupando 10 espaços
+       123
+>>> print(f"{123:>010}") # alinhado a direita, ocupando 10 espaços, preenchendo com zero
+0000000123
+>>>
+>>> print(f"{123:<10}") # alinhado a esquerda, ocupando 10 espaços
+123
+>>> print(f"{123:<010}") # alinhado a esquerda, ocupando 10 espaços, preenchendo com zero
+1230000000
+>>> print(f"{3.1418391231:>10.2f}") # alinhado a direita, 10 espaços, duas casas decimais
+      3.14
+>>>
+```
+
+- É possível interromper um loop com `break` ou pular para a próxima iteração com `continue`.
+
+Para sair antecipadamente de um loop, seja `while` ou `for`, utilize o comando `break`:
+
+```python
+>>> contador = 0
+>>> while contador <= 100:
+...     print(contador)
+...     if contador == 10:
+...         break
+...     contador += 1
+...
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+>>>
+```
+
+Após um `break`, a próxima instrução, fora do loop, é executada.
+
+Pode-se utilizar `break` em `for` também:
+
+```python
+>>> palavra = "bacon"
+>>> for letra in palavra:
+...     print(letra)
+...     if letra == "o":
+...         break
+...
+b
+a
+c
+o
+>>>
+```
+
+Caso se deseje *pular* a iteração corrente e ir para a próxima, utilize `continue`.
+
+O exemplo abaixo pula o `5`:
+
+```python
+>>> contador = 0
+>>> while contador <= 10:
+...     contador += 1
+...     if contador == 5:
+...         continue
+...     print(contador)
+...
+1
+2
+3
+4
+6
+7
+8
+9
+10
+11
+>>>
+```
+
+Neste, pulamos o `c`:
+
+```python
+>>> palavra = "bacon"
+>>> for letra in palavra:
+...     if letra == "c":
+...         continue
+...     print(letra)
+...
+b
+a
+o
+n
+>>>
+```
+
+Tanto o loop `while` quanto o `for` suportam uma claúsula `else`, que só executada quando **nenhum** comando `break` é executado, ou seja, o loop termina naturalmente:
+
+```python
+>>> contador = 0
+>>> while contador <= 10:
+...     if contador == 999:
+...         break
+...     print(contador)
+...     contador += 1
+... else:
+...     print("break NÃO foi executado")
+...
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+break NÃO foi executado
+>>>
+```
+
+Um exemplo de `else` com `for`:
+
+```python
+>>> palavra = "bacon"
+>>> for letra in palavra:
+...     if letra == "z":
+...         break
+...     print(letra)
+... else:
+...     print("break NÃO foi executado")
+...     print("letra 'z' não está presente")
+...
+b
+a
+c
+o
+n
+break NÃO foi executado
+letra 'z' não está presente
+>>>
+```
+
+Lembre-se: o bloco `else` só não é chamado se algum `break` for executado. Pode executar `continue` à vontade, o `else` continua sendo chamado:
+
+```python
+>>> palavra = "bacon"
+>>> for letra in palavra:
+...     if letra == "a":
+...         continue
+...     print(letra)
+... else:
+...     print("break NÃO foi executado")
+...     print("letra 'z' não está presente")
+...
+b
+c
+o
+n
+break NÃO foi executado
+letra 'z' não está presente
+>>>
+```
+
+- Os operadores lógicos `and`, `or` e `not` permitem construir condições mais complexas.
+
+Use `and` para combinar duas condições simples, a combinação só resultará em `True` se todas condições envolvidas forem `True`. Basta uma ser `False` para toda a condição se tornar `False`:
+
+```python
+>>> gender = "Male"
+>>> age = 45
+>>>
+>>> gender == "Male" and age > 40
+True
+>>> gender == "Male" and age > 50
+False
+>>>
+```
+
+Utilize parênteses para deixar ainda mais claro:
+
+```python
+>>> (gender == "Male") and (age > 50)
+False
+>>>
+```
+
+**Importante:** o `and` só executa a segunda condição se necessário. Se a primeira for `False`, ele já retorna `False` e nem analisa a segunda. Este comportamento se chama *short-circuit*.
+
+O operador `or` no entanto, precisa que apenas uma das duas condições simples seja `True`, para retornar `True`. Ou seja, só retorna `False` se as duas forem `False`:
+
+```python
+>>> (gender == "Male") or (age > 50)
+True
+>>>
+```
+
+**Importante:** assim como o `and` o `or` também atua em *short-circuit*, se a primeira condição for `True`, ele já retorna `True` e sequer avalia a segunda.
+
+**Performance:** ao usar o operador `and` coloque à esquerda expressões que têm maior tendência de ser `False`. E ao utilizar o operador `or`, coloque à esquerda expressões que tenham maior tendência de ser `True`. A ideia é aproveitar o *short-circuit*.
+
+Por fim, o `not` nega o valor lógico de uma condição. Ele é um operador unário e deve ser posto logo antes de uma condição:
+
+```python
+>>> gender = "Male"
+>>>
+>>> not gender == "Female"
+True
+>>>
+>>> not gender == "Male"
+False
+>>>
 ```
