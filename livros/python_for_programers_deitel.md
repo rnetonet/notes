@@ -369,5 +369,208 @@ Caso queira um ponto flutuante, use `float()` no lugar de `int()`:
 >>>
 ```
 
-- Tomando decisões com `if`
+- Condições
 
+**Condições** são *expressões* que retornam `True` ou `False`.
+
+Exemplos:
+
+```python
+>>> 7 > 14
+False
+>>>
+>>> 7 < 14
+True
+>>>
+>>> 11 == 11
+True
+>>>
+>>> 16 - 2 == 14
+True
+>>>
+```
+
+- Comentários, *docstrings*
+
+*Comentários* começam com `#` e vão até o final da linha. Todo comentário é ignorado.
+
+*docstrings* são strings que documentam módulos, classes e funções. Devem ser a primeira coisa em cada um destes. São implicitamentes atribuídas ao atributo `__doc__` de cada um destes objetos e vistas com `help(objeto)`.
+Normalmente são strings *triplas*.
+
+- Quebrando longas linhas
+
+Comandos grandes podem ser quebrados em múltiplas linhas com *escape* - `\`:
+
+```python
+>>> print("Hello" + \
+... "World")
+HelloWorld
+>>>
+```
+
+Ou, sendo postas entre parênteses, sem necessidade de *escape*. **Este é o método recomendado:**
+
+```python
+>>> soma = (
+...     10 +
+...     20 +
+...     30 +
+...     40
+... )
+>>> soma
+100
+>>>
+```
+
+- Condições são utilizadas em blocos `if`
+
+Blocos `if` permitem condicionar a execução de blocos de código conforme o valor de uma condição/expressão.
+
+Lembre-se, `input("Mensagem:")` pede e retorna uma string para o usuário.
+
+```python
+>>> valor = input("Digite o valor: ")
+Digite o valor: 15
+>>>
+>>> valor = int(valor) # precisa converter, vem como string
+>>>
+>>> if valor % 2 == 0:
+...     print("Eh par!")
+...
+>>> if valor > 10:
+...     print("Maior que 10")
+... elif valor == 15:
+...     print("Eh 15!")
+... else:
+...     print("Nao eh nenhuma das condicoes acima")
+...
+Maior que 10
+>>>
+```
+
+Blocos de `if`, `elif` e `else` serão testados em sequência. O primeiro que produzir uma condição válida, será executado, concluindo a sequência de checagens.
+
+Atente-se, apenas um bloco é executado. Se nenhum for, o `else`, se presente, será executado:
+
+```python
+>>> valor = int( input("Entre com valor: ") )
+Entre com valor: 10
+>>>
+>>> if valor > 5:
+...     print(" > 5 ")
+... elif valor == 10:
+...     print(" == 10 ")
+...
+ > 5
+>>>
+```
+
+- Comparações poder sem encadeadas
+
+Comparações podem ser encadeadas, facilitando a verificação de limites:
+
+```python
+>>> valor = int( input("Entre com valor: ") )
+Entre com valor: 15
+>>>
+>>> if 10 < valor < 20:
+...     print("Valor esta entre 10 e 20")
+...
+Valor esta entre 10 e 20
+>>>
+>>>
+```
+
+O bloco de código acima é, implicitamente, traduzido para:
+
+```python
+>>> if 10 < valor and valor < 20:
+...     print("Valor esta entre 10 e 20")
+...
+Valor esta entre 10 e 20
+>>>
+```
+
+- Objetos e tipagem dinâmica
+
+Lembre-se: **tudo em Python é objeto**.
+
+Todo objeto tem um tipo, identificável via `type(objeto)`, e um valor, que está contido no objeto (*não há tipos primitivos*).
+
+Os tipos *"primitivos"* são:
+
+```python
+>>> a = 10
+>>> type(a)
+int
+>>>
+>>> b = 3.14
+>>> type(b)
+float
+>>>
+>>> c = "spam"
+>>> type(c)
+str
+>>>
+```
+
+- Variáveis apontam para objetos
+
+Variáveis apontam para objetos:
+
+```python
+>>> a = "aloha"
+>>>
+>>> type(a)
+str
+>>>
+>>>
+```
+
+As variáveis são substituídas pelo objeto que referenciam:
+
+```python
+>>> a.upper()
+'ALOHA'
+>>>
+```
+
+Variáveis podem passar a apontar para novos objetos, esquecendo o antigo:
+
+```python
+>>> a = "spam"
+>>> a.upper()
+'SPAM'
+>>>
+```
+
+Contudo, alterar a referência de uma variável não altera o objeto em si:
+
+```python
+>>> a = "spam"
+>>> b = a
+>>>
+>>> a = a.upper()
+>>>
+>>> a
+'SPAM'
+>>> b
+'spam'
+>>>
+```
+
+Cuidado! Objetos mutáveis podem se modificar, logo, alterações em uma variável, referência, terão efeito em outras cópias.
+
+```python
+>>> a = [1, 2, 3]
+>>> b = a
+>>>
+>>> a[1] = 99
+>>>
+>>> a
+[1, 99, 3]
+>>>
+>>> b
+[1, 99, 3]
+>>>
+```
