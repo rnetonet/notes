@@ -491,6 +491,86 @@ Valor esta entre 10 e 20
 >>>
 ```
 
+- Objetos têm valor lógico.
+
+Nem sempre é necessário escrever uma condição completa.
+Os principais objetos de Python têm valor lógico implícito.
+
+Esse valor é verificável através da função `bool(objeto)`.
+
+Números com valor zero, são considerados `False`.
+Conjuntos vazios também são considerados `False`.
+`None` é considerado `False`.
+
+```python
+>>> bool( 0.0 )
+False
+>>> bool( 0 )
+False
+>>> bool( [] ) # lista vazia
+False
+>>> bool( {} ) # dic vazio
+False
+>>> t = ()
+>>> t
+()
+>>> bool( () ) # tupla vazia
+False
+>>>
+>>> bool( None )
+False
+>>>
+>>> bool( "" )
+False
+>>>
+```
+
+Todo o resto é tido como `True`.
+
+```python
+>>> bool( 1 )
+True
+>>> bool( 1.0 )
+True
+>>> bool( "x" )
+True
+>>> bool( [1, 2, 3] )
+True
+>>> bool( (1, 2, 3) )
+True
+>>> bool( {"chave": 42} )
+True
+>>>
+```
+
+- Expressões condicionais concisas (expressões ternárias)
+
+É possível abreviar um `if` em um comando de apenas uma linha. Muito útil para atribuir um valor a uma variável conforme o valor de outra:
+
+```python
+>>> nota = 87
+>>>
+>>> resultado = "aprovado" if nota >= 75 else "reprovado"
+>>> resultado
+'aprovado'
+>>>
+>>> nota = 54
+>>> resultado = "aprovado" if nota >= 75 else "reprovado"
+>>> resultado
+'reprovado'
+>>>
+```
+
+É boa prática usar parênteses nesses casos:
+
+```python
+>>> nota = 100
+>>> resultado = ("aprovado" if nota >= 75 else "reprovado")
+>>> resultado
+'aprovado'
+>>>
+```
+
 - Objetos e tipagem dinâmica
 
 Lembre-se: **tudo em Python é objeto**.
@@ -573,4 +653,345 @@ Cuidado! Objetos mutáveis podem se modificar, logo, alterações em uma variáv
 >>> b
 [1, 99, 3]
 >>>
+```
+
+- Existem duas estruturas de repetição: `while` e `for`.
+
+`while` repete um conjunto de comandos até uma condição se tornar falsa:
+
+```python
+>>> contador = 10
+>>> while contador > 0:
+...     print(contador)
+...     contador = contador - 1
+...
+10
+9
+8
+7
+6
+5
+4
+3
+2
+1
+>>>
+```
+
+O `for` executa um conjunto de instruções para cada item de uma sequência:
+
+```python
+>>> palavra = "spam"
+>>> for letra in palavra:
+...     print(letra)
+...
+s
+p
+a
+m
+>>>
+```
+
+- Parâmetros da função `print()`
+
+A função `print()` admite dois parâmetros nomeados:
+
+`sep` define o caractere a ser utilizado entre as strings passadas, por padrão um espaço.
+
+`end` determina o caractere a ser utilizada após o último valor passado, por padrão uma quebra de linha `\n`.
+
+```python
+print("spam", "eggs", "bacon", sep="_", end="***")
+```
+
+- Iteráveis, listas e iteradores
+
+O comando `for` atua sobre objetos que são *iteráveis*. Todas sequências, incluindo *strings*, são iteráveis em Python.
+
+Um tipo iterável bastante comum é a **lista**:
+
+```python
+>>> lista = [10, 20, 30]
+>>> for valor in lista:
+...     print(valor)
+...
+10
+20
+30
+>>>
+```
+
+As sequências encapsulam um objeto **iterador** que é utilizado *por debaixo dos panos*. Este objeto mantém controle de qual foi o último objeto retornado, o próximo a ser retornado e quando a sequência finda.
+
+- A função `range(inicio, fim, [incremento])` permite produzir sequências numéricas.
+
+A função `range(inicio, fim, [incremento])` produz iteradores que retornam números sequenciais. Os números produzidos vão de `inicio` (incluído) até antes de `fim` (não incluído). Os números produzidos são
+incrementados por `incremento`, que por padrão é `1`.
+
+```python
+>>> for numero in range(10, 22, 2): # gere um iterador de 10 ate 21, saltando de 2 em 2
+...     print(numero)
+...
+10
+12
+14
+16
+18
+20
+>>>
+```
+
+Em sua versão mais simples, `range(fim)` requer apenas o parâmetro `fim`, usando como `inicio` o valor `0` e `incremento` o valor `1`:
+
+```python
+>>> for i in range(10):
+...     print(i)
+...
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+>>>
+```
+
+**Lembre-se:** o valor `fim` **não é incluído**.
+
+A função é bastante flexível, permitindo, por exemplo, gerar sequências de forma decrescente:
+
+```python
+>>> for numero in range(10, -1, -1):
+...     print(numero)
+...
+10
+9
+8
+7
+6
+5
+4
+3
+2
+1
+0
+>>>
+```
+
+- Atribuições aprimoradas.
+
+Atribuições em que a variável aparece tanto do lado esquerdo quanto do direito podem ser abreviadas.
+
+Este código:
+
+```python
+>>> total = 0
+>>> for numero in range(0, 11):
+...     total = total + numero
+...
+>>> total
+55
+>>>
+```
+
+Pode ser abreviado para:
+
+```python
+>>> total = 0
+>>> for numero in range(0, 11):
+...     total += numero
+...
+>>> total
+55
+>>>
+```
+
+Todas operações permitem essa abreviação:
+
+```python
+>>> valor = 10
+>>>
+>>> valor *= 3
+>>> valor
+30
+>>>
+>>> valor /= 3
+>>> valor
+10.0
+>>>
+>>> valor **= 2
+>>> valor
+100.0
+>>>
+>>>
+>>> valor -= 1
+>>> valor
+99.0
+>>>
+>>> valor += 1
+>>> valor
+100.0
+>>>
+```
+
+- Strings formatadas
+
+Ao prefixar uma string com um `f`, ela é transformada numa **f-string**, o que permite interpolar variáveis e expressões através de `{}` (chaves).
+
+Substituir uma variável:
+
+```python
+>>> soma = 33
+>>>
+>>> print(f"A soma deu {soma}")
+A soma deu 33
+>>>
+```
+
+Uma expressão:
+
+```python
+>>> nome = "joao"
+>>>
+>>> print(f"O nome eh {nome.upper()}")
+O nome eh JOAO
+>>>
+```
+
+As variáveis/expressões dentro das chaves são chamadas de *placeholders*. Elas são processadas e o seu resultado convertido em string, para então serem substituídos na string de fato.
+
+Formatando números decimais com duas casas decimais:
+
+```python
+>>> valor = 11 / 3
+>>> valor
+3.6666666666666665
+>>>
+>>> print(f"{valor:.2f}")
+3.67
+>>>
+```
+
+Se o número só tiver uma casa decimal e você formatar com duas, zeros são adicionados:
+
+```python
+>>> limite = 9.9
+>>> print(f"limiar = {limite:.2f}")
+limiar = 9.90
+>>>
+```
+
+- Se precisão é importante, utilize `Decimal`. Evite `float`.
+
+Números do tipo `float` são armazenados em binário de forma aproximada:
+
+```python
+>>> valor = 121.3
+>>> valor
+121.3
+```
+
+Parece que está certinho, preciso. Mas, se aumentamos a precisão, percebe-se que trata-se de uma aproximação:
+
+```python
+>>> print(f"{valor:.20f}")
+121.29999999999999715783
+>>>
+```
+
+E isso pode impactar em algumas comparações:
+
+```python
+>>> 11 / 3
+3.6666666666666665
+>>>
+>>> 11 / 3 == 3.6
+False
+>>>
+```
+
+Ou seja, se quer precisão, use o tipo `Decimal`. Se vai mexer com dinheiro, use `Decimal`.
+
+Para usar `Decimal` você pode importar todo o módulo `decimal`:
+
+```python
+>>> import decimal
+>>>
+>>> valor = decimal.Decimal('3.14')
+>>> valor
+Decimal('3.14')
+>>>
+```
+
+Ou carregar todo o módulo, mas trazer para sua aplicação apenas a classe `Decimal`:
+
+```python
+>>> from decimal import Decimal
+>>>
+>>> valor = Decimal('3.14')
+>>> valor
+Decimal('3.14')
+>>>
+```
+
+Os tipos `Decimal` podem ser criados a partir de strings e permitem executar operações entre `Decimal` e de `Decimal` com `int`. **Não permite misturar `Decimal` com `float`.**
+
+```python
+>>> x = Decimal("10.5")
+>>> y = Decimal("2")
+>>>
+>>> z = x + y
+>>> z
+Decimal('12.5')
+>>>
+>>> x / y
+Decimal('5.25')
+>>>
+>>> x * y
+Decimal('21.0')
+>>>
+>>> x += y
+>>> x
+Decimal('12.5')
+>>>
+>>> y += 100
+>>> y
+Decimal('102')
+>>>
+>>> x -= 5
+>>> x
+Decimal('7.5')
+>>>
+```
+
+Para calcular o redimento de uma aplicação de `1000` ao longo de `10` ano a juros de `0.05`, podemos fazer:
+
+```python
+>>> principal = Decimal("1000.00")
+>>> interest  = Decimal("0.05")
+>>>
+>>> for ano in range(1, 11):
+...     print(f"ano={ano}, acumulado={principal * (1 + interest) ** ano}")
+...
+ano=1, acumulado=1050.0000
+ano=2, acumulado=1102.500000
+ano=3, acumulado=1157.62500000
+ano=4, acumulado=1215.5062500000
+ano=5, acumulado=1276.281562500000
+ano=6, acumulado=1340.09564062500000
+ano=7, acumulado=1407.1004226562500000
+ano=8, acumulado=1477.455443789062500000
+ano=9, acumulado=1551.32821597851562500000
+ano=10, acumulado=1628.8946267774414062500000
+>>>
+```
+
+Podemos deixar o resultado mais simpático com as opções de formatação das fstring:
+
+```python
+
 ```
