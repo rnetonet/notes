@@ -1411,3 +1411,1485 @@ A função contrária, `min()`, pode ser utilizada para encontrar o menor valor:
 ('SPAM', 'spam')
 >>>
 ```
+
+- É possível definir valores padrão para parte ou todos parâmetros de uma função:
+
+```python
+>>> def area_retangulo(largura=2, altura=3):
+...     return largura * altura
+...
+>>>
+```
+
+Se todos parâmetros tiverem valores padrão, é possível chamar a função sem nenhum parâmetro:
+
+```python
+>>> area_retangulo()
+6
+>>>
+```
+
+Ou passá-los posicionalmente:
+
+```python
+>>> area_retangulo(5)
+15
+>>>
+>>> area_retangulo(5, 10)
+50
+>>>
+```
+
+**Importante:** Paramêtros posicionais devem vir antes de parâmetros com valores padrão:
+
+```python
+>>> def mensagem_customizada(mensagem, n_repeticoes=3):
+...     while n_repeticoes:
+...         print(mensagem)
+...         n_repeticoes -= 1
+...
+>>>
+>>> mensagem_customizada("Teste")
+Teste
+Teste
+Teste
+>>>
+```
+
+É possível alterar a ordem dos parâmetros se todos argumentos forem passados com os nomes:
+
+```python
+>>> mensagem_customizada(n_repeticoes=4, mensagem="Spam!")
+Spam!
+Spam!
+Spam!
+Spam!
+>>>
+```
+
+- `*args` permite criar funções com uma lista de argumentos arbitrária
+
+Para tornar flexível a passagem de argumentos, podemos usar a sintaxe `*args` que indica que todos os parâmetros que forem passados dali em diante devem ser agrupados em uma tupla chamada `args`:
+
+```python
+>>> def average(*args):
+...     print(args)
+...     print(type(args))
+...     return sum(args) / len(args)
+...
+>>>
+>>> average(1, 5, 10, 20, 45, 99)
+(1, 5, 10, 20, 45, 99)
+<class 'tuple'>
+30.0
+>>>
+```
+
+Convenciona-se usar `args`, mas pode ser qualquer identificador:
+
+```python
+>>> def average(*tpl):
+...     print(tpl)
+...     print(type(tpl))
+...     return sum(tpl) / len(tpl)
+...
+>>> average(1, 5, 10, 20, 45, 99)
+(1, 5, 10, 20, 45, 99)
+<class 'tuple'>
+30.0
+>>>
+```
+
+Se houverem outros parâmetros posicionais, `*args` deve estar após estes:
+
+```python
+>>> def imprime_perfil(nome, idade, *caracteristicas):
+...     print(f"Nome: {nome}")
+...     print(f"Idade: {idade}")
+...     for caracteristica in caracteristicas:
+...         print(f"- {caracteristica:>10}")
+...
+>>>
+>>> imprime_perfil("Rui", 31, "divertido", "nerd", "humano")
+Nome: Rui
+Idade: 31
+-  divertido
+-       nerd
+-     humano
+>>>
+```
+
+- *Unpacking* de sequências para argumentos
+
+O operador `*` pode ser utilizado também para expandir uma sequência em argumentos para uma função:
+
+```python
+>>> argumentos = (1, 2, 3, 4, 5)
+>>>
+>>> def soma(*args):
+...     total = 0
+...     for arg in args:
+...         total += arg
+...     return total
+...
+>>>
+>>> soma(argumentos) # ops! nao deve-se passar uma tupla
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-10-19031880e71f> in <module>
+----> 1 soma(argumentos) # ops! nao deve-se passar uma tupla
+
+<ipython-input-9-958a3120e127> in soma(*args)
+      2     total = 0
+      3     for arg in args:
+----> 4         total += arg
+      5     return total
+      6
+
+TypeError: unsupported operand type(s) for +=: 'int' and 'tuple'
+>>>
+>>> # Agora sim
+>>> soma(*argumentos) # equivale a soma(1, 2, 3, 4, 5)
+15
+>>>
+```
+
+- Métodos são funções vinculadas a classes ou objetos.
+
+O tipo básico `str` apresenta divesos métodos que produzem novas strings, modificadas, sem, contudo, alterar a original:
+
+```python
+>>> s = "Hello World"
+>>>
+>>> s.upper()
+'HELLO WORLD'
+>>>
+>>> s
+'Hello World'
+>>>
+>>> s.lower()
+'hello world'
+>>>
+>>> s
+'Hello World'
+>>>
+```
+
+- Variáveis locais, definidas dentro de uma função ou passadas como argumento, só existem dentro e durante a execução da função.
+
+```python
+>>> def soma(a, b):
+...     resultado = a + b
+...     return resultado
+...
+>>> soma( 3, 5 )
+8
+>>>
+>>> a
+---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+<ipython-input-20-3f786850e387> in <module>
+----> 1 a
+
+NameError: name 'a' is not defined
+>>> b
+---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+<ipython-input-21-89e6c98d9288> in <module>
+----> 1 b
+
+NameError: name 'b' is not defined
+>>> resultado
+---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+<ipython-input-22-b2c5c9eb7548> in <module>
+----> 1 resultado
+
+NameError: name 'resultado' is not defined
+>>>
+```
+
+- Variáveis criadas fora da função, no corpo do script (*do módulo*) são ditas **globais**.
+
+Estas funções podem ser lidas de dentro das funções:
+
+```python
+>>> N_INDENTACAO = 4
+>>>
+>>> def imprimir_perfil(nome, idade):
+...     print(" " * N_INDENTACAO, nome, idade)
+...
+>>>
+>>> imprime_perfil("Joao", 45)
+Nome: Joao
+Idade: 45
+>>>
+```
+
+Contudo, ao tentar modificar uma variável global no escopo da função, uma nova variável local é criada (sobrepondo-se à variável global):
+
+```python
+>>> X = 42
+>>>
+>>> def modificar():
+...     X = 99
+...
+>>>
+>>> modificar()
+>>> X
+42
+>>>
+```
+
+Para realizar tal modificação, deve-se explicitamente indicar que a variável é `global` no início da função:
+
+```python
+>>> X = 42
+>>>
+>>> def modificar():
+...     global X
+...     X = 99
+...
+>>>
+>>> modificar()
+>>>
+>>> X
+99
+>>>
+```
+
+- Variáveis definidas dentro de uma função ou passadas como parâmetro/argumento têm escopo local, não existem após a execução da função ou fora da função.
+
+- Variáveis declaradas no corpo do módulo, do script, **sem estar dentro de uma função**, são **globais**. E estão acessíveis em todo o módulo, inclusive nas funções. Contudo, para modificá-las de dentro de funções, deve-se indicar explicitamente com `global`.
+
+- Os módulos/scripts são lidos do início ao fim pelo interpretador. Comandos no nível do módulo são interpretados e executados imediatamente.
+Comandos dentro de funções são executados apenas quandoa função é chamada.
+
+- `import` permite algumas sintaxes adicionais.
+
+Importar múltiplos nomes:
+
+```python
+>>> from math import ceil, sqrt
+>>>
+>>> ceil(3.14)
+4
+>>>
+>>> sqrt(9)
+3.0
+>>>
+```
+
+Se forem de fato muitos nomes a importar, pode-se colocá-los entre parênteses e quebrar a linha:
+
+```python
+>>> from math import (
+...     ceil,
+...     sqrt,
+...     e,
+...     pi
+... )
+>>>
+>>> ceil(3.14)
+4
+>>> sqrt(9)
+3.0
+>>>
+>>> e
+2.718281828459045
+>>>
+>>> pi
+3.141592653589793
+>>>
+```
+
+Também é possível criar um apelido para o módulo durante sua importação, usando `import as`:
+
+```python
+>>> import statistics as stats
+>>>
+>>> lista = [10, 3, 44, 192, 9]
+>>> stats.mean(lista)
+51.6
+>>>
+```
+
+- A passagem de parâmetros em Python é *pass-by-object-reference*.
+
+Uma cópia da referência do objeto é passada como parâmetro. **Não o objeto em si**.
+
+```python
+>>> a = 10
+>>> b = 20
+>>>
+>>> def soma(a, b):
+        # inteiros são imutáveis, as operações abaixo produzem novos objetos e novas variáveis locais, que sobrescrevem os argumentos
+...     a -= 1
+...     b -= 1
+...     return a + b
+...
+>>> # Passa cópia das referências de 'a' e 'b'
+>>> soma(a, b)
+28
+>>> # seguem inalterados
+>>> a, b
+(10, 20)
+>>>
+```
+
+Contudo, para objetos **mutáveis** a passagem *by object reference* pode causar efeitos colaterais:
+
+```python
+>>> lista = [1, 2, 3]
+>>>
+>>> def modificar(l):
+...     l[1] = 42
+...
+>>>
+>>> outra_referencia_lista = lista # faz uma copia da referencia! lembre-se. da referencia!, continua havendo apenas um unico objeto
+>>>
+>>> modificar(lista)
+>>>
+>>> lista
+[1, 42, 3]
+>>>
+>>> outra_referencia_lista
+[1, 42, 3]
+>>>
+```
+
+- Para quem já estudou C, variáveis em Python são ponteiros para objetos. Ao serem utilizadas em comandos ou expressões, esses ponteiros são dereferenciados implicitamente.
+
+- É possível comprovar a passagem de parâmetros *pass-by-object-reference* utilizando a função *builtin* `id(objeto)`, que retorna um número representando a **identidade** única de um objeto:
+
+```python
+>>> numero = 7
+>>>
+>>> def quadrado(valor):
+...     print(f"id(valor): {id(valor)}")
+...     return valor * valor
+...
+>>> id(numero)
+10968992
+>>>
+>>> quadrado(numero)
+id(valor): 10968992
+49
+>>>
+```
+
+- Você pode comparar se duas referências apontam para o mesmo objeto comparando seus `id()` ou com o operador `is`:
+
+```python
+>>> a = 42
+>>> b = a
+>>>
+>>> id(a) == id(b)
+True
+>>>
+>>> a is b
+True
+>>>
+```
+
+**Importante:** `is` é mais restrito que uma comparação de igualdade. O `is` compara se as referências apontam para o mesmo espaço de memória. Não leva em conta o **valor** de fato dos objetos:
+
+```python
+>>> a = [1, 2, 3]
+>>> b = [1, 2, 3]
+>>>
+>>> a == b
+True
+>>>
+>>> a is b
+False
+>>>
+```
+
+- Referências para objetos imutáveis não permitem alterar o valor do objeto:
+
+```python
+>>> numero = 12
+>>>
+>>> def quadrado(valor):
+...     print(f"antes -> id(valor): {id(valor)}")
+...     valor *= 2
+...     print(f"depois -> id(valor): {id(valor)}")
+...
+>>>
+>>> id(numero)
+10969152
+>>>
+>>> quadrado(numero)
+antes -> id(valor): 10969152
+depois -> id(valor): 10969536
+>>>
+>>> id(numero)
+10969152
+>>>
+```
+
+Ao tentar alterar um objeto imutável, um novo objeto é criado, com uma nova identidade.
+O objeto original permanece inalterado.
+
+- Recursão consiste em quebrar um problema em pedaços menores para resolvé-lo.
+
+Funções recursivas conhecem apenas os resultados de **casos bases**.
+
+Ao receber um caso mais complexo, a função quebra-o e lança uma nova execução da função para o caso mais simples (**recursion step**).
+A função original, que recebeu o caso complexo, continua ativa, aguardando as chamadas subsequentes terminarem.
+Essas funções terminam quando há convergência em um caso base. Daí os resultados vão sendo retornados, subindo a pilha.
+
+Logo, **toda função recursiva deve ter um caso base**, do contrário não há convergência.
+
+Exemplo de fatorial recursivo:
+
+```python
+>>> def fatorial(n):
+...     if n == 1: return 1
+...     return n * fatorial(n - 1)
+...
+>>> fatorial(5)
+120
+>>> fatorial(4)
+24
+>>>
+```
+
+- Python fornece mecanismos para programação funcional.
+
+Programação funcional foca em imutabilidade, evitando modificar variáveis.
+
+**Programação declarativa** é dizer o que você quer feito, ao invés de escrever como fazer.
+
+**Funções puras** dependem apenas dos parâmetros que recebe, sempre retornam o mesmo resultado para um mesmo conjunto de parâmetros e não têm efeitos colaterais (não modificam nenhuma variável externa ou os parâmetros passados).
+
+Um bom exemplo, é a própria função `sum()`:
+
+```python
+>>> lista = [1, 2, 3]
+>>>
+>>> sum(lista)
+6
+>>> sum(lista)
+6
+>>> sum(lista)
+6
+>>>
+>>> lista
+[1, 2, 3]
+>>>
+```
+
+- Listas
+
+Permite conter dados homogêneos (mesmo tipo) ou heterogêneos:
+
+```python
+>>> l_a = [1, 2, 3, 4, 5]
+>>> l_b = ["John", "Doe", 15, 2019]
+>>>
+```
+
+Elementos são acessíveis por indexação, que começa em `0`:
+
+```python
+>>> lista = ["a", "b", "c"]
+>>> lista[0]
+'a'
+>>> lista[1]
+'b'
+>>> lista[2]
+'c'
+>>>
+```
+
+A função `len()` retorna o tamanho:
+
+```python
+>>> len(lista)
+3
+>>>
+```
+
+A indexação pode ocorrer de trás para frente usando índices negativos, o último elemento da lista tem índice negativo `-1`, o penúltimo `-2`:
+
+```python
+>>> lista = ["a", "b", "c"]
+>>> lista[-1]
+'c'
+>>> lista[-2]
+'b'
+>>> lista[-3]
+'a'
+>>>
+```
+
+Índices devem ser inteiros ou expressões que produzam inteiros:
+
+```python
+>>> lista
+['a', 'b', 'c']
+>>> lista[ len(lista) - 1 ]
+'c'
+>>>
+```
+
+Índices inexistentes produzem exceções:
+
+```python
+>>> lista
+['a', 'b', 'c']
+>>>
+>>> lista[5]
+---------------------------------------------------------------------------
+IndexError                                Traceback (most recent call last)
+<ipython-input-18-cf0236d70f2a> in <module>
+----> 1 lista[5]
+
+IndexError: list index out of range
+>>>
+```
+
+Elementos de listas podem ser alterados por indexação e atribuição:
+
+```python
+>>> lista = ["a", "b", "c"]
+>>> lista
+['a', 'b', 'c']
+>>>
+>>> lista[1] = 42
+>>> lista
+['a', 42, 'c']
+>>>
+>>>
+```
+
+Mas, cuidado, sequências como tuplas ou strings são imutáveis. Os elementos individuais podem ser lidos, mas não alterados:
+
+```python
+>>> t = ("a", "b", "c")
+>>> t[1]
+'b'
+>>> t[1] = 42
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-31-adb5cf76b0f0> in <module>
+----> 1 t[1] = 42
+
+TypeError: 'tuple' object does not support item assignment
+>>>
+```
+
+```python
+>>> palavra = "bacon"
+>>> palavra[0]
+'b'
+>>>
+>>> palavra[0] = "x"
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-34-50084dc939bc> in <module>
+----> 1 palavra[0] = "x"
+
+TypeError: 'str' object does not support item assignment
+>>>
+```
+
+Os items da lista podem ser usados individualmente em expressões. Lembre-se: são objetos também!
+
+```python
+>>> lista = ["a", "b", "c"]
+>>>
+>>> lista[0].upper()
+'A'
+>>>
+```
+
+Você pode extender uma lista usando o operador `+=`:
+
+```python
+>>> lista = []
+>>> lista += [1]
+>>> lista
+[1]
+>>>
+>>> lista += [1, 2, 3]
+>>> lista
+[1, 1, 2, 3]
+>>>
+```
+
+Cuidado, o lado direito **deve** conter uma sequência também. Cada elemento dessa sequência será adicionado à lista na esquerda:
+
+```python
+>>> lista = []
+>>>
+>>> lista += [1]
+>>> lista
+[1]
+>>>
+
+>>> lista += [1, 2, 3]
+>>> lista
+[1, 1, 2, 3]
+
+>>> lista += "Python"
+>>> lista
+[1, 1, 2, 3, 'P', 'y', 't', 'h', 'o', 'n']
+>>>
+```
+
+Se tentar concatenar com um objeto simples, uma exceção é produzida:
+
+```python
+>>> lista += 10
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-48-689f38fbfb69> in <module>
+----> 1 lista += 10
+
+TypeError: 'int' object is not iterable
+>>>
+```
+
+Mas com uma string de um caractere funciona, pois é uma sequência contendo apenas um item:
+
+```python
+>>> lista += "X"
+>>> lista
+[1, 1, 2, 3, 'P', 'y', 't', 'h', 'o', 'n', 'X']
+>>>
+```
+
+Sequências (listas, tuplas e strings) podem ser concatenadas com `+`:
+
+```python
+>>> [1, 2, 3] + [4, 5, 6]
+[1, 2, 3, 4, 5, 6]
+>>>
+>>> (1, 2, 3) + (4, 5, 6)
+(1, 2, 3, 4, 5, 6)
+>>>
+>>> "abc" + "def"
+'abcdef'
+>>>
+```
+
+Mas não é possível concatenar tipos diferentes de sequências:
+
+```python
+>>> [1, 2, 3] + (4, 5, 6)
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-54-7296224f6977> in <module>
+----> 1 [1, 2, 3] + (4, 5, 6)
+
+TypeError: can only concatenate list (not "tuple") to list
+>>>
+>>> [1, 2, 3] + "spam"
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-55-6c39e239b46e> in <module>
+----> 1 [1, 2, 3] + "spam"
+
+TypeError: can only concatenate list (not "str") to list
+>>>
+```
+
+Listas podem ser comparadas, elemento a elemento:
+
+```python
+>>> [1, 2, 3] == [1, 2, 3]
+True
+>>>
+>>> [10, 20, 30] > [1, 2, 3]
+True
+>>>
+>>> [0, 1, 2] < [10, 30, 40]
+True
+>>>
+```
+
+- Tuplas
+
+São muito similares às listas, mas são imutáveis.
+
+Criando tuplas:
+
+```python
+>>> tpl_vazia = ()
+>>> tpl_vazia
+()
+>>>
+>>> tpl_unica = (42, ) # virgula necessaria
+>>> tpl_unica
+(42,)
+>>>
+>>> tpl = (1, 2, 3, 4, 5)
+>>> tpl
+(1, 2, 3, 4, 5)
+>>>
+>>> tpl_flat = 1, 2, 3, 4, 5 # paresentes sao opcionais, mas sao recomendados
+>>> tpl_flat
+(1, 2, 3, 4, 5)
+>>>
+>>>
+```
+
+Tuplas são acessadas e respondem a quase todas operações que as listas:
+
+```python
+>>> tpl = (10, 20, 30)
+>>>
+>>> len(tpl)
+3
+>>>
+>>> tpl + (10, 20, 30)
+(10, 20, 30, 10, 20, 30)
+>>>
+>>> tpl[0], tpl[-1]
+(10, 30)
+>>>
+>>> tpl += (25, 50) # nova tupla e criada
+>>> tpl
+(10, 20, 30, 25, 50)
+>>>
+>>>
+```
+
+Tuplas, apesar de imutáveis, podem conter objetos mutáveis:
+
+```python
+>>> tpl = (1, 2, ["a", "b", "c"])
+>>> tpl[2][0] = "X"
+>>> tpl
+(1, 2, ['X', 'b', 'c'])
+>>>
+```
+
+- Decompondo uma sequência em variáveis
+
+```python
+>>> tpl = (1, 2, 3)
+>>>
+>>> a, b, c = tpl
+>>> a
+1
+>>> b
+2
+>>> c
+3
+>>>
+```
+
+Se o número de variáveis for diferente (para maior ou menor) do tamanho da sequência, uma exceção é gerada:
+
+```python
+>>> a, b = tpl
+---------------------------------------------------------------------------
+ValueError                                Traceback (most recent call last)
+<ipython-input-7-352fb1238ad4> in <module>
+----> 1 a, b = tpl
+
+ValueError: too many values to unpack (expected 2)
+>>>
+```
+
+```python
+>>> a, b, c, d = tpl
+---------------------------------------------------------------------------
+ValueError                                Traceback (most recent call last)
+<ipython-input-6-6b50c620d7a3> in <module>
+----> 1 a, b, c, d = tpl
+
+ValueError: not enough values to unpack (expected 4, got 3)
+```
+
+- *swap* de variáveis através de *unpacking*
+
+```python
+>>> a = 10
+>>> b = 20
+>>>
+>>> a, b = b, a
+>>>
+>>> a
+20
+>>> b
+10
+>>>
+```
+
+- Iterando sobre uma sequência com informação de índice - `enumerate(seq)`
+
+```python
+>>> lista = ["a", "b", "c", "d", "e"]
+>>> for indice, valor in enumerate(lista):
+...     print(f"{indice:<5}: {valor}")
+...
+0    : a
+1    : b
+2    : c
+3    : d
+4    : e
+>>>
+```
+
+- Slices permitem referênciar partes de sequências
+
+Slices têm o formato: `seq[inicio:fim]` ou, opcionalmente, passando um *step* `seq[inicio:fim:step]`
+
+`fim` não é incluído no resultado.
+
+```python
+>>> lista = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+>>>
+>>> lista[0:5] # retorna os indices 0, 1, 2, 3, 4
+[1, 2, 3, 4, 5]
+>>>
+```
+
+`inicio` assume, se omitido, o valor `0`.
+`fim` assume, se omitido, o tamanho (`len()`) da sequência.
+`step` por padrão `= 1`.
+
+```python
+>>> lista = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+>>>
+>>> lista[5:]
+[6, 7, 8, 9]
+>>>
+>>> lista[:5]
+[1, 2, 3, 4, 5]
+>>>
+>>> lista[::2] # 2 em 2
+[1, 3, 5, 7, 9]
+>>>
+>>> lista[:] # nova lista, copiando as variaveis da anterior (shallow copy)
+[1, 2, 3, 4, 5, 6, 7, 8, 9]
+>>>
+```
+
+Índices negativos podem ser utilizados em slices, mas é um pouco confuso:
+
+```python
+>>> lista = ["a", "b", "c", "d", "e"]
+>>>
+>>> lista[::-1]
+['e', 'd', 'c', 'b', 'a']
+>>>
+>>> lista[-4:-1]
+['b', 'c', 'd']
+>>>
+```
+
+Modificar listas via *slices*:
+
+```python
+>>> lista = ["a", "b", "c", "d", "e"]
+>>>
+>>> lista[0:3] = [1, 2, 3]
+>>> lista
+[1, 2, 3, 'd', 'e']
+>>>
+>>> lista[4:] = []
+>>> lista
+[1, 2, 3, 'd']
+>>>
+>>> lista[3:] = [10, 20, 30]
+>>> lista
+[1, 2, 3, 10, 20, 30]
+>>>
+```
+
+Zerar lista com slices:
+
+```python
+>>> lista
+[1, 2, 3, 10, 20, 30]
+>>>
+>>> lista[:] = []
+>>>
+>>> lista
+[]
+>>>
+```
+
+- Deletando com `del`
+
+Em listas:
+
+```python
+>>> lista = ["a", "b", "c", "d", "e"]
+>>>
+>>> del lista[4]
+>>>
+>>> lista
+['a', 'b', 'c', 'd']
+>>>
+>>> del lista[2:5]
+>>>
+>>> lista
+['a', 'b']
+>>>
+>>> del lista[:]
+>>> lista
+[]
+>>>
+```
+
+Deletando variáveis:
+
+```python
+>>> valor = 42
+>>>
+>>> del valor
+>>>
+>>> valor
+---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+<ipython-input-24-57d0d821be24> in <module>
+----> 1 valor
+
+NameError: name 'valor' is not defined
+>>>
+```
+
+- Ordenar lista  `sort()`, *in-place*
+
+```python
+>>> numeros = [10, 3, 7, 1, 9, 4, 2, 8, 5, 6]
+>>> numeros.sort()
+>>>
+>>> numeros
+[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+>>>
+```
+
+- Ordenar de forma reversa `sort()`, *in-place*
+
+```python
+>>> numeros.sort(reverse=True)
+>>> numeros
+[10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+>>>
+```
+
+- Ordenar, mas sem alterar o original (cópia) `sorted(lst)`
+
+```python
+>>> numeros = [10, 3, 7, 1, 9, 4, 2, 8, 5, 6]
+>>>
+>>> sorted(numeros)
+[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+>>>
+>>> sorted(numeros, reverse=True)
+[10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+>>>
+>>> numeros
+[10, 3, 7, 1, 9, 4, 2, 8, 5, 6]
+>>>
+```
+
+- Obter o índice de um valor em uma lista `index()`
+
+Retorna o primeiro índice encontrado:
+
+```python
+>>> lista = ["pato", "galinha", "cachorro", "cisne", "ganso", "rato"]
+>>> lista.index("cachorro")
+2
+>>>
+>>> lista.index("pato", 3) # busque a partir do indice 3
+---------------------------------------------------------------------------
+ValueError                                Traceback (most recent call last)
+<ipython-input-37-f3f9bc37610e> in <module>
+----> 1 lista.index("pato", 3) # busque a partir do indice 3
+
+ValueError: 'pato' is not in list
+>>>
+>>> lista.index("pato", 0, 3) # busque entre os indices 0 e 2 (3 não é incluído)
+0
+>>>
+>>>
+```
+
+- Verificando presença com `in` e ausência com `not in`:
+
+```python
+>>> lista = ["pato", "galinha", "cachorro", "cisne", "ganso", "rato"]
+>>>
+>>> "pato" in lista
+True
+>>>
+>>> "gato" not in lista
+True
+>>>
+```
+
+- `in` pode ser utilizado para evitar exceções, ao tentar acessar algo que não está presente:
+
+```python
+>>> lista = ["pato", "galinha", "cachorro", "cisne", "ganso", "rato"]
+>>>
+>>> busca = input("Qual valor deseja buscar ? ")
+Qual valor deseja buscar ? gato
+>>>
+>>> if busca  in lista:
+...     print(f"{busca} encontrado na posicao {lista.index(busca)}")
+... else:
+...     print("nao encontrado")
+...
+nao encontrado
+>>>
+```
+
+- Funções `any` e `all`
+
+`any` retorna `True` se algum elemento da sequência for `True`, basta um:
+
+```python
+>>> lista = [0, 0, 0, 0, 1]
+>>> any(lista)
+True
+>>>
+>>> lista = [0, 0, 0, ""]
+>>> any(lista)
+False
+>>>
+```
+
+`all` retorna `True` apenas se todos elementos da lista forem `True`
+
+```python
+>>> lista = [1, 1, 1, 1, 1]
+>>> all(lista)
+True
+>>>
+>>> lista = [1, 1, 1, 1, 0]
+>>> all(lista)
+False
+>>>
+```
+
+- Outros métodos de listas
+
+Inserir um objeto antes de determinada posição, `insert`:
+
+```python
+>>> lista = ["vermelho", "azul", "verde"]
+>>>
+>>> lista.insert(0, "branco")
+>>> lista
+['branco', 'vermelho', 'azul', 'verde']
+>>>
+```
+
+Adicionar ao final `append`:
+
+```python
+>>> lista.append("roxo")
+>>> lista
+['branco', 'vermelho', 'azul', 'verde', 'roxo']
+>>>
+```
+
+Adicionando todos elementos de uma outra sequência ao final da lista, `extend` ou `+=`:
+
+```python
+>>> lista
+['branco', 'vermelho', 'azul', 'verde', 'roxo']
+>>>
+>>> lista.extend(["rosa", "laranja"])
+>>> lista
+['branco', 'vermelho', 'azul', 'verde', 'roxo', 'rosa', 'laranja']
+>>>
+```
+
+Removendo a primeira ocorrência por valor:
+
+```python
+>>> lista = [1, 2, 3, 10, 2, 33]
+>>> lista.remove(2)
+>>>
+>>> lista
+[1, 3, 10, 2, 33]
+>>>
+```
+
+Cuidado, uma exceção é gerada se não for possível remover:
+
+```python
+>>> lista = [1, 2, 3, 10, 2, 33]
+>>> lista.remove(42)
+---------------------------------------------------------------------------
+ValueError                                Traceback (most recent call last)
+<ipython-input-67-c64630808f10> in <module>
+----> 1 lista.remove(42)
+
+ValueError: list.remove(x): x not in list
+>>>
+```
+
+Limpe uma lista com `clear`:
+
+```python
+>>> lista = [1, 2, 3]
+>>> lista.clear()
+>>> lista
+[]
+>>>
+```
+
+Conte número de ocorrências com `count`:
+
+```python
+>>> lista = [0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1]
+>>>
+>>> lista.count(0)
+6
+>>> lista.count(1)
+5
+>>>
+```
+
+Invertendo a ordem de uma lista `reverse`:
+
+```python
+>>> lst = [1, 2, 4, 3, 6, 5]
+>>> lst.reverse()
+>>> lst
+[5, 6, 3, 4, 2, 1]
+>>>
+```
+
+Cópia *shallow* de uma lista `copy`:
+
+```python
+>>> l_a = [1, 2, 3]
+>>> l_b = l_a
+>>> l_c = l_a.copy()
+>>>
+>>> l_a[1] = "X"
+>>>
+>>> l_a
+[1, 'X', 3]
+>>>
+>>> l_b
+[1, 'X', 3]
+>>>
+>>> l_c
+[1, 2, 3]
+>>>
+```
+
+- Para simular uma pilha com uma lista, use `append` e `pop`
+
+```python
+>>> pilha = []
+>>>
+>>> pilha.append(10)
+>>> pilha.append(15)
+>>> pilha.append(30)
+>>>
+>>> # LIFO
+>>> pilha.pop()
+30
+>>> pilha.pop()
+15
+>>>
+```
+
+Cuidado, `pop()` gera exceção se a lista estiver vazio:
+
+```python
+>>> pilha.pop()
+---------------------------------------------------------------------------
+IndexError                                Traceback (most recent call last)
+<ipython-input-10-1091ca38982e> in <module>
+----> 1 pilha.pop()
+
+IndexError: pop from empty list
+>>>
+```
+
+- *List comprehensions* permitem criar novas listas a partir da iteração sobre sequências existentes
+
+*Mapping*: produzir uma lista de mesmo tamanho mas com o resultado de uma expressão para cada item da sequência original:
+
+```python
+>>> lista = [1, 2, 3, 4, 5]
+>>>
+>>> dobrados = [item * item for item in lista]
+>>> dobrados
+[1, 4, 9, 16, 25]
+>>>
+```
+
+É possível adicionar condicionais para filtrar os items processados e, consequentemente, o resultado gerado:
+
+```python
+>>> lista = [1, 2, 3, 4, 5]
+>>> nums_par_dobrados = [item * item for item in lista if item % 2 == 0]
+>>> nums_par_dobrados
+[4, 16]
+>>>
+```
+
+Pode atuar inclusive sobre outras listas:
+
+```python
+>>> lista = [1, 2, 3, 4, 5]
+>>> processado = [item + 5 for item in lista]
+>>> processado
+[6, 7, 8, 9, 10]
+>>>
+```
+
+Inclusive, dá para iterar sobre listas aninhadas:
+
+```python
+>>> matriz = [
+...     [1, 2, 3],
+...     [4, 5, 6],
+...     [7, 8, 9]
+... ]
+>>>
+>>> matriz_flat = [valor for linha in matriz for valor in linha]
+>>> matriz_flat
+[1, 2, 3, 4, 5, 6, 7, 8, 9]
+>>>
+```
+
+Note que dentro da *list comprehension* a ordem está meio que invertida. O exemplo acima é interpretado:
+
+```python
+>>> matriz = [
+...     [1, 2, 3],
+...     [4, 5, 6],
+...     [7, 8, 9]
+... ]
+>>>
+>>> matriz_flat = []
+>>> for linha in matriz:
+...     for valor in linha:
+...         matriz_flat.append( valor )
+...
+>>>
+>>> matriz_flat
+[1, 2, 3, 4, 5, 6, 7, 8, 9]
+>>>
+```
+
+- *Generator expressions* são como *list comprehensions*, mas ao invés de produzir a lista toda me memória de vez, eles produzem um valor por vez. Cada vez que são *chamados*. Isto permite economizar bastante memória (*lazy evaluation*).
+
+```python
+>>> matriz = [
+...     [1, 2, 3],
+...     [4, 5, 6],
+...     [7, 8, 9]
+... ]
+>>>
+>>> gerador = (valor for linha in matriz for valor in linha if valor % 2 == 0)
+>>> gerador
+<generator object <genexpr> at 0x7fd6a748fa40>
+>>>
+>>> for item in gerador:
+...     print(item)
+...
+2
+4
+6
+8
+>>>
+```
+
+- `filter()`, `map()`, `reduce()` - funções que auxiliam na programação funcional
+
+`filter(fx, seq)` aplica `fx` a cada item da sequência `seq`, e retorna uma lista contendo apenas os items de `seq` em que `fx` retornou `True`:
+
+```python
+>>> def eh_par(valor):
+...     if valor % 2 == 0: return True
+...     return False
+...
+>>> lista = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+>>>
+
+# Retorna um iterador (similar a um generator)
+>>> pares = filter(eh_par, lista)
+>>> pares
+<filter at 0x7fd6a741c550>
+>>>
+# Valores so sao produzidos quando a iteracao ocorre
+>>> for par in pares:
+...     print(par)
+...
+2
+4
+6
+8
+>>>
+```
+
+Funções em Python são objetos de primeira ordem, podendo ser atribuídos, passados como parâmetros, etc.
+
+O exemplo acima poderia ser reduzido através da utilização de funções anônimas, criadas com `lambda`:
+
+```python
+>>> lista = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+>>>
+>>> pares = filter(lambda valor: valor % 2 == 0, lista)
+>>> pares
+<filter at 0x7fd6a741c278>
+>>>
+>>> for par in pares: print(par)
+2
+4
+6
+8
+>>>
+```
+
+- Funções anônimas tem o formato:
+
+`lambda parametros: expressao`
+
+Implicitamente a função retorna o valor de `expressao`.
+
+- `map(fx, seq)` aplica `fx` a cada item de `seq` e retorna um iterador com os resultados gerados:
+
+```python
+>>> lista = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+>>>
+>>> dobrados = map(lambda numero: numero * numero, lista)
+>>> dobrados
+<map at 0x7fd6a736e860>
+>>>
+>>> for valor in dobrados:
+...     print(valor)
+...
+1
+4
+9
+16
+25
+36
+49
+64
+81
+>>>
+```
+
+`filter` e `map` podem ser combinados:
+
+dobrando apenas os números pares:
+
+```python
+>>> lista = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+>>>
+>>> pares_dobrados = map(lambda x: x * x, filter(lambda y: y % 2 == 0, lista))
+>>> print( list(pares_dobrados) )
+[4, 16, 36, 64]
+>>>
+```
+
+O módulo `functools` traz uma série de funções que auxiliam na programação funcional.
+Uma, bastante útil, é a função `reduce` que permite transformar uma sequência em um valor único:
+
+```python
+
+>>> from functools import reduce
+>>>
+>>>
+>>> lista = [1, 2, 3, 4, 5]
+>>> reduce(lambda x, y: x + y, lista, 0)
+15
+>>>
+```
+
+No exemplo acima:
+
+`lambda x, y: x + y` é a função executada para cada item de `lista`.
+`x` é o valor acumulado, `y` é o valor da vez na `lista`.
+`x + y` a expressão retornada.
+
+`lista` é a sequência percorrida.
+
+`0` é o valor inicial do acumulador.
+
+- `min` e `max` permitem a passagem do parâmetro `key`, que define uma função a ser aplicada em cada elemento ser processado.
+O resultado dessa função é utilizado então.
+
+```python
+>>> lista = ['Blue', 'green', 'orange', 'Red', 'Yellow']
+>>>
+>>> min(lista)
+'Blue'
+>>>
+>>> min(lista, key=lambda x: x.lower())
+'Blue'
+>>>
+>>> max(lista)
+'orange'
+>>>
+>>> max(lista, key=lambda x: x.lower())
+'Yellow'
+>>>
+```
+
+- `reversed()` permite iterar no sentido contrário sobre qualquer sequência:
+
+```python
+>>> lista = [1, 2, 3, 4, 5]
+>>>
+>>> for item in reversed(lista): print(item)
+5
+4
+3
+2
+1
+>>>
+```
+
+- `zip()` combina sequências, permitindo iterar sobre mais de uma seq ao mesmo tempo
+
+```python
+>>> alunos = ["joao", "maria", "paula", "pedro", "ana carina"]
+>>> notas  = [8.49,   3.1,     9.9,     5.0,     7.4         ]
+>>>
+>>> for aluno, nota in zip(alunos, notas):
+...     print(f"{aluno:<10} - {nota:>10.2f}")
+...
+joao       -       8.49
+maria      -       3.10
+paula      -       9.90
+pedro      -       5.00
+ana carina -       7.40
+>>>
+```
+
+- Matrizes podem ser criadas aninhando listas em listas
+
+```python
+>>> matriz = [
+...     [1, 2, 3],
+...     [4, 5, 6],
+...     [7, 8, 9]
+... ]
+>>>
+>>> for linha in matriz:
+...     print(linha)
+...
+[1, 2, 3]
+[4, 5, 6]
+[7, 8, 9]
+>>>
+>>> matriz[0][2] # primeira linha, terceira coluna (indices comecam em zero)
+3
+>>>
+```
+
+- Dicionários e `sets`
+
