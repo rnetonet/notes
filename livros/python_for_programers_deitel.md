@@ -2893,3 +2893,688 @@ ana carina -       7.40
 
 - Dicionários e `sets`
 
+Dicionários são coleções que vinculam chaves imutáveis a valores (de qualquer tipo).
+`Sets` são conjuntos de valores imutáveis únicos.
+Ambas coleções não apresentam ordem.
+
+As chaves dos dicionários devem ser de tipos imutáveis (`strings`, `int`, `float`, `tuple`) e não podem se repetir. Os valores associados, podem se repetir.
+
+```python
+>>> dic_vazio = {}
+>>>
+>>> paises_abbr = {
+...     "Finland": "fi",
+...     "South Africa": "za",
+...     "Nepal": "np"
+... }
+>>> paises_abbr
+{'Finland': 'fi', 'South Africa': 'za', 'Nepal': 'np'}
+>>>
+```
+
+`len` retorna o número de pares de um dicionário:
+
+```python
+>>> len(paises_abbr)
+3
+>>>
+```
+
+Dicionários, listas e qualquer outra sequência de Python, quando vazias têm valor lógico `False`. Se tiver pelo menos um item, é `True`:
+
+```python
+>>> dic = {"a": 1, "b": 2, "c": 3}
+>>> len(dic)
+3
+>>>
+>>> bool( dic )
+True
+>>>
+>>> dic.clear()
+>>> len(dic)
+0
+>>>
+>>> bool( dic )
+False
+>>>
+```
+
+- Formas de iteração sobre um dicionário:
+
+Iterando sobre as chaves implicitamente:
+
+```python
+>>> dic = {"a": 1, "b": 2, "c": 3}
+>>>
+>>> for chave in dic:
+...     print(chave)
+...
+a
+b
+c
+>>>
+```
+
+Iterando sobre as chaves explicitamente `.keys()`:
+
+```python
+>>> dic = {"a": 1, "b": 2, "c": 3}
+>>> for chave in dic.keys():
+...     print(chave)
+...
+...
+a
+b
+c
+>>>
+```
+
+Iterando sobre os valores `.values()`:
+
+```python
+>>> dic = {"a": 1, "b": 2, "c": 3}
+>>> for valor in dic.values():
+...     print(valor)
+...
+...
+...
+1
+2
+3
+```
+
+Iterando sobre os pares chave e valor `.items()`:
+
+```python
+>>> dic = {"a": 1, "b": 2, "c": 3}
+>>> for chave, valor in dic.items():
+...     print(f"{chave}:{valor:>10}")
+...
+a:         1
+b:         2
+c:         3
+>>>
+>>>
+```
+
+- Principais operações com dicionários
+
+Declaração:
+
+```python
+# X propositalmente errado
+>>> numeros_romanos = {'I':   1, 'II': 2, 'III': 3, 'V': 5, 'X': 100}
+```
+
+Acessando um valor por indexação:
+
+```python
+>>> numeros_romanos = {'I':   1, 'II': 2, 'III': 3, 'V': 5, 'X': 100}
+>>> numeros_romanos['I']
+1
+>>>
+>>> numeros_romanos["V"]
+5
+>>>
+```
+
+Alterando um valor:
+
+```python
+>>> numeros_romanos = {'I':   1, 'II': 2, 'III': 3, 'V': 5, 'X': 100}
+>>>
+>>> numeros_romanos["X"] = 10
+>>>
+>>> numeros_romanos
+{'I': 1, 'II': 2, 'III': 3, 'V': 5, 'X': 10}
+>>>
+```
+
+Adicionar novo par:
+
+```python
+>>> numeros_romanos = {'I':   1, 'II': 2, 'III': 3, 'V': 5, 'X': 10}
+>>>
+>>> numeros_romanos["L"] = 50
+>>>
+>>> numeros_romanos
+{'I': 1, 'II': 2, 'III': 3, 'V': 5, 'X': 10, 'L': 50}
+>>>
+```
+
+Removendo um par `del`:
+
+```python
+>>> numeros_romanos = {'I':   1, 'II': 2, 'III': 3, 'V': 5, 'X': 10}
+>>>
+>>> del numeros_romanos["II"]
+>>>
+>>> numeros_romanos
+{'I': 1, 'III': 3, 'V': 5, 'X': 10}
+>>>
+```
+
+Removendo um par e guardando o valor removido `pop()`:
+
+```python
+>>> numeros_romanos = {'I':   1, 'II': 2, 'III': 3, 'V': 5, 'X': 10}
+>>>
+>>> removido = numeros_romanos.pop("II")
+>>>
+>>> removido
+2
+>>>
+>>> numeros_romanos
+{'I': 1, 'III': 3, 'V': 5, 'X': 10}
+>>>
+```
+
+Acesso a chaves que não existem geram a exceção `KeyError`:
+
+```python
+>>> numeros_romanos = {'I':   1, 'II': 2, 'III': 3, 'V': 5, 'X': 10}
+>>>
+>>> numeros_romanos["Z"]
+---------------------------------------------------------------------------
+KeyError                                  Traceback (most recent call last)
+<ipython-input-37-3e69e720dd74> in <module>
+----> 1 numeros_romanos["Z"]
+
+KeyError: 'Z'
+>>>
+```
+
+A exceção pode ser evitada usando o método `.get`, que retorna `None`, caso não exista:
+
+```python
+>>> numeros_romanos = {'I':   1, 'II': 2, 'III': 3, 'V': 5, 'X': 10}
+>>>
+>>> print( numeros_romanos.get("Z") )
+None
+>>>
+```
+
+`.get` aceita um segundo parâmetro, que é o valor a ser retornado caso a chave não seja encontrada, no lugar de `None`:
+
+```python
+>>> numeros_romanos = {'I':   1, 'II': 2, 'III': 3, 'V': 5, 'X': 10}
+>>> print( numeros_romanos.get("Z", "ops") )
+ops
+>>>
+```
+
+Os operadores `in` e `not in` permitem verificar se um chave está presente ou não em um dicionário:
+
+```python
+>>> numeros_romanos = {'I':   1, 'II': 2, 'III': 3, 'V': 5, 'X': 10}
+>>>
+>>> if "I" in numeros_romanos:
+...     print(numeros_romanos["I"])
+...
+1
+>>>
+>>> if "L" not in numeros_romanos:
+...     numeros_romanos["L"] = 50
+...
+>>> print(numeros_romanos)
+{'I': 1, 'II': 2, 'III': 3, 'V': 5, 'X': 10, 'L': 50}
+>>>
+```
+
+- Os objetos retornados por `.keys()`, `.values()` e `.items()` são visualizações do dicionário, referências. **Não são cópias.**
+
+Por isso, é possível criar uma `view`, alterar o dicionário e a `view` se manterá coerente:
+
+```python
+>>> numeros_romanos = {'I':   1, 'II': 2, 'III': 3, 'V': 5, 'X': 10}
+>>>
+>>> chaves = numeros_romanos.keys()
+>>> chaves
+dict_keys(['I', 'II', 'III', 'V', 'X'])
+>>>
+>>> numeros_romanos["L"] = 50
+>>>
+>>> chaves
+dict_keys(['I', 'II', 'III', 'V', 'X', 'L'])
+>>>
+```
+
+Por isso mesmo, evite alterar um dicionário enquanto itera sobre uma `view` deste.
+
+Para iterar sobre um dicionário de forma ordenada, use `sorted()` e `keys()`:
+
+```python
+>>> numeros_romanos = {'I':   1, 'II': 2, 'III': 3, 'V': 5, 'X': 10}
+>>>
+>>> for chave in sorted(numeros_romanos.keys()):
+...     print(chave)
+...
+I
+II
+III
+V
+X
+>>>
+```
+
+- `==` e `!=` podem ser utilizados para comparar dicionários.
+
+A comparação verifica se os dois dicionários têm os mesmos pares `chave: valor`, independente da ordem.
+
+```python
+>>> d1 = {"a": 10, "b": 20}
+>>> d2 = {"b": 20, "a": 10}
+>>>
+>>> d1 == d2
+True
+>>>
+>>> d3 = {"a": 1, "b": 20}
+>>>
+>>> d1 == d3
+False
+>>>
+>>> d1 != d3
+True
+>>>
+```
+
+- Módulo `collections`
+
+É possível contar as ocorrências em uma sequência com a classe `collections.Counter`:
+
+```python
+>>> texto = "Minha fé é no desconhecido, em tudo que não podemos compreender por meio da razão. Creio que o que está acima do nosso entendimento é apenas um
+... fato em outras dimensões e que no reino do desconhecido há uma infinita reserva de poder."
+>>>
+>>> from collections import Counter
+>>>
+>>> counter_texto = Counter(texto.split(" "))
+>>> counter_texto
+Counter({'Minha': 1,
+         'fé': 1,
+         'é': 2,
+         'no': 2,
+         'desconhecido,': 1,
+         'em': 2,
+         'tudo': 1,
+         'que': 4,
+         'não': 1,
+         'podemos': 1,
+         'compreender': 1,
+         'por': 1,
+         'meio': 1,
+         'da': 1,
+         'razão.': 1,
+         'Creio': 1,
+         'o': 1,
+         'está': 1,
+         'acima': 1,
+         'do': 2,
+         'nosso': 1,
+         'entendimento': 1,
+         'apenas': 1,
+         'um': 1,
+         'fato': 1,
+         'outras': 1,
+         'dimensões': 1,
+         'e': 1,
+         'reino': 1,
+         'desconhecido': 1,
+         'há': 1,
+         'uma': 1,
+         'infinita': 1,
+         'reserva': 1,
+         'de': 1,
+         'poder.': 1})
+>>>
+
+>>> for token, total in counter_texto.items():
+...     print(f"{token}:{total:>5}")
+...
+Minha:    1
+fé:    1
+é:    2
+no:    2
+desconhecido,:    1
+em:    2
+tudo:    1
+que:    4
+não:    1
+podemos:    1
+compreender:    1
+por:    1
+meio:    1
+da:    1
+razão.:    1
+Creio:    1
+o:    1
+está:    1
+acima:    1
+do:    2
+nosso:    1
+entendimento:    1
+apenas:    1
+um:    1
+fato:    1
+outras:    1
+dimensões:    1
+e:    1
+reino:    1
+desconhecido:    1
+há:    1
+uma:    1
+infinita:    1
+reserva:    1
+de:    1
+poder.:    1
+>>>
+```
+
+Neste último exemplo, poderíamos ordenar as tuplas retornadas por `items()` com a função `sorted()` que ordena as tuplas comparando seus primeiros elementos. Se forem iguais, compara o segundo, e assim por diante:
+
+```python
+>>> for token, total in counter_texto.items():
+...     print(f"{token}:{total:>5}")
+...
+Minha:    1
+fé:    1
+é:    2
+no:    2
+desconhecido,:    1
+em:    2
+tudo:    1
+que:    4
+não:    1
+podemos:    1
+compreender:    1
+por:    1
+meio:    1
+da:    1
+razão.:    1
+Creio:    1
+o:    1
+está:    1
+acima:    1
+do:    2
+nosso:    1
+entendimento:    1
+apenas:    1
+um:    1
+fato:    1
+outras:    1
+dimensões:    1
+e:    1
+reino:    1
+desconhecido:    1
+há:    1
+uma:    1
+infinita:    1
+reserva:    1
+de:    1
+poder.:    1
+>>>
+Do you really want to exit ([y]/n)? ^[n
+Do you really want to exit ([y]/n)? n
+>>> for token, total in sorted(counter_texto.items()):
+...     print(f"{token}:{total:>5}")
+...
+...
+Creio:    1
+Minha:    1
+acima:    1
+apenas:    1
+compreender:    1
+da:    1
+de:    1
+desconhecido:    1
+desconhecido,:    1
+dimensões:    1
+do:    2
+e:    1
+em:    2
+entendimento:    1
+está:    1
+fato:    1
+fé:    1
+há:    1
+infinita:    1
+meio:    1
+no:    2
+nosso:    1
+não:    1
+o:    1
+outras:    1
+podemos:    1
+poder.:    1
+por:    1
+que:    4
+razão.:    1
+reino:    1
+reserva:    1
+tudo:    1
+um:    1
+uma:    1
+é:    2
+>>>
+```
+
+- Atualizando dicionário com o método `update()`
+
+```python
+>>> numeros_romanos = {'I':   1, 'II': 2, 'III': 3, 'V': 5, 'X': 100}
+>>>
+>>> numeros_romanos.update(X=10)
+>>> numeros_romanos
+{'I': 1, 'II': 2, 'III': 3, 'V': 5, 'X': 10}
+```
+
+```python
+>>> # ou, a partir de outro dicionario
+>>> numeros_romanos = {'I':   1, 'II': 2, 'III': 3, 'V': 5, 'X': 100}
+>>>
+>>> dic_atualizacao = {"X": 10, "L": 50}
+>>>
+>>> numeros_romanos.update(dic_atualizacao)
+>>> numeros_romanos
+{'I': 1, 'II': 2, 'III': 3, 'V': 5, 'X': 10, 'L': 50}
+>>>
+```
+
+ou uma sequência de tuplas:
+
+```python
+>>> numeros_romanos = {'I':   1, 'II': 2, 'III': 3, 'V': 5, 'X': 100}
+>>>
+>>> numeros_romanos.update( [("X", 10), ("L", 50)] )
+>>> numeros_romanos
+{'I': 1, 'II': 2, 'III': 3, 'V': 5, 'X': 10, 'L': 50}
+>>>
+```
+
+- *dict comprehensions*
+
+```python
+>>> notas = {"joao": [10, 9.4, 7.7], "maria": [3.5, 4.4, 9.0]}
+>>>
+>>> medias = {aluno: sum(notas) / len(notas) for aluno, notas in notas.items()}
+>>>
+>>> medias
+{'joao': 9.033333333333333, 'maria': 5.633333333333333}
+>>>
+```
+
+
+Se no *dict comprehension* uma chave se repetir, ela é atualizada:
+
+```python
+>>> matriculas = {"joao": 2019001, "maria": 2019002, "pedro": 2019003, "paulo": 2019003} # repetido os valores de pedro e paulo
+>>>
+>>> matriculas_invertidas = {matricula: nome for nome, matricula in matriculas.items()}
+>>> matriculas_invertidas
+{2019001: 'joao', 2019002: 'maria', 2019003: 'paulo'} # paulo veio depois e atualizou
+>>>
+```
+
+- `sets`
+
+Um `set` é uma coleção não ordenada de valores únicos.
+
+`sets` podem conter apenas objetos imutáveis.
+
+`sets` não podem ser indexados, mas podem ser iterados.
+
+declaração:
+
+```python
+>>> cores = {"vermelho", "azul", "verde", "preto", "vermelho"}
+>>> cores
+{'azul', 'preto', 'verde', 'vermelho'}
+>>>
+```
+
+Note que valores duplicados (`"vermelho"`) são suprimidos de forma implícita e sem gerar exceções.
+
+Este é um dos principais usos para `sets`, remover duplicatas:
+
+```python
+>>> lista = [1, 2, 3, 4, 1, 2, 15, 3, 3, 3]
+>>>
+>>> lista_unicos = set(lista)
+>>> lista_unicos
+{1, 2, 3, 4, 15}
+>>>
+```
+
+
+- Operações com `sets`
+
+Tamanho `len()`:
+
+```python
+>>> s = {1, 3, 4, 3, 6, 7}
+>>> s
+{1, 3, 4, 6, 7}
+>>>
+>>> len(s)
+5
+>>>
+```
+
+Presença `in`:
+
+```python
+>>> s = {"vermelho", "azul", "roxo"}
+>>>
+>>> "roxo" in s
+True
+>>>
+>>> "verde" not in s
+True
+>>>
+```
+
+Iteração `for`:
+
+```python
+>>> for cor in s:
+...     print(cor)
+...
+vermelho
+azul
+roxo
+>>>
+```
+
+Além da expressão, é possível usar a função `set()` para criar a partir de outras sequências:
+
+```python
+>>> lista = [1, 3, 4, 3, 3, 2, 7, 9]
+>>>
+>>> s_lista = set(lista)
+>>> s_lista
+{1, 2, 3, 4, 7, 9}
+>>>
+```
+
+- Para criar um `set` vazio, use `set()`. `{}` produz um dicionário vazio.
+
+```python
+>>> dic_vazio = {}
+>>>
+>>> set_vazio = set()
+>>>
+>>> dic_vazio
+{}
+>>>
+>>> set_vazio
+set()
+>>>
+```
+
+- Adicionando elementos a um `set()` com `add()`:
+
+```python
+>>> s = {12, 13, 14}
+>>> s.add(15)
+>>> s
+{12, 13, 14, 15}
+>>>
+```
+
+- Removendo com `remove(valor)`
+
+```python
+>>> s = {12, 13, 14}
+>>> s.add(15)
+>>> s
+{12, 13, 14, 15}
+>>>
+>>> s.remove(15)
+>>> s
+{12, 13, 14}
+>>>
+```
+
+Lembre-se: apesar de serem mutáveis, `set()` só podem conter elementos imutáveis. Ou seja, um `set()` não pode conter outro `set()`:
+
+```python
+>>> s_in_s = {1, 2, 3, {4, 5, 6}}
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-112-3bdd54200959> in <module>
+----> 1 s_in_s = {1, 2, 3, {4, 5, 6}}
+
+TypeError: unhashable type: 'set'
+>>>
+```
+
+- `frozenset`, os `sets` imutáveis e `hashable`
+
+
+A função `frozenset()` cria `frozenset` a partir de qualquer sequência, ou `frozenset` vazios:
+
+```python
+>>> fset_vazio = frozenset()
+>>>
+>>> lista = [1, 2, 1, 3, 4, 4]
+>>> fset_lista = frozenset(lista)
+>>> fset_lista
+frozenset({1, 2, 3, 4})
+>>>
+```
+
+`frozenset` também removem duplicatas.
+
+- Operações com `set`
+
+Comparação e diferença:
+
+```python
+>>> {1, 3, 5} == {3, 1, 5}
+True
+>>>
+>>> {1, 3, 4} != {4, 5, 1}
+True
+>>>
+```
+
