@@ -3578,3 +3578,261 @@ True
 >>>
 ```
 
+Teste se o da esquerda é um *subset* do da direita com `<`:
+
+```python
+>>> {1, 3, 5} < {1, 2, 3, 4, 5}
+True
+>>>
+```
+
+E pode-se verificar se o da esquerda é um *superset* do da direita com `>`:
+
+```python
+>>> {1, 2, 3, 4, 5} > {1, 3, 4}
+True
+>>>
+```
+
+Estas operações podem ser feitas pelos métodos `issubset()` e `issuperset()`:
+
+```python
+>>> {1, 2, 3}.issubset({1, 2, 3, 4, 5})
+True
+>>>
+>>> {1, 2, 3, 4, 5}.issuperset({1, 2, 3})
+True
+>>>
+```
+
+- Operações matemáticas com conjuntos
+
+Obs: Os operadores requerem que os dois objetos envolvidos sejam `set()`.
+Os métodos, entretanto, suportam quaisquer sequências, que são convertidas em `set()` antes da operação:
+
+União: `|` ou `.union()`. Tudo dos dois conjuntos.
+
+```python
+>>> {1, 2, 3} | {4, 5, 6}
+{1, 2, 3, 4, 5, 6}
+>>>
+>>> {1, 2, 3}.union({4, 5, 6})
+{1, 2, 3, 4, 5, 6}
+>>>
+>>> {1, 2, 3}.union([10, 20, 30])
+{1, 2, 3, 10, 20, 30}
+>>>
+```
+
+Intersecção: `&` ou `.intersection()`. Apenas o que é comum entre os conjuntos.
+
+```python
+>>> {1, 2, 3} & {3, 4, 5}
+{3}
+>>>
+>>> {1, 2, 3}.intersection([3, 4, 5])
+{3}
+>>>
+```
+
+Diferença: `-` ou `.difference()`. Todos que estão no conjunto da esquerda mas **não** estão no da direita.
+
+```python
+>>> {1, 2, 3} - {3, 4, 5}
+{1, 2}
+>>> {1, 2, 3}.difference((3, 4, 5))
+{1, 2}
+>>>
+```
+
+Diferença simétrica: `^` ou `.symmetric_difference`. Apenas os elementos que são exclusivos de cada conjunto.
+
+```python
+>>> {1, 2, 3} ^ {3, 4, 5}
+{1, 2, 4, 5}
+>>> {1, 2, 3}.symmetric_difference((3, 4, 5))
+{1, 2, 4, 5}
+>>>
+```
+
+Dois conjuntos são **disjuntos** se eles **não** contêm nenhum elemento em comum. A intersecção é vazia.
+
+Verifica-se com `.isdisjoint()`:
+
+```python
+>>> a = {1, 2, 3}
+>>> b = {4, 5, 6}
+>>>
+>>> a & b
+set()
+>>>
+>>> a.isdisjoint(b)
+True
+>>>
+```
+
+Esses operadores podem ser usados com atribuições.
+
+União com atribuição ou `.update()`:
+
+```python
+>>> a = {1, 2, 3}
+>>>
+>>> a |= {4, 5, 6}
+>>> a
+{1, 2, 3, 4, 5, 6}
+>>>
+
+>>> a = {1, 2, 3}
+>>> a.update([4, 5, 6])
+>>> a
+{1, 2, 3, 4, 5, 6}
+>>>
+```
+
+Outros operadores com atribuição são:
+
+Intersecção: `&=` ou `.intersection_update()`:
+
+```python
+>>> a = {1, 2, 3}
+>>> b = {3, 4, 5}
+>>>
+>>> a &= b
+>>> a
+{3}
+
+>>> a = {1, 2, 3}
+>>> b = {3, 4, 5}
+>>>
+>>> a.intersection_update(b)
+>>> a
+{3}
+>>>
+```
+
+Diferença: `-=` ou `.difference_update()`
+
+```python
+>>> a = {1, 2, 3}
+>>> b = {3, 4, 5}
+>>>
+>>> a -= b
+>>> a
+{1, 2}
+
+>>> a = {1, 2, 3}
+>>> b = {3, 4, 5}
+>>> a.difference_update(b)
+>>> a
+{1, 2}
+>>>
+```
+
+Diferença simétrica `^=`  ou `.symmetric_difference_update()`:
+
+```python
+>>> a = {1, 2, 3}
+>>> b = {3, 4, 5}
+>>>
+>>> a ^= b
+>>> a
+{1, 2, 4, 5}
+
+>>> a = {1, 2, 3}
+>>> b = {3, 4, 5}
+>>> a.symmetric_difference_update(b)
+>>> a
+{1, 2, 4, 5}
+>>>
+```
+
+- Métodos para adicionar e remover items de `sets`
+
+Adicionar `add(valor)`
+
+```python
+>>> s = {1, 2}
+>>> s.add(3)
+>>> s
+{1, 2, 3}
+>>>
+```
+
+Remover `remove(valor)`:
+
+```python
+>>> s = {1, 2, 3}
+>>> s.remove(2)
+>>> s
+{1, 3}
+>>>
+```
+
+Contudo, `remove` gera exceção se o valor não estiver presente:
+
+```python
+>>> s = {1, 2, 3}
+>>> s.remove(2)
+>>> s
+{1, 3}
+>>> s.remove(4)
+---------------------------------------------------------------------------
+KeyError                                  Traceback (most recent call last)
+<ipython-input-57-758cf2d329e6> in <module>
+----> 1 s.remove(4)
+
+KeyError: 4
+>>>
+```
+
+Para remover sem risco de produzir exceções, use `discard(valor)`:
+
+```python
+>>> s = {1, 2, 3}
+>>>
+>>> s.discard(2)
+>>> s
+{1, 3}
+>>>
+>>> s.discard(2)
+>>> s
+{1, 3}
+>>>
+```
+
+Retornar um elemento do início do `set` com `pop()`:
+
+```python
+>>> s = {1, 3, 4, 5, 2, 7, 9, 8}
+>>> s.pop()
+1
+>>> s.pop()
+2
+>>> s.pop()
+3
+>>>
+```
+
+Por fim, `.clear()` limpa o `set`:
+
+```python
+>>> s = {1, 2, 3}
+>>> s.clear()
+>>> s
+set()
+>>>
+```
+
+- *Set comprehensions*
+
+```python
+>>> palavras = "bacon", "spam", "eggs", "yaki!", "knight", "boom", "bacon", "bacon", "spam"
+>>>
+>>> set_palavras_grandes = {palavra for palavra in palavras if len(palavra) >= 5}
+>>> set_palavras_grandes
+{'bacon', 'knight', 'yaki!'}
+>>>
+```
+
+- Strings...
