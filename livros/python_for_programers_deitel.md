@@ -3835,4 +3835,440 @@ set()
 >>>
 ```
 
-- Strings...
+- Formatando strings
+
+Nas *f-strings* os *placeholders* são convertidos para `str` por padrão.
+
+Às vezes é necessário definir o tipo, exemplo: formatação de `floats`:
+
+```python
+>>> import math
+>>>
+>>> math.pi
+3.141592653589793
+>>>
+>>> math.e
+2.718281828459045
+>>>
+>>> print(f"{math.pi:.2f}")
+3.14
+>>> print(f"{math.e:.2f}")
+2.72
+>>>
+```
+
+A definição do tipo é necessária, pois a definição do número de casas decimais `.2` só é possível para `floats` e `Decimals`.
+
+Outras definições de tipo incluem:
+
+`d`, para inteiros:
+
+```python
+>>> print(f"{10:d}")
+10
+```
+
+É possível usar os tipos `b` para representar inteiros em binário:
+
+```python
+>>> print(f"{10:b}")
+1010
+>>>
+```
+
+Ou `o` para octal e `x` para hexadecimal:
+
+```python
+>>> print(f"{10:o}")
+12
+>>> print(f"{10:x}")
+a
+>>>
+```
+
+E `c` formata um inteiro como o caractere correspondente:
+
+```python
+>>> print(f"{99:c}")
+c
+>>>
+```
+
+Se você usar a representação `s`, de `str`, a expressão tem que retornar uma string:
+
+```python
+>>> nome = "John"
+>>> print(f"{nome:s}")
+John
+>>>
+```
+
+Não há conversão automática:
+
+```python
+>>> idade = 15
+>>> print(f"{idade:s}")
+---------------------------------------------------------------------------
+ValueError                                Traceback (most recent call last)
+<ipython-input-19-23c592b5549d> in <module>
+----> 1 print(f"{idade:s}")
+
+ValueError: Unknown format code 's' for object of type 'int'
+>>>
+```
+
+Essa conversão só existe se você **não** especificar:
+
+```python
+>>> idade = 15
+>>> print(f"{idade}")
+15
+>>>
+```
+
+- Alinhamento
+
+Em *f-strings* números são, por padrão, alinhados a direita e todo o resto à esquerda:
+
+```python
+>>> inteiro = 15
+>>> print(f"[{inteiro:20}]")
+[                  15]
+>>>
+
+>>> numero = 3.14
+>>> print(f"[{numero:20}]")
+[                3.14]
+
+>>> texto = "bacon"
+>>> print(f"[{texto:20}]")
+[bacon               ]
+>>>
+```
+
+Você pode usar `<` e `>` para indicar o alinhamento desejado:
+
+```python
+>>> from math import pi
+>>> print(f"[{pi:>30}]")
+[             3.141592653589793]
+>>> print(f"[{pi:<30}]")
+[3.141592653589793             ]
+```
+
+E `^` para centralizar:
+
+```python
+>>> print(f"[{pi:^30}]")
+[      3.141592653589793       ]
+>>>
+```
+
+- Formatação numérica
+
+Use `+` para forçar a presença do sinal em números positivos:
+
+```python
+>>> valor = 100
+>>>
+>>> print(f"{valor:+}")
++100
+>>>
+```
+
+Caso queira que ao invés do `+` um espaço apareça para números positivos (para alinharem iguais aos negativos), use um espaço no lugar do `+`:
+
+```python
+>>> positivo = 10
+>>> negativo = -10
+>>> print(f"[{negativo}]")
+[-10]
+>>> print(f"[{positivo: d}]")
+[ 10]
+>>>
+```
+
+
+Para preencher os espaços com zeros, adicionar um `0` antes da formatação:
+
+```python
+>>> from math import pi
+>>>
+>>> print(f"[{pi:>030}]")
+[00000000000003.141592653589793]
+>>>
+```
+
+Por fim, para incluir separador de milhar (`,`) use `:,d`:
+
+```python
+>>> valor = 1_234_567
+>>> print(f"{valor:,d}")
+1,234,567
+>>>
+```
+
+Separando milhares e parte decimal:
+
+```python
+>>> valor = 1_234_567.89
+>>>
+>>> print(f"{valor:,.3f}")
+1,234,567.890
+>>>
+```
+
+- Concatenar `+` e repetir strings `*`
+
+```python
+>>> a = "spam"
+>>> b = "bacon"
+>>>
+>>> c = a + b
+>>> c
+'spambacon'
+>>>
+>>> d = a * 3
+>>> d
+'spamspamspam'
+>>>
+```
+
+- Remova espaços dos dois lados das strings com `strip()`:
+
+```python
+>>> mensagem = "  spam bacon eggs  "
+>>>
+>>> mensagem_limpa = mensagem.strip()
+>>> mensagem_limpa
+'spam bacon eggs'
+>>>
+```
+
+Removendo só da esquerda com `lstrip()` ou da direita com `rstrip()`:
+
+```python
+>>> mensagem = "  spam bacon eggs  "
+>>>
+>>> mensagem.lstrip()
+'spam bacon eggs  '
+>>>
+>>> mensagem.rstrip()
+'  spam bacon eggs'
+>>>
+>>>
+```
+
+- Capitalizar `.capitalize()` e formatar em título com `.title()`:
+
+```python
+>>> msg = "i believe i can fly"
+>>>
+>>> msg.capitalize()
+'I believe i can fly'
+>>>
+>>> msg.title()
+'I Believe I Can Fly'
+>>>
+```
+
+- Buscando por substrings
+
+Contando ocorrências com `.count()`:
+
+```python
+>>> sentenca = "As aguias voam alto singrando todo o ceu"
+>>> sentenca.count("as")
+1
+>>> sentenca.count("a")
+5
+>>>
+```
+
+Você pode delimitar o *range* de busca:
+
+```python
+>>> sentenca = "As aguias voam alto singrando todo o ceu"
+>>> sentenca.count("a", 5, 10)
+1
+>>>
+```
+
+Ache o primeiro índice em que uma substring inicia:
+
+```python
+>>> sentenca = "As aguias voam alto singrando todo o ceu"
+>>>
+>>> indice = sentenca.index("voam")
+>>> indice
+10
+>>>
+>>> sentenca[indice:]
+'voam alto singrando todo o ceu'
+>>>
+```
+
+Mas, se não encontrar, gera exceção:
+
+```python
+>>> indice = sentenca.index("xxx")
+---------------------------------------------------------------------------
+ValueError                                Traceback (most recent call last)
+<ipython-input-86-b1aa2828ab61> in <module>
+----> 1 indice = sentenca.index("xxx")
+
+ValueError: substring not found
+>>>
+```
+
+Você pode buscar em sentido contrário (encontrando o índice da última ocorrência da substring) usando `rindex`:
+
+```python
+>>> sentenca = "As aguias voam alto singrando todo o ceu"
+>>>
+>>> sentenca.rindex("o")
+35
+>>>
+```
+
+Os métodos `find()` e `rfind()` fazem a mesma coisa, mas ao invés de gerarem exceção quando não encontram, retornam `-1`:
+
+```python
+>>> sentenca = "As aguias voam alto singrando todo o ceu"
+>>>
+>>> sentenca.find("voam")
+10
+>>> sentenca.find("xxx")
+-1
+>>>
+>>> sentenca.rfind("o")
+35
+>>> sentenca.rfind("xxx")
+-1
+>>>
+```
+
+- Para verificar presença de uma substring, use `in`, e ausência `not in`
+
+```python
+>>> "s" in "spam"
+True
+>>>
+>>> "x" not in "spam"
+True
+>>>
+```
+
+- Se quiser verificar se começa com algo ou termina, `startswith()` ou `endswith()`:
+
+```python
+>>> text = "spam eggs bacon"
+>>>
+>>> text.startswith("spam")
+True
+>>>
+>>> text.endswith("bacon")
+True
+>>>
+```
+
+- Para substituir substrings, use `replace()`
+
+```python
+>>> text = "spam eggs bacon"
+>>>
+>>> text = text.replace("spam", "bacon")
+>>> text
+'bacon eggs bacon'
+>>>
+```
+
+- Dividindo e juntando strings
+
+Divida com `split()`:
+
+```python
+>>> letras = "A, B, C, D"
+>>> letras = letras.split(", ")
+>>> letras
+['A', 'B', 'C', 'D']
+>>>
+```
+
+Por padrão, a quebra é por espaços em branco:
+
+```python
+>>> letras = "A B C D"
+>>> letras = letras.split()
+>>> letras
+['A', 'B', 'C', 'D']
+>>>
+```
+
+Um segundo parâmetro o máximo de pedaçõs a serem formados:
+
+```python
+>>> letras = "A, B, C, D"
+>>> letras = letras.split(", ", 2)
+>>> letras
+['A', 'B', 'C, D']
+>>>
+```
+
+Para unir, use `.join()`:
+
+```python
+>>> letras = "A, B, C, D"
+>>> letras = letras.split(", ")
+>>> letras
+['A', 'B', 'C', 'D']
+>>>
+>>> " ".join(letras)
+'A B C D'
+>>> "-".join(letras)
+'A-B-C-D'
+>>>
+>>>
+```
+
+- O método `partition()` permite quebrar uma string em uma tupla com três elementos: `(antes_token, token, depois_token)`. Útil para strings mais complexas:
+
+```python
+>>> text = "Amanda: 85, 93, 13"
+>>> splitted = text.partition(":")
+>>> splitted
+('Amanda', ':', ' 85, 93, 13')
+>>>
+```
+
+A busca pode ser feita da direita para esqueda com `rpartition`:
+
+```python
+>>> text = "Name: Amanda Grades: 85, 93, 13"
+>>> text.rpartition(":")
+('Name: Amanda Grades', ':', ' 85, 93, 13')
+>>>
+```
+
+Para quebrar as linhas, use `splitlines()`:
+
+```python
+>>> msg = """
+... Roses are red
+... Violets are blue
+... I can´t make music
+... """
+>>>
+>>> msg.splitlines()
+['', 'Roses are red', 'Violets are blue', 'I can´t make music']
+>>>
+```
+
+Para quebrar e ainda sim manter as quebras de linha, passe `True` para `splitlines()`:
+
+```python
+>>> msg.splitlines(True)
+['\n', 'Roses are red\n', 'Violets are blue\n', 'I can´t make music\n']
+>>>
+```
+
