@@ -4625,5 +4625,809 @@ Você pode utilizar parênteses para extrair substrings em um match:
 
 Python cria, por padrão, três arquivos ao iniciar um script: `sys.stdin`, `sys.stdout` e `sys.stderr`. Significam, respectivamente, entrada, saída e saída de erro.
 
+Para abrir arquivos, use, preferencialmente o comando `with`.
 
+O comando `with` recebe um objeto, chama o seu método `__enter__`. O objeto retornado por este método é vinculada à variável indicada no `as`. Esta variável ficará disponível para o bloco. Ao término da execução, o método `__exit__` deste objeto será chamado:
+
+```python
+>>> class ExemploWith:
+...     def __init__(self, x, y):
+...         self.x = x
+...         self.y = y
+...
+...     def __enter__(self):
+...         print("__enter__")
+...         self.x += 1
+...         self.y += 1
+...         return self
+...
+...     def __exit__(self, *args):
+...         print("__exit__")
+...
+>>>
+>>> with ExemploWith(10, 20) as e:
+...     print(e.x, e.y)
+...
+__enter__
+11 21
+__exit__
+>>>
+```
+
+Escrevendo em um arquivo:
+
+```python
+>>> with open("/tmp/out.txt", "w") as fp:
+...     fp.write("a\n")
+...     fp.write("b\n")
+...     fp.write("c\n")
+...
+>>>
+Do you really want to exit ([y]/n)?
+rnetodev@thinkpad:~$ cat /tmp/out.txt
+a
+b
+c
+rnetodev@thinkpad:~$
+```
+
+`open(caminho, forma_acesso="r")`: na chamada, `caminho` indica o path para o arquivo. Por padrão, a forma de acesso é `"r"`, indicando somente leitura.
+
+Para escrever no arquivo, deve-se passar a forma `"w"`. Cuidado: esta forma é destrutiva e vai zerar o arquivo, caso exista, no momento da abertura.
+
+- Lendo arquivo
+
+```python
+>>> with open("/tmp/out.txt") as file:
+...     for line in file:
+...         print(line)
+...
+a
+
+b
+
+c
+
+>>>
+```
+
+Por padrão o objeto retornado por `open` já é um iterador.
+
+Você pode, entretando, ler todo o arquivo usando `readlines()`:
+
+```python
+>>> linhas = open("/tmp/out.txt").readlines()
+>>> print(linhas)
+['a\n', 'b\n', 'c\n']
+```
+
+Evite `readlines()`, pois consome muito mais memória.
+
+- Volte para o começo do arquivo com `file.seek(0)`
+
+- Para atualizar um arquivo, faça a leitura usando o iterador e vá salvando gradualmente em outro arquivo. `Não leia o arquivo todo em memória para atualizar e depois escrever de volta`:
+
+```python
+>>> with open("/tmp/out.txt") as source, open("/tmp/out_upd.txt", "w") as output:
+...     for line in source:
+...         output.write(line.upper())
+...
+>>>
+Do you really want to exit ([y]/n)?
+rnetodev@thinkpad:~$ cat /tmp/out_upd.txt
+A
+B
+C
+rnetodev@thinkpad:~$
+```
+
+- Por fim, podemos remover o arquivo antigo `out.txt` e renomear o arquivo alterado `out_upd.txt`:
+
+```python
+>>> import os
+>>>
+>>> os.remove("/tmp/out.txt")
+>>> os.rename("/tmp/out_upd.txt", "/tmp/out.txt")
+>>>
+Do you really want to exit ([y]/n)?
+
+
+rnetodev@thinkpad:~$ cat /tmp/out.txt
+A
+B
+C
+rnetodev@thinkpad:~$
+```
+
+- Serialização JSON com o módulo `json`
+
+Serializando JSON com `json.dump(objeto, arquivo)`:
+
+```python
+>>> import json
+>>> dic = {
+...     "alunos": [
+...         {"id": 10, "nome": "Joao", "nota": 9.5},
+...         {"id": 20, "nome": "Paula", "nota": 8.7},
+...         {"id": 30, "nome": "Jorge", "nota": 2.4}
+...     ]
+... }
+>>>
+>>> dic
+{'alunos': [{'id': 10, 'nome': 'Joao', 'nota': 9.5},
+  {'id': 20, 'nome': 'Paula', 'nota': 8.7},
+  {'id': 30, 'nome': 'Jorge', 'nota': 2.4}]}
+>>>
+>>>
+>>> with open("/tmp/alunos.json", "w") as file:
+...     json.dump(dic, file)
+...
+...
+>>>
+Do you really want to exit ([y]/n)?
+rnetodev@thinkpad:~$
+rnetodev@thinkpad:~$ cat /tmp/alunos.json
+{"alunos": [{"id": 10, "nome": "Joao", "nota": 9.5}, {"id": 20, "nome": "Paula", "nota": 8.7}, {"id": 30, "nome": "Jorge", "nota": 2.4}]}
+```
+
+Se você quiser em formato `str` ao invés de salva direto no arquivo, use `json.dumps`:
+
+```python
+>>> import json
+>>>
+>>> dic = {
+...     "alunos": [
+...         {"id": 10, "nome": "Joao", "nota": 9.5},
+...         {"id": 20, "nome": "Paula", "nota": 8.7},
+...         {"id": 30, "nome": "Jorge", "nota": 2.4}
+...     ]
+... }
+>>>
+>>> json.dumps(dic)
+'{"alunos": [{"id": 10, "nome": "Joao", "nota": 9.5}, {"id": 20, "nome": "Paula", "nota": 8.7}, {"id": 30, "nome": "Jorge", "nota": 2.4}]}'
+>>>
+```
+
+- Carregue um arquivo JSON com `json.load`:
+
+```python
+>>> import json
+>>>
+>>> with open("/tmp/alunos.json") as arquivo_json:
+...     dic = json.load(arquivo_json)
+...     print(dic)
+...
+{'alunos': [{'id': 10, 'nome': 'Joao', 'nota': 9.5}, {'id': 20, 'nome': 'Paula', 'nota': 8.7}, {'id': 30, 'nome': 'Jorge', 'nota': 2.4}]}
+>>>
+```
+
+- Você pode usar `json.dumps` (com a opção `indent`) em conjunto com `json.load` para exibir de forma mais apresentável o arquivo `json`:
+
+```python
+>>> with open("/tmp/alunos.json") as arquivo_json:
+...     dic = json.dumps(json.load(arquivo_json), indent=4)
+...     print(dic)
+...
+{
+    "alunos": [
+        {
+            "id": 10,
+            "nome": "Joao",
+            "nota": 9.5
+        },
+        {
+            "id": 20,
+            "nome": "Paula",
+            "nota": 8.7
+        },
+        {
+            "id": 30,
+            "nome": "Jorge",
+            "nota": 2.4
+        }
+    ]
+}
+>>>
+```
+
+- Principais modos de abertura de arquivos:
+
+`r` - leitura apenas. Gera exceção caso o arquivo não exista.
+`w` - escrita. Cria o arquivo se não existir.
+`a` - *Appending*. Permite escreve no final do arquivo, sem excluir o conteúdo prévio.
+
+`r+` - leitura e escrita, sem zerar o conteúdo existente do arquivo.
+`w+` - leitura e escrita, destruindo o conteúdo existente do arquivo.
+`a+` - leitura e escrita-no-final. Se arquivo não existir é criado.
+
+- Para lidar com arquivos binários, basta incluir um `b` aos modos: `rb`, `wb` ou `ab`.
+
+- Outras funções úteis relacionadas a arquivos, são:
+
+`read(quantidade)` - ler `quantidade` de caracteres ou `quantidade` de `bytes` (caso o arquivo seja binário) do arquivo.
+
+`readline()` - lê uma linha. Retorna uma string em branco ao final do arquivo.
+
+`writelines(lista)` - escreve no arquivo uma lista de strings passadas em `lista`.
+
+As classes e os métodos relacionados a arquivos estão implementadas no módulo `io`.
+
+- **Exceções**
+
+Primeiro, vejamos algumas exceções comuns no dia a dia com Python:
+
+```python
+>>> # Divisão por zero
+>>> 10 / 0
+---------------------------------------------------------------------------
+ZeroDivisionError                         Traceback (most recent call last)
+<ipython-input-13-cd759d3fcf39> in <module>
+----> 1 10 / 0
+
+ZeroDivisionError: division by zero
+>>>
+>>> # # Entrada inválida - ValueError
+>>>
+>>> int('a')
+---------------------------------------------------------------------------
+ValueError                                Traceback (most recent call last)
+<ipython-input-15-233884bacd4e> in <module>
+----> 1 int('a')
+
+ValueError: invalid literal for int() with base 10: 'a'
+>>>
+>>> # Chave inexistente ou índice inexistente
+>>> dic = {"nome": "Joao"}
+>>> dic["idade"]
+---------------------------------------------------------------------------
+KeyError                                  Traceback (most recent call last)
+<ipython-input-18-44a50edfa497> in <module>
+----> 1 dic["idade"]
+
+KeyError: 'idade'
+>>>
+>>> lst = ["a", "b", "c"]
+>>> lst[5]
+---------------------------------------------------------------------------
+IndexError                                Traceback (most recent call last)
+<ipython-input-20-843c5cb805fc> in <module>
+----> 1 lst[5]
+
+IndexError: list index out of range
+>>>
+```
+
+E, ao lidar com arquivos, também temos as seguintes exceções:
+
+`FileNotFoundError` para arquivos inexistentes, quando se utiliza o modo `r` ou `r+`:
+
+```python
+>>> open("inexistent.txt", "r")
+---------------------------------------------------------------------------
+FileNotFoundError                         Traceback (most recent call last)
+<ipython-input-21-c801be659432> in <module>
+----> 1 open("inexistent.txt", "r")
+
+FileNotFoundError: [Errno 2] No such file or directory: 'inexistent.txt'
+>>>
+```
+
+- `try`, `except`, `else`, `finally`
+
+Exemplo que lê números e os divide. Contudo, lida com inputs errados e as possíveis exceções geradas:
+
+```python
+while True:
+    try:
+        primeiro_numero = int(input("Entre o primeiro numero: "))
+        segundo_numero = int(input("Entre o segundo numero: "))
+
+        resultado = primeiro_numero / segundo_numero
+    except ValueError:
+        print("Número inválido")
+
+    except ZeroDivisionError:
+        print("Não pode ser zero")
+
+    else:
+        print(f"{primeiro_numero:.2f} / {segundo_numero:.2f} = {resultado:>10.2f}")
+        break
+```
+
+```
+rnetodev@thinkpad:/tmp$ python3 sample.py
+Entre o primeiro numero: a
+Número inválido
+Entre o primeiro numero: 15
+Entre o segundo numero: 0
+Não pode ser zero
+Entre o primeiro numero: 20
+Entre o segundo numero: 2
+20.00 / 2.00 =      10.00
+rnetodev@thinkpad:/tmp$
+```
+
+- As claúsulas `except` são lançadas apenas se a exceção lançada no bloco `try` e interceptada seja do tipo listado
+
+- A claúsula `else` (opcional) só é executada se não for lançada nenhuma exceção no bloco `try`
+
+- O lançamento de uma exceção interrompe a execução do bloco `try`. Ou seja, a execução não volta para o bloco pós-exceção. Se ela ocorrer fora de um bloco `try`, interrompe-se a execução de todo o script.
+
+- É possível incluir uma claúsula `finally` que sempre é executada, ocorrendo ou não exceção. O bloco desta claúsula sempre é a última coisa a ser executada do `try/except/else/finally`:
+
+```python
+while True:
+    try:
+        primeiro_numero = int(input("Entre o primeiro numero: "))
+        segundo_numero = int(input("Entre o segundo numero: "))
+
+        resultado = primeiro_numero / segundo_numero
+    except ValueError:
+        print("Número inválido")
+
+    except ZeroDivisionError:
+        print("Não pode ser zero")
+
+    else:
+        print(f"{primeiro_numero:.2f} / {segundo_numero:.2f} = {resultado:>10.2f}")
+        break
+
+    finally:
+        print("Bloco try/except/else/finally terminado")
+```
+
+```
+Entre o primeiro numero: 10
+Entre o segundo numero: 0
+Não pode ser zero
+Bloco try/except/else/finally terminado
+Entre o primeiro numero: 5
+Entre o segundo numero: a
+Número inválido
+Bloco try/except/else/finally terminado
+Entre o primeiro numero: 10
+Entre o segundo numero: 2
+10.00 / 2.00 =       5.00
+Bloco try/except/else/finally terminado
+rnetodev@thinkpad:/tmp$
+```
+
+- Você pode capturar múltiplas exceções num mesmo bloco `except`. Caso seja necessário, você pode atribuir a exceção lançada a uma variável (`as`) para referenciar no bloco de tratamento:
+
+```python
+while True:
+    try:
+        primeiro_numero = int(input("Entre o primeiro numero: "))
+        segundo_numero = int(input("Entre o segundo numero: "))
+
+        resultado = primeiro_numero / segundo_numero
+
+    except (ValueError, ZeroDivisionError) as e:
+        print(f"Tipo da exceção lançada: {type(e)}")
+
+    else:
+        print(f"{primeiro_numero:.2f} / {segundo_numero:.2f} = {resultado:>10.2f}")
+        break
+
+    finally:
+        print("Bloco try/except/else/finally terminado")
+```
+
+```
+rnetodev@thinkpad:/tmp$ python3 sample.py
+Entre o primeiro numero: 10
+Entre o segundo numero: a
+Tipo da exceção lançada: <class 'ValueError'>
+Bloco try/except/else/finally terminado
+Entre o primeiro numero: 10
+Entre o segundo numero: 0
+Tipo da exceção lançada: <class 'ZeroDivisionError'>
+Bloco try/except/else/finally terminado
+```
+
+- Apesar do `finally` sempre ser executado, opte pelo protolo do comando `with` para garantir a dealocação de recursos (arquivos, sockets, etc).
+
+- O comando `with` garante a execução do `__exit__` do objetos alocados mesmo na ocorrência de exceções:
+
+```python
+class Resource:
+    def __enter__(self):
+        print("__enter__")
+        return self
+
+    def boom(self):
+        raise NotImplementedError
+
+    def __exit__(self, *args):
+        print("__exit__")
+
+if __name__ == "__main__":
+    with Resource() as r:
+        r.boom()
+```
+
+```
+rnetodev@thinkpad:~$ python3 /tmp/sample.py
+__enter__
+__exit__
+Traceback (most recent call last):
+  File "/tmp/sample.py", line 14, in <module>
+    r.boom()
+  File "/tmp/sample.py", line 7, in boom
+    raise NotImplementedError
+NotImplementedError
+rnetodev@thinkpad:~$
+```
+
+- Logo, é indicado que se combine comandos `with` com blocos `try/except`:
+
+```python
+class Resource:
+    def __enter__(self):
+        print("__enter__")
+        return self
+
+    def boom(self):
+        raise NotImplementedError
+
+    def __exit__(self, *args):
+        print("__exit__")
+
+if __name__ == "__main__":
+    try:
+        with Resource() as r:
+            r.boom()
+    except NotImplementedError:
+        print("An exception happened, but we dealt with it")
+```
+
+```
+rnetodev@thinkpad:~$ python3 /tmp/sample.py
+__enter__
+__exit__
+An exception happened, but we dealt with it
+rnetodev@thinkpad:~$
+```
+
+Quando utilizamos um bloco `with` com tratamento de exceções, geralmente dispensamos o uso da claúsula `finally`.
+
+- `raise` suas próprias exceções
+
+Para levantar uma exceção, use o comando `raise ExceptionName`.
+
+O comando `raise` cria um objeto do tipo da exceção e interrompe a execução do bloco em que está inserindo, subindo para o nível imediatamente superior para ser tratado ou interromper a execução do script.
+
+```python
+>>> raise NotImplementedError
+---------------------------------------------------------------------------
+NotImplementedError                       Traceback (most recent call last)
+<ipython-input-2-91639a24e592> in <module>
+----> 1 raise NotImplementedError
+
+NotImplementedError:
+>>>
+```
+
+Alternativamente, você pode instanciar explicitamente o objeto da exceção e passar parâmetros para sua inicialização (geralmente uma mensagem customizada):
+
+```python
+>>> raise NotImplemented("Wait and see")
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-3-b316ce2a1515> in <module>
+----> 1 raise NotImplemented("Wait and see")
+
+TypeError: 'NotImplementedType' object is not callable
+>>>
+```
+
+Antes de criar sua própria exceção, dê uma olhada nas exceções que já existem na biblioteca do Python: https://docs.python.org/3/library/exceptions.html
+
+- `Exception stacktrace`
+
+Cada exceção lançada contém todo o histórico de chamadas que levou ao lançamento da exceção `traceback`:
+
+```python
+>>> def a():
+...     b()
+...
+>>> def b():
+...     c()
+...
+>>> def c():
+...     raise NotImplementedError("Ops!")
+...
+>>>
+>>> a()
+---------------------------------------------------------------------------
+NotImplementedError                       Traceback (most recent call last)
+<ipython-input-7-8d7b4527e81d> in <module>
+----> 1 a()
+
+<ipython-input-4-1d089fcc2aa4> in a()
+      1 def a():
+----> 2     b()
+      3
+
+<ipython-input-5-b0d9de2e1ed0> in b()
+      1 def b():
+----> 2     c()
+      3
+
+<ipython-input-6-fcaa9c22f42b> in c()
+      1 def c():
+----> 2     raise NotImplementedError("Ops!")
+      3
+
+NotImplementedError: Ops!
+>>>
+```
+
+- `Stack unwiding`
+
+Quando a *exception* não é tratada *uncaught exception* ela sobe a pilha de chamadas até encontrar uma claúsula `except` que a trate ou force o término do programa, caso nenhum `except` a trate.
+
+Exemplo:
+
+```python
+>>> def a():
+...     try:
+...         b()
+...     except NotImplementedError:
+...         print("Got you, exception!")
+...
+>>>
+>>> def b():
+...     c()
+...
+>>>
+>>> def c():
+...     raise NotImplementedError("Generated in c()")
+...
+...
+>>> a()
+Got you, exception!
+>>>
+```
+
+- Leia `stacktraces` de baixo para cima.
+
+Se a exceção for lançada por uma biblioteca, comece a leitura de baixo, veja a exceção e a mensagem gerada e suba até chegar a chamada no seu código. Provavelmente este será o ponto a ser alterado.
+
+- Atente para claúsulas `finally` que produzem exceções.
+
+Caso ocorra um `stack unwiding` a exceção produzida no bloco `finally` sombreará a exceção original, produzida no bloco `try`:
+
+```python
+>>> try:
+...     raise NotImplementedError("try")
+... except ValueError:
+...     pass
+... finally:
+...     raise NotImplementedError("finally")
+...
+---------------------------------------------------------------------------
+NotImplementedError                       Traceback (most recent call last)
+<ipython-input-20-75fdb3031d70> in <module>
+      1 try:
+----> 2     raise NotImplementedError("try")
+      3 except ValueError:
+
+NotImplementedError: try
+
+During handling of the above exception, another exception occurred:
+
+NotImplementedError                       Traceback (most recent call last)
+<ipython-input-20-75fdb3031d70> in <module>
+      4     pass
+      5 finally:
+----> 6     raise NotImplementedError("finally")
+      7
+
+NotImplementedError: finally
+>>>
+```
+
+- **Programação Orientada a Objetos**
+
+- Classes são definicas com `class`
+
+- Construtores são implementados com o método `__init__`.
+
+Se um não for especificado, Python provê um que não faz nada, apenas retorna a instância.
+
+Se você implementar `__init__` não retorne (`return`) nada. `__init__` deve sempre retorna `None`.
+
+- Objetos instanciados não têm nenhum atributo. Eles são explicitamente criados por atribuição, seja no método `__init__` ou após a criação/inicialização.
+
+- Métodos especiais são prefixados e sufixados por dois underscore e são chamados de `dunder methods`.  `__init__`, por exemplo, é um método especial.
+
+A class `object`, da qual todos objetos herdam, define os métodos especiais que estão disponíveis para todos objetos.
+
+- `Composition` estabelece uma relação de `has a`. Exemplo, um objeto da classe `Account` `has a` `name`. `name` por sua vez, é um outro objeto, do tipo `str`.
+
+Ou seja o objeto `Account` é composto por objetos de outros tipos.
+
+- Python não dispõe de atributos privados. Entretanto, por padrão, atributos cujo identificador começa com `_` são entendidos como privados e não devem ser acessados diretamente (apesar de serem acessíveis!):
+
+```python
+>>> def a():
+...     try:
+...         b()
+...     except NotImplementedError:
+...         print("Got you, exception!")
+...
+>>> class Example:
+...     def __init__(self, secret_value):
+...         self._secret_value = secret_value
+...
+>>>
+>>> e1 = Example("bacon")
+>>> e1
+<__main__.Example at 0x7f18ee5e0f98>
+>>> e1._secret_value # dont do that!
+'bacon'
+>>>
+```
+
+- Se você quiser realmente dificultar o acesso a um atributo, prefixe-o com dois `underscores`:
+
+```python
+>>> class Example:
+...     def __init__(self, secret_value):
+...         self.__secret_value = secret_value
+...
+...
+>>>
+>>> e = Example("spam")
+>>> e.__secret_value
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-27-a69d066c3fa2> in <module>
+----> 1 e.__secret_value
+
+AttributeError: 'Example' object has no attribute '__secret_value'
+>>>
+>>> dir(e)
+['_Example__secret_value',
+ '__class__',
+ '__delattr__',
+ '__dict__',
+ '__dir__',
+ '__doc__',
+ '__eq__',
+ '__format__',
+ '__ge__',
+ '__getattribute__',
+ '__gt__',
+ '__hash__',
+ '__init__',
+ '__init_subclass__',
+ '__le__',
+ '__lt__',
+ '__module__',
+ '__ne__',
+ '__new__',
+ '__reduce__',
+ '__reduce_ex__',
+ '__repr__',
+ '__setattr__',
+ '__sizeof__',
+ '__str__',
+ '__subclasshook__',
+ '__weakref__']
+>>>
+```
+
+Como isso funciona ? O interpretador Python ao executar o código de declaração de uma classe, renomeia todos identificadores prefixados com dois `underscores`, exemplo `__secret_value` para `_NomeClasse__secret_value`, ficando no nosso exemplo: `_Example__secret_value`.
+
+Mas, de fora, o atributo ainda é acessível:
+
+```python
+>>> e._Example__secret_value
+'spam'
+>>>
+```
+
+Esta funcionalidade é útil também para sobreescrever atributos em relações de herança sem conflitar com a classe pai.
+
+- Classes podem definir métodos que são utilizados na hora que eles são impressos:
+
+`__repr__(self)` é usado quando o objeto é posto no interpretador e deve retornar uma representação canônica do objeto.
+Idealmente a string retornada é exatamente a chamada ao construtor que dá origem àquele objeto, logo:
+
+```python
+eval(repr(obj)) == obj
+```
+
+`__str__(self)` é chamado quando o objeto é passado para função `print(obj)`. Caso `__str__` não esteja implementado, o método `__repr__` do objeto é chamado.
+
+Todos objetos têm um `__repr__` genérico, herdado de `object`.
+
+- Uma forma de encapsular atributos de uma classe em Python e validar sua leitura e escrita é através de `properties`.
+
+Antes de estudar propriedades, perceba que Python permite, em uma mesma classe, declarar métodos com o mesmo nome.
+Contudo, a última definição do corpo, mais abaixo, é a que valerá:
+
+```python
+>>> class Test:
+...     def a(self):
+...         pass
+...     def a(self, b):
+...         self.b = b
+...
+>>>
+>>> t = Test()
+>>>
+>>> t.a()
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-37-47b4c8d89978> in <module>
+----> 1 t.a()
+
+TypeError: a() missing 1 required positional argument: 'b'
+>>>
+>>> t.a(10)
+>>>
+```
+
+- Exemplo de uso de propriedades:
+
+```python
+>>> class Person:
+...     def __init__(self, name):
+...         self.name = name
+...     @property
+...     def name(self):
+...         print("property")
+...         return self._name
+...     @name.setter
+...     def name(self, value):
+...         print("property.setter")
+...         self._name = value
+...
+>>>
+>>> p = Person("John")
+property.setter
+>>> p.name
+property
+'John'
+>>>
+>>> p.name = "Paul"
+property.setter
+>>> p.name
+property
+'Paul'
+>>>
+```
+
+- Você é obrigado a definir o `getter`, mas o `setter` é opcional:
+
+```python
+>>> class Person:
+...     def __init__(self, name):
+...         self._name = name
+...     @property
+...     def name(self):
+...         print("property")
+...         return self._name.upper()
+...
+...
+>>>
+>>> p = Person("John")
+>>> p.name
+property
+'JOHN'
+>>>
+>>> p.name = "Paul"
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-54-60a0e5e52d7e> in <module>
+----> 1 p.name = "Paul"
+
+AttributeError: can't set attribute
+>>>
+```
+
+- O uso de properties é recomendado, pois permite validar ações com atributos ou modificar sua forma de produção sem impactar códigos cliente.
 
