@@ -4272,3 +4272,358 @@ Para quebrar e ainda sim manter as quebras de linha, passe `True` para `splitlin
 >>>
 ```
 
+- Caracteres e métodos para testes de caracteres
+
+Caracteres são strings de tamanho 1, não são um tipo separado.
+
+Além disso, o tipo `str` contém diversos métodos para testar a natureza da string.
+
+Exemplos:
+
+```python
+>>> # isdigit() - formado apenas por números ?
+>>> "27".isdigit()
+True
+>>> "-22".isdigit()
+False
+>>>
+>>> # isalnum() - alpha caracteres ou número ?
+>>> "a32".isalnum()
+True
+>>> "#answer42".isalnum()
+False
+>>>
+>>> "45.3".isdecimal()
+False
+>>> "45,3".isdecimal()
+False
+>>>
+>>> "_variable".isidentifier()
+True
+>>> "3_variable".isidentifier()
+False
+>>>
+>>> "aaa".islower()
+True
+>>> "aAa".islower()
+False
+>>>
+>>> " ".isspace()
+True
+>>> "x".isspace()
+False
+>>>
+>>> "My name".istitle()
+False
+>>> "My Name".istitle()
+True
+>>>
+>>> "aaa".isupper()
+False
+>>> "XXX".isupper()
+True
+>>>
+```
+
+- Strings `raw`
+
+Strings aceitam códigos escape que têm o formato `\escape`. A própria barra por sua vez tem que ser incluída na forma de escape `\\`.
+
+Isto torna algumas strings difícies, ex: caminhos de pasta/arquivo na plataforma Windows: "c:\User\Documents\File.xls".
+
+Para desabilitar a interpretação de códigos escape, prefixe a string com o caractere `r`:
+
+```python
+>>> caminho = r"c:\User\Admin\beta.txt"
+>>> # Python, internamente, converte para uma string normal com códigos escape
+>>> caminho
+'c:\\User\\Admin\\beta.txt'
+>>>
+```
+
+- Expressões regulares (regexes)
+
+Servem para verificar o formato, extrair dados e transformar strings.
+
+Para verificar formato, a função `fullmatch` compara uma expressão regular a uma string:
+
+```python
+>>> import re
+>>>
+>>> # [0-3][0-3][0-3] busca por três dígitos entre 0 e 3
+>>> print( re.fullmatch(r"[0-3][0-3][0-3]", "123") )
+<_sre.SRE_Match object; span=(0, 3), match='123'>
+>>> print( re.fullmatch(r"[0-3][0-3][0-3]", "423") )
+None
+>>>
+```
+
+Para representar um possível grupo de caracteres use as classes:
+
+```python
+# \d representa um dígito
+>>> import re
+>>> print( re.fullmatch(r"\d\d\d", "423") )
+<_sre.SRE_Match object; span=(0, 3), match='423'>
+```
+
+Para não ter que repetir a classe, use um quantificador `{}`:
+
+```python
+>>> print( re.fullmatch(r"\d{3}", "423") )
+<_sre.SRE_Match object; span=(0, 3), match='423'>
+>>>
+```
+
+Outras classes:
+
+`\D` - tudo que não é dígito
+
+`\s` - espaços, tabs, quebras de linha
+
+`\S` - tudo que não é espaço
+
+`\w` - qualquer letra, dígito ou underscore
+
+`\W` - tudo que não é letra, dígito ou underscore
+
+Lembre-se, cada classe representa um caractere. Quantificadores devem ser aplicados se for mais de um caractere.
+
+Você pode criar sua classes com colchetes `[]`.
+
+```python
+>>> import re
+>>> # Une a classe alphanum \w com o hífen, permitindo o match com "-spam"
+>>> # Hífen teve que ser escapado, pois tem significado especial
+>>> re.fullmatch(r"[\w\-]{5}", "-spam")
+<_sre.SRE_Match object; span=(0, 5), match='-spam'>
+>>>
+```
+
+Você pode criar intervalos com o mesmo hífen, veja:
+
+```python
+>>> re.fullmatch("[a-z][A-Z][0-5]", "aB4")
+<_sre.SRE_Match object; span=(0, 3), match='aB4'>
+>>> re.fullmatch("[a-z][A-Z][0-5]", "aB5")
+<_sre.SRE_Match object; span=(0, 3), match='aB5'>
+>>> re.fullmatch("[a-z][A-Z][0-5]", "aB6")
+>>>
+```
+
+Um outro quantificador é o `*`, ele indica zero ou mais ocorrências (qualquer número):
+
+```python
+>>> re.fullmatch("[a-z]*", "abcdefgh")
+<_sre.SRE_Match object; span=(0, 8), match='abcdefgh'>
+>>>
+```
+
+Os quantificadores sempre casam com a classe mais próxima à esqueda:
+
+```python
+>>> re.fullmatch("[0-9][a-z]*", "5abcdefgh")
+<_sre.SRE_Match object; span=(0, 9), match='5abcdefgh'>
+>>> # Ops! O quanificador só casou com o intervalo do alfabeto. O de dígitos não tem quantificador.
+>>> re.fullmatch("[0-9][a-z]*", "55abcdefgh")
+>>>
+```
+
+Você pode `negar` um classe criada com `[]` incluindo um circunflexo no seu início:
+
+```python
+# Tudo que "não" (^) está entre a e z
+>>> re.fullmatch(r"[^a-z]*", "12345")
+<_sre.SRE_Match object; span=(0, 5), match='12345'>
+>>> re.fullmatch(r"[^a-z]*", "12345a")
+>>>
+```
+
+Os metacaracteres são interpretados como caracteres normais dentro de classes específicas:
+
+```python
+>>> import re
+>>>
+>>> re.fullmatch(r"[+*$]", "$")
+<_sre.SRE_Match object; span=(0, 1), match='$'>
+>>> re.fullmatch(r"[+*$]", "*")
+<_sre.SRE_Match object; span=(0, 1), match='*'>
+>>> re.fullmatch(r"[+*$]", "+")
+<_sre.SRE_Match object; span=(0, 1), match='+'>
+>>>
+```
+
+O quantificador `*` pega zero ou mais, enquanto o quantificador `+` pega pelo menos um ou mais:
+
+```python
+>>> re.fullmatch("[a-z]*[0-9]*", "12345")
+<_sre.SRE_Match object; span=(0, 5), match='12345'>
+>>> re.fullmatch("[a-z]+[0-9]*", "12345")
+>>> re.fullmatch("[a-z]+[0-9]*", "abc12345")
+<_sre.SRE_Match object; span=(0, 8), match='abc12345'>
+>>>
+```
+
+O quantificador `?` casa com zero ou uma ocorrência:
+
+```python
+>>> re.fullmatch("[a-z]?[0-9]*", "12345")
+<_sre.SRE_Match object; span=(0, 5), match='12345'>
+>>> re.fullmatch("[a-z]?[0-9]*", "a12345")
+<_sre.SRE_Match object; span=(0, 6), match='a12345'>
+>>> re.fullmatch("[a-z]?[0-9]*", "ab12345") # ops, duas ? nao casa
+>>>
+```
+
+Se você quiser que existam pelo menos `n` ocorrências, use o quantificador `{n,}`.
+Se quiser que o número de ocorrências esteja entre `n` e `m`, use `{n, m}`:
+
+```python
+>>> re.fullmatch(r"\d{3,}", "1")
+>>> re.fullmatch(r"\d{3,}", "123")
+<_sre.SRE_Match object; span=(0, 3), match='123'>
+>>>
+>>> re.fullmatch(r"\d{3,5}", "123")
+<_sre.SRE_Match object; span=(0, 3), match='123'>
+>>> re.fullmatch(r"\d{3,5}", "123456")
+>>>
+```
+
+- Substituindo e quebrando strings com expressões regulares
+
+`re.sub` substitui todas ocorrências em uma string:
+
+```python
+>>> pattern = r"[\_\-\$\*\%]"
+>>> substituicao = "?"
+>>> texto = "Essa mensagem tem _ codigos - % espalhados $"
+>>> re.sub(pattern, substituicao, texto)
+'Essa mensagem tem ? codigos ? ? espalhados ?'
+>>>
+```
+
+Se quiser limitar a quantidade de substituições, passe o parâmetro `count`:
+
+```python
+>>> re.sub(pattern, substituicao, texto, count=2)
+'Essa mensagem tem ? codigos ? % espalhados $'
+>>>
+```
+
+A função `.split` permite quebrar uma string utilizando um padrão de expressão regular:
+
+```python
+>>> pattern = r"[\_\-\$\*\%]"
+>>> texto = "Essa mensagem tem _ codigos - % espalhados $"
+>>>
+>>> re.split(pattern, texto)
+['Essa mensagem tem ', ' codigos ', ' ', ' espalhados ', '']
+>>>
+
+>>> re.split(r',\s*', '1,  2,  3,4,    5,6,7,8')
+['1', '2', '3', '4', '5', '6', '7', '8']
+>>>
+```
+
+Para limitar o número de quebras, passe o parâmetro `maxsplit`:
+
+```python
+>>> re.split(r',\s*', '1,  2,  3,4,    5,6,7,8', maxsplit=3)
+['1', '2', '3', '4,    5,6,7,8']
+>>>
+```
+
+- Outras formas de busca usando expressões regulares
+
+`.search` busca o padrão e retorna o primeiro grupo encontrado. Um objeto `Match` é retornado e o valor casado é acessado pelo método `.group()`:
+
+```python
+>>> m = re.match(r"\d{3}", "987 abc def 12 34 123 xyz")
+>>> m
+<_sre.SRE_Match object; span=(0, 3), match='987'>
+>>> m.group()
+'987'
+>>>
+>>> # Retorna None, se não encontrar
+>>> m = re.match(r"\d{3}", "abc def")
+>>> m
+>>> print(m)
+None
+>>>
+```
+
+- Usando `flags` com o módulo `re`
+
+A maior parte das funções no módulo `re` aceita um parâmetro `flags` que altera o funcionamento das expressões.
+
+Podemos, por exemplo, ignorar a diferença de case com `flags=re.IGNORECASE`:
+
+```python
+>>> re.fullmatch("[a-z]", "A", flags=re.IGNORECASE)
+<_sre.SRE_Match object; span=(0, 1), match='A'>
+>>> re.fullmatch("[a-z]", "A")
+>>>
+```
+
+- Forçando que a expressão esteja no início `^` ou no final `$`
+
+```python
+>>> re.search(r"^abc", "abc def")
+<_sre.SRE_Match object; span=(0, 3), match='abc'>
+>>> re.search(r"abc$", "abc def")
+>>> re.search(r"abc$", "abc def abc")
+<_sre.SRE_Match object; span=(8, 11), match='abc'>
+>>>
+```
+
+- Encontrando múltiplos grupos
+
+O método `search()` encontra apenas um grupo. Para encontrar múltiplos casos, devemos usar os métodos `findall()` ou `finditer()`.
+
+`findall()` retorna uma lista:
+
+```python
+>>> import re
+>>>
+>>> texto = "321 456 789"
+>>> re.findall(r"\d\d\d", texto)
+['321', '456', '789']
+>>>
+```
+
+`finditer()` retorna um generator que retorna `SRE_Match`, sendo mais apropriado para uma quantidade grande de matchs:
+
+```python
+>>> import re
+>>> texto = "321 456 789"
+>>> for match in re.finditer(r"\d\d\d", texto):
+...     print(match)
+...
+<_sre.SRE_Match object; span=(0, 3), match='321'>
+<_sre.SRE_Match object; span=(4, 7), match='456'>
+<_sre.SRE_Match object; span=(8, 11), match='789'>
+>>>
+```
+
+Você pode utilizar parênteses para extrair substrings em um match:
+
+```python
+>>> import re
+>>> texto = "123abc 234def"
+>>> pattern = r"(\d\d\d)\w\w\w (\d\d\d)\w\w\w"
+>>>
+>>> resultado = re.match(pattern, texto)
+>>> for grupo_encontrado in resultado.groups():
+...     print(grupo_encontrado)
+...
+123
+234
+>>>
+```
+
+- **Arquivos**
+
+Python cria, por padrão, três arquivos ao iniciar um script: `sys.stdin`, `sys.stdout` e `sys.stderr`. Significam, respectivamente, entrada, saída e saída de erro.
+
+
+
