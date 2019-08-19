@@ -190,3 +190,61 @@ Which is equivalent to chaining `filter` calls:
 5. `list()` applied
 6. When are used in an `if` or passed to `bool()`
 
+- `Model.objects` is the default manager provided by Django and returns all objects from the table.
+It is magically provided by Django to every model, **except when the Model defines some custom manager**.
+
+- To define a custom Manager, inherti from `models.Manager` and implement a `get_queryset()`:
+
+```python
+class PostPublishedManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(status='published')
+
+class Post(models.Model):
+    ...
+    objects = models.Manager()
+    published = PostPublishedManager()
+```
+
+If you provide a custom manager, you need to explictly declara an `objects` also. Django, in those cases, won´t create one magically.
+
+The custom manager can be used then:
+
+```python
+>>> from blog.models import Post
+>>>
+>>> Post.published.all()
+<QuerySet [<Post: teste>]>
+>>>
+```
+
+Being a queryset, additional filters can be applied:
+
+```python
+>>> Post.published.filter(title__startswith="teste")
+<QuerySet [<Post: teste>]>
+>>> Post.published.filter(title__startswith="Another")
+<QuerySet []>
+>>>
+```
+
+- Django `views` receive a request and return a `HttpResponse`, or raise an exception.
+
+- All `views` need to receive a `request` parameter
+
+- A simple view example:
+
+```python
+# Create your views here.
+def post_list(request):
+    posts = Post.published.all()
+    context = {
+        "posts": posts
+    }
+    return render(request, "blog/post/list.html", context)
+
+```
+
+- Django provides the `django.shortcuts.render` function render a template and return a `HttpResponse`.
+It takes the `request` object, the `template path` and a `dict` with the `context` to be made avaiable to the template.
+
