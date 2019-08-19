@@ -5331,6 +5331,8 @@ Mas, de fora, o atributo ainda é acessível:
 
 Esta funcionalidade é útil também para sobreescrever atributos em relações de herança sem conflitar com a classe pai.
 
+Essa mudança do nome é chamada de `name mangling`.
+
 - Classes podem definir métodos que são utilizados na hora que eles são impressos:
 
 `__repr__(self)` é usado quando o objeto é posto no interpretador e deve retornar uma representação canônica do objeto.
@@ -5430,4 +5432,438 @@ AttributeError: can't set attribute
 ```
 
 - O uso de properties é recomendado, pois permite validar ações com atributos ou modificar sua forma de produção sem impactar códigos cliente.
+
+- Atributos de classe pertencem à classe. Toda tentativa de acesso a um atributo de um objeto, se não encontrado, sobe na hierarquia: classe, superclasses...e por aí vai:
+
+```python
+>>> class Exemplo:
+...     atributo_de_class = "bacon!"
+...     def __init__(self, atributo_instancia):
+...         self.atributo_de_instancia = atributo_instancia
+...
+>>>
+>>> e = Exemplo("spam!")
+>>> e.atributo_de_instancia
+'spam!'
+>>>
+>>> e.atributo_de_class
+'bacon!'
+>>>
+>>> Exemplo.atributo_de_class = "eggs!"
+>>> e.atributo_de_class
+'eggs!'
+>>>
+```
+
+- Herança
+
+Uma subclasse `is a` superclasse. Ou seja, pode ser tratada como a classe pai, pois apresenta todas as interfaces disponíveis na classe pai.
+
+Uma subclasse pode especializar o funcionamento da classe pai. Mas, ainda deve respeitar as interfaces herdadas.
+
+A primeira coisa que cada subclasse deve fazer em seu método `__init__` é chamar o método `__init__` da classe pai.
+Isso pode ser feito, explicitamente, chamando a classe e passando a instância corrente:
+
+`ClassePai.__init__(self, arg1, arg2..)`
+
+Ou, com o auxílio de `super()`:
+
+`super().__init__(arg1, arg2, ...)`
+
+A vantagem de usar `super()` é que você não precisa passar `self` explicitamente.
+
+- Cuidado, **não** use o operador `is` para testar se uma classe é subclasse de outra. O operador `is` testa **se duas referências apontam o mesmo endereço de memória**.
+
+- Para verificar se uma classe é subclasse de outra, use `issubclass(B, A)`:
+
+```python
+>>> issubclass(int, object)
+True
+>>>
+```
+
+E para verificar se um objeto é instância de uma classe ou de uma subclasse dessa classe, use `isinstance`:
+
+```python
+>>> num = 100
+>>> isinstance(num, int)
+True
+>>>
+>>> isinstance(num, object)
+True
+>>>
+```
+
+- Polimorfismo: objetos filho respeitam toda a interface das classes pai. Logo, é possível misturá-los com objetos da classe pai e utilizar todos como se fossem exatamente da mesma classe.
+
+```python
+>>> class Dog:
+...     def bark(self):
+...         print("Rowf!")
+...
+>>> class BigDog(Dog):
+...     def bark(self):
+...         super().bark()
+...         print("Grrrr!")
+...
+>>>
+>>> first_dog = Dog()
+>>> second_dog = Dog()
+>>> third_dog = BigDog()
+>>>
+>>> dogs = [first_dog, second_dog, third_dog]
+>>>
+>>> for dog in dogs:
+...     dog.bark()
+...
+Rowf!
+Rowf!
+Rowf!
+Grrrr!
+>>>
+```
+
+- Quando você apenas usa objetos existentes em bibliotecas e tal via composição, você está fazendo `OBP - Object Based Programming`.
+Quando você inclui herança no jogo, você passa a fazer `OOP - Object Oriented Programming`.
+
+- Python trabalha com `duck typing`, ou seja, o tipo do objeto não é verificado para poder chamar um método.
+Se o objeto responde ao método, ele é chamado e pronto. Se anda e fala como um pato, pato é.
+
+- Os operadores de Python refletem métodos especiais nos objetos. Exemplos, `+` na verdade é uma chamada para `__add__`. Logo, pode ser sobrescrito nas classes que definimos.
+
+Uma lista com os métodos/operadores passíveis de sobrescrita está disponível em: https://docs.python.org/3/reference/datamodel.html#special-method-names
+
+Cuidado: cada operador é um método diferente. `+` é `__add__`, `+=` é `__iadd__`.
+
+- Classes, exceções e hierarquia
+
+Todas exceções devem descender, direta ou indiretamente, de `exceptions.BaseException`.
+
+A partir de `BaseException`, Python define 4 subclasses primárias:
+
+`SystemExit`: Termina o programa. Quando não é capturada, não produz stacktrace, apenas termina o interpretador.
+
+`KeyboardInterrupt`: quando o usuário interrompe usando `ctrl + c` o interpretador.
+
+`GeneratorExit`: quando um `generator` fecha, ou porque acabou, ou porque seu método `close` foi chamado.
+
+`Exception`: serve de pai para todas as outras exceções definidas na linguagem `ValueError`, `KeyError`, etc.
+
+- A vantagem de haver uma hierarquia é que é possível capturar todos as exceções derivadas criando uma claúsula `except` para classe pai.
+
+Ex:
+
+```python
+...
+except Exception:
+    print("ops")
+```
+
+- Priorize lançar as exceções já existentes na linguagem. Se não for possível, crie uma nova herdando de `Exception`.
+
+- `collections.namedtuple` permite criar objetos similares as struct de C.
+
+Você passa para função o nome da struct a ser criada e uma lista com os atributos possíveis desta:
+
+```python
+>>> from collections import namedtuple
+>>>
+>>> Person = namedtuple("Person", ["name", "age"])
+>>>
+>>> p = Person("John", 23)
+>>> p
+Person(name='John', age=23)
+>>>
+>>> p.name
+'John'
+>>> p.age
+23
+>>>
+
+>>> p2 = Person("Paul", 15)
+>>>
+>>> p2
+Person(name='Paul', age=15)
+>>>
+>>> p2.name
+'Paul'
+>>> p2.age
+15
+>>>
+```
+
+Os atributos são obrigatórios no construtor:
+
+```python
+>>> p3 = Person()
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-19-3a92f5eaa838> in <module>
+----> 1 p3 = Person()
+
+TypeError: __new__() missing 2 required positional arguments: 'name' and 'age'
+>>>
+```
+
+- `dataclasses`
+
+Novas funcionalidades para simplificar a criação de classes, disponível na versão 3.7.
+
+`dataclasses` geram automaticamente os métodos `__init__`, `__repr__` e `__eq__`.
+
+Para criar uma dataclass, use o decorator `dataclasses.dataclass` na classe.
+
+Todas variáveis, as de classe e de instância, são definidas no corpo das dataclasses, com o apoio das anotações providas pelo módulo `typing`.
+
+```python
+>>> from dataclasses import dataclass
+>>> import typing
+>>>
+>>> @dataclass
+... class Person:
+...     SPECIES: ClassVar[str] = "Human"
+...     name: str
+...     age: int
+...
+
+>>> p = Person("John", 23)
+>>> p.name
+'John'
+>>> p.age
+23
+>>> Person.SPECIES
+'Human'
+```
+
+Apesar de conter a tipagem, ela não é forçada:
+
+```python
+>>> p.name = 25
+```
+
+As variáveis de instância definidas são obrigatórias na inicialização:
+
+```python
+>>> p = Person()
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-12-f16ed64f4024> in <module>
+----> 1 p = Person()
+
+TypeError: __init__() missing 2 required positional arguments: 'name' and 'age'
+>>>
+```
+
+Um dos exemplos gerados automaticamente é `__repr__`:
+
+```python
+>>> p
+Person(name=25, age=23)
+>>>
+```
+
+Dataclasses continuam sendo classes, portanto você pode utilizar as mesmas construções de uma classe normal.
+
+Para que `@dataclass` gere métodos usados em ordenamento `<`, `<=`, `>`, `>=` passe o parâmetro `order=True` ao decorador.
+
+```python
+>>> @dataclass(order=True)
+... class Person:
+...     SPECIES: ClassVar[str] = "Human"
+...     name: str
+...     age: int
+...
+>>>
+>>> p1 = Person("John", 23)
+>>> p2 = Person("Abraham", 25)
+>>>
+>>> people = [p1, p2]
+>>> people.sort()
+>>> people
+[Person(name='Abraham', age=25), Person(name='John', age=23)]
+>>>
+```
+
+- Namespace e escopos
+
+Namespaces são associações de identificadores com objetos, implementados, under the hood, como dicionários.
+
+Python dispõe de três namespaces principais: `local`, `global` e `built-in`.
+
+`local`
+
+Cada função ou método tem um escopo próprio, que só existe durante a sua execução. Esse escopo é chamado de `local`.
+Esse namespace só é acessível de dentro do corpo da função.
+Ao declarar uma variável dentro de funções / métodos, você cria uma `variável local`, acessível apenas naquele `namespace` da função/método.
+
+`global`
+
+Cada módulo tem um namespace próprio, chamado de `global`. Apesar do nome, esse namespace trata do módulo e dos identificadores presentes neste módulo. O namespace é criado quando o módulo é importado pelo interpretador e todos identificadores criados no módulo existem dentro do namespace do módulo.
+
+Veja um exemplo, dois arquivos:
+
+`modulo.py`:
+
+```python
+VARIAVEL_DO_MODULO = "SPAM!"
+
+
+def funcao_do_modulo():
+    print("eggs!")
+
+
+class ExemploEscopo:
+    def execute(self):
+        print(VARIAVEL_DO_MODULO)
+        funcao_do_modulo()
+```
+
+e `script.py`:
+
+```python
+from modulo import ExemploEscopo
+
+exemplo = ExemploEscopo()
+exemplo.execute()
+```
+
+Ao executar `script.py`:
+
+```
+$ python script.py
+SPAM!
+eggs!
+```
+
+Voalá. Tudo funciona.
+
+O `import` seja do módulo ou de apenas um elemento do módulo realizada todo o carregamento do módulo e cria um namespace próprio para ele.
+
+A classe importada, ExemploEscopo, é criada e vinculada ao namespace do módulo em que ela está inserida. Por isso as referências a `VARIAVEL_DO_MODULO` e a `funcao_do_modulo()` funcionam. A busca nesses casos começa no objeto, sobe pra classe, sobe para eventuais superclasses e finda no namespace do módulo em que ela foi declarada.
+
+Cada namespace de módulo contém também um variável chamada `__name__` que identifica o nome do módulo daquele namespace. Modificando um pouco o método `execute()`:
+
+```python
+VARIAVEL_DO_MODULO = "SPAM!"
+
+
+def funcao_do_modulo():
+    print("eggs!")
+
+
+class ExemploEscopo:
+    def execute(self):
+        print(f"Acessando coisas no namespace: {__name__}")
+        print(VARIAVEL_DO_MODULO)
+        funcao_do_modulo()
+
+```
+
+```
+$ python script.py
+Acessando coisas no namespace: modulo
+SPAM!
+eggs!
+```
+
+O script passado para o interpretador (o primeiro módulo da aplicação a ser carregado) recebe o nome de `__main__`, logo é possível criar um `if` para checar se seu módulo está sendo executado, ou seja, é o arquivo sendo passado para o interpretador. Modificando o arquivo `script.py`:
+
+```python
+if __name__ == "__main__":
+    from modulo import ExemploEscopo
+
+    exemplo = ExemploEscopo()
+    exemplo.execute()
+```
+
+Por fim, Python define um namespace chamado `built-ins` que contém todas funções, objetos e tipos definidos pela linguagem.
+Este namespace é acessível em qualquer parte da aplicação, dentro de qualquer outro namespace.
+
+- Como Python resolve identificadores entre os namespaces
+
+A ordem de busca dos identificadores entre os namespaces em Python é:
+
+1. `local`: escopo da função / classe;
+2. `global`: escopo do módulo onde o identificador foi definido;
+3. `built-in`: escopo da linguagem
+
+- Você pode listar os identificadores definidos em cada escopo através das funções `locals()` e `globals()`.
+
+Veja a modificação de `modulo.py`:
+
+```python
+VARIAVEL_DO_MODULO = "SPAM!"
+
+
+def funcao_do_modulo():
+    print("eggs!")
+
+
+class ExemploEscopo:
+    def execute(self):
+        print(f"Acessando coisas no namespace: {__name__}")
+        print(VARIAVEL_DO_MODULO)
+        funcao_do_modulo()
+
+        variavel_local = "bacon!"
+
+        print(f"locals(): {locals()}")
+        print(f"globals(): {globals()}")
+```
+
+E executando `script.py`:
+
+```
+Acessando coisas no namespace: modulo
+SPAM!
+eggs!
+locals(): {'self': <modulo.ExemploEscopo object at 0x7fd1e07e6c90>, 'variavel_local': 'bacon!'}
+globals(): {'__name__': 'modulo', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader object at 0x7fd1e07f3090>, '__spec__': ModuleSpec(name='modulo', loader=<_frozen_importlib_external.SourceFileLoader object at 0x7fd1e07f3090>, origin='/home/rnetodev/Workspace/notes/livros/python_for_programmers_deitel/oop_project/modulo.py'), '__file__': '/home/rnetodev/Workspace/notes/livros/python_for_programmers_deitel/oop_project/modulo.py', '__cached__': '/home/rnetodev/Workspace/notes/livros/python_for_programmers_deitel/oop_project/__pycache__/modulo.cpython-37.pyc', '__builtins__': {'__name__': 'builtins', '__doc__': "Built-in functions, exceptions, and other objects.\n\nNoteworthy: None is the `nil' object; Ellipsis represents `...' in slices.", '__package__': '', '__loader__': <class '_frozen_importlib.BuiltinImporter'>, '__spec__': ModuleSpec(name='builtins', loader=<class '_frozen_importlib.BuiltinImporter'>), '__build_class__': <built-in function __build_class__>, '__import__': <built-in function __import__>, 'abs': <built-in function abs>, 'all': <built-in function all>, 'any': <built-in function any>, 'ascii': <built-in function ascii>, 'bin': <built-in function bin>, 'breakpoint': <built-in function breakpoint>, 'callable': <built-in function callable>, 'chr': <built-in function chr>, 'compile': <built-in function compile>, 'delattr': <built-in function delattr>, 'dir': <built-in function dir>, 'divmod': <built-in function divmod>, 'eval': <built-in function eval>, 'exec': <built-in function exec>, 'format': <built-in function format>, 'getattr': <built-in function getattr>, 'globals': <built-in function globals>, 'hasattr': <built-in function hasattr>, 'hash': <built-in function hash>, 'hex': <built-in function hex>, 'id': <built-in function id>, 'input': <built-in function input>, 'isinstance': <built-in function isinstance>, 'issubclass': <built-in function issubclass>, 'iter': <built-in function iter>, 'len': <built-in function len>, 'locals': <built-in function locals>, 'max': <built-in function max>, 'min': <built-in function min>, 'next': <built-in function next>, 'oct': <built-in function oct>, 'ord': <built-in function ord>, 'pow': <built-in function pow>, 'print': <built-in function print>, 'repr': <built-in function repr>, 'round': <built-in function round>, 'setattr': <built-in function setattr>, 'sorted': <built-in function sorted>, 'sum': <built-in function sum>, 'vars': <built-in function vars>, 'None': None, 'Ellipsis': Ellipsis, 'NotImplemented': NotImplemented, 'False': False, 'True': True, 'bool': <class 'bool'>, 'memoryview': <class 'memoryview'>, 'bytearray': <class 'bytearray'>, 'bytes': <class 'bytes'>, 'classmethod': <class 'classmethod'>, 'complex': <class 'complex'>, 'dict': <class 'dict'>, 'enumerate': <class 'enumerate'>, 'filter': <class 'filter'>, 'float': <class 'float'>, 'frozenset': <class 'frozenset'>, 'property': <class 'property'>, 'int': <class 'int'>, 'list': <class 'list'>, 'map': <class 'map'>, 'object': <class 'object'>, 'range': <class 'range'>, 'reversed': <class 'reversed'>, 'set': <class 'set'>, 'slice': <class 'slice'>, 'staticmethod': <class 'staticmethod'>, 'str': <class 'str'>, 'super': <class 'super'>, 'tuple': <class 'tuple'>, 'type': <class 'type'>, 'zip': <class 'zip'>, '__debug__': True, 'BaseException': <class 'BaseException'>, 'Exception': <class 'Exception'>, 'TypeError': <class 'TypeError'>, 'StopAsyncIteration': <class 'StopAsyncIteration'>, 'StopIteration': <class 'StopIteration'>, 'GeneratorExit': <class 'GeneratorExit'>, 'SystemExit': <class 'SystemExit'>, 'KeyboardInterrupt': <class 'KeyboardInterrupt'>, 'ImportError': <class 'ImportError'>, 'ModuleNotFoundError': <class 'ModuleNotFoundError'>, 'OSError': <class 'OSError'>, 'EnvironmentError': <class 'OSError'>, 'IOError': <class 'OSError'>, 'EOFError': <class 'EOFError'>, 'RuntimeError': <class 'RuntimeError'>, 'RecursionError': <class 'RecursionError'>, 'NotImplementedError': <class 'NotImplementedError'>, 'NameError': <class 'NameError'>, 'UnboundLocalError': <class 'UnboundLocalError'>, 'AttributeError': <class 'AttributeError'>, 'SyntaxError': <class 'SyntaxError'>, 'IndentationError': <class 'IndentationError'>, 'TabError': <class 'TabError'>, 'LookupError': <class 'LookupError'>, 'IndexError': <class 'IndexError'>, 'KeyError': <class 'KeyError'>, 'ValueError': <class 'ValueError'>, 'UnicodeError': <class 'UnicodeError'>, 'UnicodeEncodeError': <class 'UnicodeEncodeError'>, 'UnicodeDecodeError': <class 'UnicodeDecodeError'>, 'UnicodeTranslateError': <class 'UnicodeTranslateError'>, 'AssertionError': <class 'AssertionError'>, 'ArithmeticError': <class 'ArithmeticError'>, 'FloatingPointError': <class 'FloatingPointError'>, 'OverflowError': <class 'OverflowError'>, 'ZeroDivisionError': <class 'ZeroDivisionError'>, 'SystemError': <class 'SystemError'>, 'ReferenceError': <class 'ReferenceError'>, 'MemoryError': <class 'MemoryError'>, 'BufferError': <class 'BufferError'>, 'Warning': <class 'Warning'>, 'UserWarning': <class 'UserWarning'>, 'DeprecationWarning': <class 'DeprecationWarning'>, 'PendingDeprecationWarning': <class 'PendingDeprecationWarning'>, 'SyntaxWarning': <class 'SyntaxWarning'>, 'RuntimeWarning': <class 'RuntimeWarning'>, 'FutureWarning': <class 'FutureWarning'>, 'ImportWarning': <class 'ImportWarning'>, 'UnicodeWarning': <class 'UnicodeWarning'>, 'BytesWarning': <class 'BytesWarning'>, 'ResourceWarning': <class 'ResourceWarning'>, 'ConnectionError': <class 'ConnectionError'>, 'BlockingIOError': <class 'BlockingIOError'>, 'BrokenPipeError': <class 'BrokenPipeError'>, 'ChildProcessError': <class 'ChildProcessError'>, 'ConnectionAbortedError': <class 'ConnectionAbortedError'>, 'ConnectionRefusedError': <class 'ConnectionRefusedError'>, 'ConnectionResetError': <class 'ConnectionResetError'>, 'FileExistsError': <class 'FileExistsError'>, 'FileNotFoundError': <class 'FileNotFoundError'>, 'IsADirectoryError': <class 'IsADirectoryError'>, 'NotADirectoryError': <class 'NotADirectoryError'>, 'InterruptedError': <class 'InterruptedError'>, 'PermissionError': <class 'PermissionError'>, 'ProcessLookupError': <class 'ProcessLookupError'>, 'TimeoutError': <class 'TimeoutError'>, 'open': <built-in function open>, 'quit': Use quit() or Ctrl-D (i.e. EOF) to exit, 'exit': Use exit() or Ctrl-D (i.e. EOF) to exit, 'copyright': Copyright (c) 2001-2019 Python Software Foundation.
+All Rights Reserved.
+
+Copyright (c) 2000 BeOpen.com.
+All Rights Reserved.
+
+Copyright (c) 1995-2001 Corporation for National Research Initiatives.
+All Rights Reserved.
+
+Copyright (c) 1991-1995 Stichting Mathematisch Centrum, Amsterdam.
+All Rights Reserved., 'credits':     Thanks to CWI, CNRI, BeOpen.com, Zope Corporation and a cast of thousands
+    for supporting Python development.  See www.python.org for more information., 'license': Type license() to see the full license text, 'help': Type help() for interactive help, or help(object) for help about object.}, 'VARIAVEL_DO_MODULO': 'SPAM!', 'funcao_do_modulo': <function funcao_do_modulo at 0x7fd1e0a69830>, 'ExemploEscopo': <class 'modulo.ExemploEscopo'>}
+```
+
+- Ok. Mas algumas coisas na busca entre namespaces não foram ditas.
+
+Python permite você definir uma função dentro de outra. A função interna consegue acessar identificadores definidos na função que a contém.
+Ou seja, escopos locais aninhados se comunicam:
+
+```python
+>>> def outer_function_maker():
+...     outer_var = "outer spam!"
+...     def inner():
+...         inner_var = "inner spam!"
+...         print(inner_var)
+...         print(outer_var)
+...     return inner
+...
+>>>
+>>> made_inner_fx = outer_function_maker()
+>>> made_inner_fx()
+inner spam!
+outer spam!
+>>>
+```
+
+Essa comunicação entre escopos locais é base para o funcionamento dos decoradores.
+
+- Escopo de classe
+
+Cada classe também tem seu namespace. Ao acessar um atributo em uma CLASSE (não é no objeto) Python buscan neste namespace.
+Se não encontrar, busca nas classes pai.
+Caso ainda assim não encontre, uma exceção `NameError` é lançada.
+
+- Escopo de objeto
+
+Cada objeto/instância também tem seu próprio escopo/namespace. Ao acessar um atributo em uma instância, Pytho busca no escopo do objeto.
+Caso não encontre, sobe para o escopo da classe, superclasses. Caso não encontre, lança uma exceção `NameError`.
 
