@@ -248,3 +248,8 @@ def post_list(request):
 - Django provides the `django.shortcuts.render` function render a template and return a `HttpResponse`.
 It takes the `request` object, the `template path` and a `dict` with the `context` to be made avaiable to the template.
 
+- Besides the `context` dict passed to `render()`, it also has access to the attributes set in the `request` by context processors.
+
+- `Views` receive as arguments parts captured during the `path` processing by Django. The parts to be captured are defined using the `<type:argument_name>` format (ex: `<id:age>`).
+
+-
