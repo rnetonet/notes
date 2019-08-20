@@ -342,7 +342,11 @@ class Post(models.Model):
     ...
 ```
 
-If you use the templatetag `url` with an instance of this model, the result of this method is used to mount the `url`.
+Then, in your template you can put things like:
+
+```django
+<a href="{{ post.get_absolute_url }}">{{ post }}</a>
+```
 
 - Django looks for templates in every app inside a folder named `templates`.
 
@@ -400,13 +404,13 @@ Now, you should call `render` with a sort of namespace: `render(request, "app_3/
 
 - To enable the `static` template tag, enable it with:
 
-```python
+```django
 {% load static %}
 ```
 
 Then, to refer to create a path to a static file:
 
-```python
+```django
 ...
   <link href="{% static "static/css/blog.css" %}" rel="stylesheet">
 ...
@@ -433,7 +437,7 @@ app_2/
 
 So, to load the `app_2` `css`, you would do:
 
-```python
+```django
 ...
   <link href="{% static "static/css/style.css" %}" rel="stylesheet">
 ...
@@ -441,7 +445,7 @@ So, to load the `app_2` `css`, you would do:
 
 - Django templates support inheritance throught build `blocks`. When a template  defines a block, it can be extended and filled by a more especific template. Blocks are defined with the `{% block name %}{% endblock %}` tag. The more specifica template dosen´t need to fill all parents block:
 
-```
+```django
 <title>{% block title %}{% endblock %}</title>
 
 ...
@@ -451,4 +455,166 @@ So, to load the `app_2` `css`, you would do:
   </div>
 ```
 
-In the
+- The other templates can extend this template using the `extends` template tag and redefining the blocks:
+
+```django
+{% extends "blog/base.html" %}
+
+{% block title %}My Blog{% endblock %}
+
+{% block content %}
+  <h1>My Blog</h1>
+  {% for post in posts %}
+    <h2>
+      <a href="{{ post.get_absolute_url }}">
+        {{ post.title }}
+      </a>
+    </h2>
+    <p class="date">
+      Published {{ post.publish }} by {{ post.author }}
+    </p>
+    {{ post.body|truncatewords:30|linebreaks }}
+  {% endfor %}
+{% endblock %}
+```
+
+- Django comes with a built-in pagination solution in the app `django.core.paginator`. To enable pagination your code should:
+
+Import the class and the main exceptions generated:
+
+```python
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+```
+
+In your view, instatiate the `Paginator` passing the object list and the number of objects per page:
+
+```python
+paginator = Paginator(posts, 2)
+```
+
+Capture the current page passed in the URL as a GET parameter:
+
+```python
+page = request.GET.get("page")
+```
+
+The filtered list will be returned by the `paginator` object. You just need to pass the desired page number:
+
+```python
+    # Some page was passed ? If so, render it
+    try:
+        posts = paginator.page(page)
+    # No page given, render the first
+    except PageNotAnInteger:
+        posts = paginator.page(1)
+    # The page passed is invalid, render the last in the paginator object
+    except EmptyPage:
+        posts = paginator.page(paginator.num_pages)
+```
+
+In the template with pagination you can use this pretty generic code. Will work in almost any page with pagination:
+
+```django
+<div class="pagination">
+  <span class="step-links">
+    {% if pagination.has_previous %}
+      <a href="?page={{ pagination.previous_page_number }}">Previous</a>
+    {% endif %}
+    <span class="current">
+      Page {{ pagination.number }} of {{ pagination.paginator.num_pages }}.
+    </span>
+      {% if pagination.has_next %}
+        <a href="?page={{ pagination.next_page_number }}">Next</a>
+      {% endif %}
+  </span>
+</div>
+```
+
+`pagination` is a `Paginator` instance, in the view above, `posts`.
+
+Being generic, this html snippet for pagination can be saved in a folder for generic snippets and included in other templates.
+
+To include this snippet in other templates, use the `include` template tag.
+
+```django
+...
+{% include "blog/inc/pagination.html" with pagination=posts %}
+...
+```
+
+The `with` clauses passed to the included template a context, where `pagination` will be equal to the variable `posts` in the current context.
+
+Mind that included templates have access to all the context of the template including it. We could have changed the pagination snippet to use `posts` instead of `pagination` and it would work.
+
+- Views can be implemented as classes. Called Class Views. Major advantages include better code organization and the creation or usage of mixins for enhanced functionality.
+
+- Django provide multiples generic views in the `django.views.generic` package. In our blog example, the `post_list` view can be implemented as a class view:
+
+```python
+from django.views.generic import ListView
+
+...
+
+class PostListView(ListView):
+    queryset = Post.published.all()
+    context_object_name = "posts"
+    paginate_by = 3
+    template_name = "blog/post/list.html"
+```
+
+The class attributes define how the class-view will behave.
+Above:
+
+`queryset` defines an specific queryset. If you want to list all objects of some model, use, instead, the class attribute: `model = ModelClass`
+
+`context_object_name` name of the variable to be passed to the template with the queryset result. The default name, is none is specified, is `object_list`.
+
+`paginate_by` param to instatiate the paginator
+
+`template_name` the template to use in `render`
+
+You will need to adjust your `urls.py` to refer the class:
+
+```python
+    # path('', views.post_list, name='post_list'),
+    path('', views.PostListView.as_view(), name="post_list"),
+```
+
+Last, you need to change the template because the `paginator` object returned by the generic `ListView` is named `page_obj`:
+
+```django
+{% include "blog/inc/pagination.html" with pagination=page_obj %}
+```
+
+- Django forms provide a elegant way to request, process, validate and bind information into models.
+
+- Django provide two base classes to build forms:
+
+`Form`: Standard HTML forms, not tied to models.
+
+`ModelForm`: Forms tied to model instances.
+
+- Forms are usually saved in a `forms.py` file for each app.
+
+- A simple standard `Form` example to send share a blog post by email:
+
+```python
+from django import forms
+
+class EmailPostForm(forms.Form):
+    name = forms.CharField(max_length=250)
+    email = forms.EmailField()
+    to = forms.EmailField()
+    comments = forms.CharField(required=False, widget=forms.Textarea)
+```
+
+- Each `Field` has a default widget tied to it. You can change the widget passing a keyword parameter `widget=`, like in `comments`.
+
+- The parametes used in the `Fields` initializes are taken into account during validation, example:
+
+`required=False`: the field can be left empty. Default, every field should be filled.
+
+`max_length=...`: limites the field size.
+
+The type of the field also implies some validation. `EmailField` validates the mail addresses entered.
+
