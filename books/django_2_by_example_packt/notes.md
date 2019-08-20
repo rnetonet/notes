@@ -19,11 +19,15 @@
 - If you want to namespace it, create a variable, just above `urlpatters` defining the `app_name`. You don´t need to change the names in urlpatterns, but in the `url` templatetag they should be prefixed with the defined `app_name`.
 
 ```python
+{% raw %}
 {% url "detail" person.id %}
+{% endraw %}
 ```
 
 ```python
+{% raw %}
 {% url "hr:person_detail" person.id %}
+{% endraw %}
 ```
 
 - To make the app URLs visible, create a path in the project `urls.py` and use `include("app_name.urls")` to refer to the app urls.
@@ -388,3 +392,63 @@ app_3/
 
 Now, you should call `render` with a sort of namespace: `render(request, "app_3/index.html")`.
 
+- Django template system has three building blocks:
+
+1. `Template tags` that control the rendering of the template: `{% tag %}`
+2. `Template variables` `{{ variable }}` get replaced by the `variable` passed in the `context` dict.
+3. `Template filters`: allows to modify the way variable are displayed: `{{ variable|filter }}`
+
+- To enable the `static` template tag, enable it with:
+
+```python
+{% load static %}
+```
+
+Then, to refer to create a path to a static file:
+
+```python
+...
+  <link href="{% static "static/css/blog.css" %}" rel="stylesheet">
+...
+```
+
+Similarly to `templates`, Django looks for `static` files in each installed app. In each app, it checks if the file is contained in a folder called `static`:
+
+```
+app_1/
+    static/
+        app_1/
+            css/
+                style.css
+            js/
+                animation.js
+app_2/
+    static/
+        app_2/
+            css/
+                style.css
+            js/
+                animation.js
+```
+
+So, to load the `app_2` `css`, you would do:
+
+```python
+...
+  <link href="{% static "static/css/style.css" %}" rel="stylesheet">
+...
+```
+
+- Django templates support inheritance throught build `blocks`. When a template  defines a block, it can be extended and filled by a more especific template. Blocks are defined with the `{% block name %}{% endblock %}` tag. The more specifica template dosen´t need to fill all parents block:
+
+```
+<title>{% block title %}{% endblock %}</title>
+
+...
+  <div id="content">
+    {% block content %}
+    {% endblock %}
+  </div>
+```
+
+In the
