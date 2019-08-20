@@ -612,7 +612,8 @@ class EmailPostForm(forms.Form):
 
 - The parametes used in the `Fields` initializes are taken into account during validation, example:
 
-`required=False`: the field can be left empty. Default, every field should be filled.
+`required=False`: the field can be left empty.
+By default, every field should be filled.
 
 `max_length=...`: limites the field size.
 
