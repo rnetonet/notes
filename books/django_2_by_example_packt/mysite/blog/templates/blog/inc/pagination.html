@@ -1,10 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-
-</body>
-</html>
+<div class="pagination">
+  <span class="step-links">
+    {% if pagination.has_previous %}
+      <a href="?page={{ pagination.previous_page_number }}">Previous</a>
+    {% endif %}
+    <span class="current">
+      Page {{ pagination.number }} of {{ pagination.paginator.num_pages }}.
+    </span>
+      {% if pagination.has_next %}
+        <a href="?page={{ pagination.next_page_number }}">Next</a>
+      {% endif %}
+  </span>
+</div>
