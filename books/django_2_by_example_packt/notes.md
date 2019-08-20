@@ -18,7 +18,13 @@
 
 - If you want to namespace it, create a variable, just above `urlpatters` defining the `app_name`. You don´t need to change the names in urlpatterns, but in the `url` templatetag they should be prefixed with the defined `app_name`.
 
-`{% url "detail" person.id %}`, becomes `{% url "hr:person_detail" person.id %}`.
+```python
+{% url "detail" person.id %}
+```
+
+```python
+{% url "hr:person_detail" person.id %}
+```
 
 - To make the app URLs visible, create a path in the project `urls.py` and use `include("app_name.urls")` to refer to the app urls.
 
@@ -252,4 +258,133 @@ It takes the `request` object, the `template path` and a `dict` with the `contex
 
 - `Views` receive as arguments parts captured during the `path` processing by Django. The parts to be captured are defined using the `<type:argument_name>` format (ex: `<id:age>`).
 
--
+- Django map URLs to views through the `urls.py` file and the `urlpatterns` list, where each item is composed by a `path(url_part, view, name=...)`.
+
+Example:
+
+```python
+from django.urls import path
+
+from . import views
+
+app_name = 'blog'
+
+urlpatterns = [
+    path('', views.post_list, name='post_list'),
+    path('<int:year>/<int:month>/<int:day>/<slug:post>/',
+         views.post_detail,
+         name='post_detail'),
+]
+```
+
+The URL can contain `capture` blocks in the format `<type:name>`.
+Those blocks, when captured, are passed as keyword arguments `name=captured_value` to the view.
+
+- Each `path` can have an unique `name` which makes refer to those urls easier using the template tag `url` in the templates.
+
+- But, imagine you have many apps in your project. And each one defines an `name='index'` `path`.
+Which one gets refered where your template use `{% url 'index' %}` ?
+
+To avoid this situation, you should add an attribute to every `urls.py` you define named `app_name`, with a string representing your app´s name.
+
+```python
+from django.urls import path
+
+from . import views
+
+app_name = 'blog'
+
+urlpatterns = [
+    path('', views.post_list, name='post_list'),
+    path('<int:year>/<int:month>/<int:day>/<slug:post>/',
+         views.post_detail,
+         name='post_detail'),
+]
+```
+
+So, in our examples, the canonical names of these urls are: `blog:post_list` and `blog:post_detail`.
+
+- If you need a really complex URL configuration and `path` patterns don´t solve your problem, you can use regular expressions and the `re_path` method.
+
+- To enable the app urls into your project, `include()` into the project `urls.py` file. Example:
+
+```python
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('blog/', include('blog.urls')),
+]
+```
+
+- You can create canonical URLs of an object defining the method `get_absolute_url(self)` in its model:
+
+```python
+class Post(models.Model):
+    ...
+
+    def get_absolute_url(self):
+        return reverse(
+            "blog:post_detail",
+            args=[
+                self.publish.year,
+                self.publish.month,
+                self.publish.day,
+                self.slug
+            ]
+        )
+
+    ...
+```
+
+If you use the templatetag `url` with an instance of this model, the result of this method is used to mount the `url`.
+
+- Django looks for templates in every app inside a folder named `templates`.
+
+Example:
+
+```
+app_1/
+    templates/
+app_2/
+    templates/
+app_3/
+    templates/
+```
+
+- Imagine if you have an `index.html` in every `templates` folder and calls `render(request, "index.html")`:
+
+```
+app_1/
+    templates/
+        index.html
+app_2/
+    templates/
+        index.html
+app_3/
+    templates/
+        index.html
+```
+
+Which one gets rendered ?
+
+To avoid that, create one more folder inside each `templates` folder with the same name as the parent app:
+
+```
+app_1/
+    templates/
+        app_1/
+            index.html
+app_2/
+    templates/
+        app_2/
+            index.html
+app_3/
+    templates/
+        app_3/
+            index.html
+```
+
+Now, you should call `render` with a sort of namespace: `render(request, "app_3/index.html")`.
+
