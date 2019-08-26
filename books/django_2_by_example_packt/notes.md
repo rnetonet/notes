@@ -768,3 +768,176 @@ if comment_form.is_valid():
 {% endfor %}
 ```
 
+- You can create your own custom template tags. In Django, there are two kinds of template tags.
+
+`simple_tag`, that receive a value, process it and return an object.
+
+`inclusion_tag`, that receive a value, process and return a rendered template.
+
+All custom template tags should live inside Django applications.
+
+To create, create a folder `templatetags` inside your app and create a `__init__.py` file in it.
+
+No create the modules that will contain the templatetags, example: `blog_tags.py`
+
+```
+blog/
+    __init__.py
+    models.py
+    ...
+    templatetags/
+        __init__.py
+        blog_tags.py
+```
+
+The name of the module (`blog_tags`) will be used in the `load` inside the template `{% load blog_tags %}`, for example.
+
+- The code for a simple template tag that returns the total of posts in the blog:
+
+```python
+from django import template
+from ..models import Post
+
+# required!
+register = template.Library()
+
+@register.simple_tag
+def total_posts():
+    return Post.published.count()
+```
+
+- Every `template_tags` module should include a `register = template.Library()` variable to be valid.
+
+- The `simple_tag` decorator registers the function as a template tag. The function name is used as the name of the template tag.
+If you want to use other name, pass a `name` parameter to the decorator:
+
+```python
+@register.simple_tag(name='my_tag')
+def my_super_template_tag():
+    ...
+```
+
+- To use the template tag, `load` it in the template file:
+
+```django
+{% load blog_tags %}
+```
+
+Now, you can use:
+
+```django
+  <div class="alert alert-primary">
+    This blog has {% total_posts %} posts
+  </div>
+```
+
+- Template tags are very powerfull. They permit you to access models from the representation layer in a shareable and encapsulated way.
+
+- `inclusion_tag` declare the template to be rendered in the decorator and the function should return a dict, used as context for rendering the template.
+
+```django
+@register.inclusion_tag("blog/post/latest_posts.html")
+def latest_posts(count=5):
+    latest_posts = Post.published.order_by("-created")[:count]
+    return {"latest_posts": latest_posts}
+```
+
+In this example, the template tag accepts a parameter named `count` (which defaults to `5`), but can be passed in the template tag as a positional parameter:
+
+```python
+@register.inclusion_tag("blog/post/latest_posts.html")
+def show_latest_posts(count=5):
+    latest_posts = Post.published.order_by("-created")[:count]
+    return {"latest_posts": latest_posts}
+```
+
+And rendered in the layout:
+
+```django
+...
+{% show_latest_posts 2 %}
+...
+```
+
+- You can return objects from `simple_tags` to be used. In this template tag, we get the n most commented posts:
+
+```python
+@register.simple_tag
+def get_most_commented_posts(count=5):
+    return Post.published.annotate(total_comments=Count("comments")).order_by('-total_comments')[:count]
+```
+
+We use the `annotate` to count how many comments each `Post` has. Django provides others annotations, as `Avg`, `Sum`, `Max`.
+
+See: https://docs.djangoproject.com/en/2.0/topics/db/aggregation/
+
+No that this template tag returns an object, a queryset.
+
+Now use it in the template (if a template tag returns an object, you can "rename", "create an alias", for it using `as`):
+
+```django
+{% get_most_commented_posts as most_commented_posts %}
+```
+
+Mind that template tags that return objects have to be linked to a variable, like above.
+
+You can´t iterate directly over a template tag:
+
+**Won´t work!**
+
+```django
+{% for commented_post in get_most_commented_posts %}
+    <li><a href="{{ commented_post.get_absolute_url }}">{{ commented_post.title }} ({{ commented_post.total_comments }} comment{{ commented_post.total_comments|pluralize }})</a></li>
+{% endfor %}
+```
+
+Instead:
+
+```django
+{% get_most_commented_posts as most_commented_posts %}
+<ul>
+{% for commented_post in most_commented_posts %}
+    <li><a href="{{ commented_post.get_absolute_url }}">{{ commented_post.title }} ({{ commented_post.total_comments }} comment{{ commented_post.total_comments|pluralize }})</a></li>
+{% endfor %}
+</ul>
+```
+
+- Besides the template tags, Django provides also template filters, that permits you to modify a variable and return the modified content.
+
+- Template filters are Python functions that receive one or two arguments, the variable being changed and a parameter.
+
+- Filters are used in the following forms:
+
+```django
+{{ variable|my_filter }}
+```
+
+Or, when a param is passed:
+
+```django
+{{ variable|my_filter:"upper" }}
+```
+
+- You can chain filters:
+
+```django
+{{ variable|first_filter|second_filter:"X"|third_filter }}
+```
+
+The result of a filter is passed to the next.
+
+- Filters are registered in a very similar way to other template tags.
+
+Inside the `templatetags` folder, in a module with a `register = template.Library()`, and are registered by the decorator `@register.filter`:
+
+```python
+@register.filter(name="markdown")
+def markdown_format(text):
+    return mark_safe(markdown.markdown(text))
+```
+
+`simple_filter` also accepts a `name` argument, to register the filter with other name than the function one.
+
+- Django escapes all strings generated by filters. To avoid this behavior, we use the `mark_safe` that marks the string as *safe*, so Django does not escape it.
+
+-

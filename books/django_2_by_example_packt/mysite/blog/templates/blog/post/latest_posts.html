@@ -1,0 +1,13 @@
+{% load blog_tags %}
+{% for post in latest_posts %}
+<h2>
+  <a href="{{ post.get_absolute_url }}">
+    {{ post.title }}
+  </a>
+</h2>
+<p class="date">Published {{ post.publish }} by {{ post.author }}</p>
+<p class="tags">
+  {{ post.tags.all|join:", " }}
+</p>
+{{ post.body|markdown }}
+{% endfor %}

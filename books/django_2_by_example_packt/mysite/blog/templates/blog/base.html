@@ -9,6 +9,8 @@
 <body>
   <div class="container">
   <div id="content">
+    <p class="text-right"><a href="{% url "blog:post_feed" %}">Subscribe to my RSS feed</a></p>
+
     {% block content %}
     {% endblock %}
   </div>
