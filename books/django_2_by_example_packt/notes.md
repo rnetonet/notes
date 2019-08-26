@@ -619,3 +619,141 @@ By default, every field should be filled.
 
 The type of the field also implies some validation. `EmailField` validates the mail addresses entered.
 
+- `form.is_valid()` validates the form data. Returns `True` if everything is ok.
+
+- `form` errors can be accessed through the `form.errors` attribute.
+
+- if `form` `is_valid()`, then it´s `form.cleaned_data` attribute contains a dict with the fields and values.
+
+- note: if `form` **not** `is_valid()`, `cleaned_data` will only contain the fields that validated.
+
+- Django makes sending e-mails pretty easy. A simple `send_mail(subject, message, sender, list_of_recipients)` function is provided in the `django.core.mail` package.
+
+```python
+from django.core.mail import send_mail
+send_mail('Django mail', 'This e-mail was sent with Django.', 'your_account@gmail.com', ['your_account@gmail.com'], fail_silently=False)
+```
+
+- You can mount a full url using the same protocol and base of the current request using `request.build_absolute_uri(url)`.
+
+Example:
+
+```python
+# post is a model object
+post_url = request.build_absolute_uri(post.get_absolute_url())
+```
+
+- To initialize a form with the data sent in the `request`:
+
+```python
+if request.method == "POST":
+        form = EmailPostForm(request.POST)
+```
+
+- You can render the form using the helper methods `form.as_p` or `form.as_ul` or `form.as_table`
+
+```django
+<h1>Share {{post.title}} by e-mail:</h1>
+<form action="." method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Send e-mail">
+</form>
+```
+
+- Remember to include the `{% crsf_token %}` template tag. Its mandatory and avoids CSRF attacks.
+
+- If the form is not fully filled or filled with wrong data, the method `form.is_valid()` raises an exception and forces the page to be re-rendered, exhibiting the errors found in each field.
+
+- `ForeignKey` can define the inverse relation name:
+
+```python
+class Post(models.Model):
+    ...
+
+class Comment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, relation_name="comments")
+    ...
+```
+
+You can accessa a comment post by `comment.post` and all comments of a post using `post.comments.all()`.
+
+If not defined, the relation name is the name of the class suffixed with a `_set`:
+
+```python
+class Post(models.Model):
+    ...
+
+class Comment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    ...
+```
+
+In this case, you would access the of a `Comment` in the same way: `comment.post`, but to access all the `Comments` of a `Post`, you would do:
+`post.comment_set.all()`.
+
+Note that `post.comments` (or `post.comment_set`) are querysets, so you can use `.all()`...`.filter()`...
+
+- Remember, Django forms can inherit from a `Form`, standard form class, or from `ModelForm` that is a `Form` that inspects and bases itself in a `Model`.
+
+To define a `ModelForm`:
+
+```python
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ("name", "email", "body")
+```
+
+- You can explicit which attributes of the model will be "fillable" in the form defining a `fields` tuple.
+Or, explicitly define which fields to `exclude` defining a `exclude` tuple.
+
+- To create the model instance linked to the `ModelForm` you cave to call its `save()` method:
+
+```python
+comment_form = CommentForm(request.POST)
+if comment_form.is_valid():
+    new_comment = comment_form.save()
+```
+
+- If you want to change the model object before saving it to the database, call `save(commit=False)`:
+
+```python
+current_post = Post.objects.get(pk=post_id) # passed in URL
+
+comment_form = CommentForm(request.POST)
+if comment_form.is_valid():
+    new_comment = comment_form.save(commit=False)
+    new_comment.post = current_post
+    new_comment.save()
+```
+
+- You can create a block and define a var to be used over all the scope in templates using the `with` block:
+
+```django
+{% with comments.count as total_comments %}
+    {{ total_comments }} comment{{ total_comments|pluralize }}
+{% endwith %}
+```
+
+- The `pluralize` filter returns "s" if the value passed is different of 1.
+
+- Django `for` template tag has a `empty` clause, when the `for` dosent have any iteration:
+
+```django
+{% for comment in comments %}
+    <p>{{ comment }}</p>
+    <p>{{ comment.body }}</p>
+    <p>{{ comment.created }}</p>
+    <hr>
+{% empty %}
+    <p>Oh! No comments yet.</p>
+{% endfor %}
+```
+
+- You could use the template filter `join` to render a lista as a single string:
+
+```django
+<p class="tags">Tags: {{ post.tags.all|join:", " }}</p>
+```
+
