@@ -1,9 +1,17 @@
-from django.shortcuts import render, get_object_or_404
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.views.generic import ListView
+from django.contrib.postgres.search import (
+    SearchQuery,
+    SearchRank,
+    SearchVector,
+    TrigramSimilarity,
+)
 from django.core.mail import send_mail
-from .models import Post, Comment
-from .forms import EmailPostForm, CommentForm
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.shortcuts import get_object_or_404, render
+from django.views.generic import ListView
+
+from .forms import CommentForm, EmailPostForm, SearchForm
+from .models import Comment, Post
+
 
 # Create your views here.
 class PostListView(ListView):
@@ -11,6 +19,35 @@ class PostListView(ListView):
     context_object_name = "posts"
     paginate_by = 1
     template_name = "blog/post/list.html"
+
+
+def post_search(request):
+    form = SearchForm()
+    query = None
+    results = []
+
+    if "query" in request.GET:
+        form = SearchForm(request.GET)
+        if form.is_valid():
+            search_vector = SearchVector("title", weight="A") + SearchVector(
+                "body", weight="B"
+            )
+
+            search_query = form.cleaned_data["query"]
+            search_query = SearchQuery(query)
+
+            results = (
+                Post.objects.annotate(similarity=TrigramSimilarity("title", query))
+                .filter(similarity__gte=0.1)
+                .order_by("-similarity")
+            )
+
+    return render(
+        request,
+        "blog/post/search.html",
+        {"form": form, "query": query, "results": results},
+    )
+
 
 def post_share(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
@@ -30,21 +67,13 @@ def post_share(request, post_id):
                 {data['comments']}
             """
             send_mail(
-                subject,
-                message,
-                "admin@blog.me",
-                [data["to"]],
-                fail_silently=False
+                subject, message, "admin@blog.me", [data["to"]], fail_silently=False
             )
             sent = True
     else:
         form = EmailPostForm()
 
-    context = {
-        "post": post,
-        "form": form,
-        "sent": sent
-    }
+    context = {"post": post, "form": form, "sent": sent}
 
     return render(request, "blog/post/share.html", context)
 
@@ -69,11 +98,10 @@ def post_detail(request, year, month, day, post):
     else:
         comment_form = CommentForm()
 
-
     context = {
         "post": post,
         "comments": post.comments.filter(active=True),
         "new_comment": new_comment,
-        "comment_form": comment_form
+        "comment_form": comment_form,
     }
     return render(request, "blog/post/detail.html", context)
