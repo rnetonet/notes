@@ -7,11 +7,10 @@ from .forms import EmailPostForm, CommentForm
 
 # Create your views here.
 class PostListView(ListView):
-    queryset = Post.published.all()
+    queryset = Post.publish.all()
     context_object_name = "posts"
     paginate_by = 1
     template_name = "blog/post/list.html"
-
 
 def post_share(request, post_id):
     post = get_object_or_404(Post, pk=post_id)

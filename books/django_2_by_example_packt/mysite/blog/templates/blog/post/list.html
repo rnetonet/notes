@@ -13,6 +13,9 @@
     <p class="date">
       Published {{ post.publish }} by {{ post.author }}
     </p>
+    <p class="tags">
+        {{ post.tags.all|join:", " }}
+    </p>
     {{ post.body|truncatewords:30|linebreaks }}
   {% endfor %}
   {% include "blog/inc/pagination.html" with pagination=page_obj %}

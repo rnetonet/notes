@@ -757,3 +757,14 @@ if comment_form.is_valid():
 <p class="tags">Tags: {{ post.tags.all|join:", " }}</p>
 ```
 
+- Inside the `for` templatetag you can also test if it is the last element (`forloop.last`):
+
+```django
+{% for tag in post.tags.all %}
+    <a href="{% url "blog:post_list_by_tag" tag.slug %}">
+      {{ tag.name }}
+    </a>
+    {% if not forloop.last %}, {% endif %}
+{% endfor %}
+```
+
