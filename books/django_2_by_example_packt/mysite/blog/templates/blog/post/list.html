@@ -1,22 +1,30 @@
 {% extends "blog/base.html" %}
 
-{% block title %}My Blog{% endblock %}
+{% load blog_tags %}
+
+{% block title %}My Blog {% endblock %}
 
 {% block content %}
-  <h1>My Blog</h1>
-  {% for post in posts %}
-    <h2>
-      <a href="{{ post.get_absolute_url }}">
-        {{ post.title }}
-      </a>
-    </h2>
-    <p class="date">
-      Published {{ post.publish }} by {{ post.author }}
-    </p>
-    <p class="tags">
-        {{ post.tags.all|join:", " }}
-    </p>
-    {{ post.body|truncatewords:30|linebreaks }}
-  {% endfor %}
-  {% include "blog/inc/pagination.html" with pagination=page_obj %}
+<h1>My Blog</h1>
+
+<div class="alert alert-primary">
+  This blog has {% total_posts %} posts
+</div>
+
+<br>
+
+{% show_latest_posts 1 %}
+
+<br>
+<hr>
+
+<h2>Most commented</h2>
+
+{% get_most_commented_posts as most_commented_posts %}
+<ul>
+{% for commented_post in most_commented_posts %}
+    <li><a href="{{ commented_post.get_absolute_url }}">{{ commented_post.title }} ({{ commented_post.total_comments }} comment{{ commented_post.total_comments|pluralize }})</a></li>
+{% endfor %}
+</ul>
+
 {% endblock %}

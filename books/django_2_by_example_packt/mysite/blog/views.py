@@ -7,7 +7,7 @@ from .forms import EmailPostForm, CommentForm
 
 # Create your views here.
 class PostListView(ListView):
-    queryset = Post.publish.all()
+    queryset = Post.published.all()
     context_object_name = "posts"
     paginate_by = 1
     template_name = "blog/post/list.html"
