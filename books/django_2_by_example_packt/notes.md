@@ -1070,3 +1070,168 @@ results = Post.objects.annotate(
 `TriganSimilarity` calculates a similarity for each row comparing the column (`"title"`) to the `query` specified.
 
 - If you want to use other search platforms like Solr or Elasticsearch, **use http://haystacksearch.org/**.
+
+- Django looks for template, static files, etc, in the order of the `settings.INSTALLED_APPS` list.
+If you want to prioritize an especific app, put it first.
+
+- The Django authentication framework (`django.contrib.auth`) is included by default in every project you create.
+
+- The authentication framework also enables a middleware:
+
+`AuthenticationMiddleware`: associates the user instance for every request, based on session information.
+
+```python
+
+# settings.py
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+```
+
+Middleware register themselves to be called in every request or response event, augmenting it or doing some auxiliary action.
+
+- The Django `auth` framework creates three models:
+
+`User`: an user basic model, containing `username`, `password`, `email`, `first_name`, `last_name`, `is_active`
+
+`Group`: group model to categoriza users.
+
+`Permission`: flags to allow users or groups to perform some action.
+
+- The module `django.contrib.auth` provides two functions important functions:
+
+`authenticate(request, username=..., password=...)` to check if a pair `username/password` is valid.
+If it is, the `User` in question is returned, if not, `None` is returned.
+
+`user(request, user)`: binds the user to the request object.
+
+- `django.contrib.auth` include some class based views in the `django.contrib.auth.views` module, being the most important:
+
+`LoginView`: handle login
+
+`LogoutView`: handle logout
+
+And, when the user knows the current password, to change password:
+
+`PasswordChangeView`: form to perform a password change.
+
+`PasswordChangeDoneView`: success view shown when the password change is performed successfully.
+
+If the user does not remembers, reset can be performed:
+
+`PasswordResetView`: Generates a link and sends to the user to reset the password.
+
+`PasswordResetDoneView`: view saying the link to reset was sent
+
+`PasswordResetConfirmView`: Screen that allows the user to set the new password (link sent by `PasswordResetView`)
+
+`PasswordResetCompleteView`: view after the change is done successfully
+
+- Leverage those views to gain time.
+
+- Example of `LoginView` and `LogoutView` usage:
+
+```python
+from django.contrib.auth.views import LoginView, LogoutView
+from django.urls import path
+
+from . import views
+
+urlpatterns = [
+    path("login/", LoginView.as_view(), name="login"),
+    path("logout/", LogoutView.as_view(), name="logout"),
+]
+```
+
+- By default, `django.contrib.auth` framework looks for its templates in folder called `registration`.
+
+So, if you want to overwrite it, create a `registration` folder inside your app folder and create htmls files in it.
+
+Remember that you have put your application first in the `INSTALLED_APPS` list, so templates will be looked first in it, then in `django.contrib.auth` app.
+
+- You can force a view to be accessible only if the user is authenticated decorating it with `@login_required` from `django.contrib.auth.decoratos`:
+
+```python
+from django.contrib.auth.decorators import login_required
+
+@login_required()
+def dashboard(request):
+    return render(request, "account/dashboard.html", {"section": "dashboard"})
+```
+
+- To configure the urls used by the `django.contrib.auth.views` class based views, define in your `settings.py`:
+
+```python
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'dashboard'
+LOGOUT_URL = 'logout'
+```
+
+- Every `request` in Django has an `user` attribute. If the user is not authenticated, `.user` is an `AnonymousUser` instance. You can check if an user is authenticated using the read only attribute `request.user.is_authenticated`.
+
+- You can include all `django.contrib.auth` urls instead of declaring your own:
+
+```python
+from django.urls import path, include
+# ...
+
+urlpatterns = [
+    # ...
+    path('', include('django.contrib.auth.urls')),
+]
+```
+
+`django.contrib.auth.urls` defined paths:
+
+```python
+from django.contrib.auth import views
+from django.urls import path
+
+urlpatterns = [
+    path('login/', views.LoginView.as_view(), name='login'),
+    path('logout/', views.LogoutView.as_view(), name='logout'),
+
+    path('password_change/', views.PasswordChangeView.as_view(), name='password_change'),
+    path('password_change/done/', views.PasswordChangeDoneView.as_view(), name='password_change_done'),
+
+    path('password_reset/', views.PasswordResetView.as_view(), name='password_reset'),
+    path('password_reset/done/', views.PasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('reset/done/', views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
+]
+```
+
+- Every field in a form can have a `clean_fieldname(self)` method to validate/transform it.
+Those methods can return the input value (accessible from `cleaned_data`) if valid.
+Or transform it, returning it, and overwriting it in the `cleaned_data` dict.
+And, if not valid, it can raise a `forms.ValidationError("Message")`, that will be bind to the field.
+
+```python
+class UserRegistrationForm(forms.ModelForm):
+    password = forms.CharField(label="Password", widget=forms.PasswordInput)
+    password_confirmation = forms.CharField(label="Password confirmation", widget=forms.PasswordInput)
+
+    class Meta:
+        model = User
+        fields = ("username", "first_name", "email")
+
+    def clean_password_confirmation(self):
+        cd = self.cleaned_data
+        if cd["password_confirmation"] != cd["password"]:
+            raise forms.ValidationError("Passwords do not match")
+        return cd["password_confirmation"]
+```
+
+- Your forms can also include a more general `clean(self)` method that is run after all `clean_field...` methods.
+This method is useful to validate fiels in group.
+
+- The `User` model provides a `set_password` methods that handles encryptation. Don´t attribute the password directly.
+
+-
