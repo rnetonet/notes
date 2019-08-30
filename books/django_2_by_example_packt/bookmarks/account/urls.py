@@ -40,5 +40,6 @@ urlpatterns = [
         name="password_reset_complete",
     ),
     path("register/", views.user_register, name="register"),
+    path("edit/", views.edit, name="edit"),
     path("dashboard/", views.dashboard, name="dashboard"),
 ]
