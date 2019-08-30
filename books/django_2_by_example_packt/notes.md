@@ -1234,4 +1234,155 @@ This method is useful to validate fiels in group.
 
 - The `User` model provides a `set_password` methods that handles encryptation. Don´t attribute the password directly.
 
--
+- Files created by the developer are served in the `static` scope. User uploaded files are saved in `media`.
+
+To configure, add to `settings`:
+
+```python
+MEDIA_URL = '/media/' # URL path to access the files
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/') # Folder where the files will live
+```
+
+By default, Django does not serve those files, you need to configure your `urls.py`:
+
+```python
+from django.contrib import admin
+from django.urls import include, path
+from django.conf import settings
+from django.conf.urls.static import static
+
+urlpatterns = [
+    path("admin/", admin.site.urls),
+    path("account/", include("account.urls")),
+]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, settings.MEDIA_ROOT)
+```
+
+- You can use the `messages` app, already included in every Django app, to show one time messages to users:
+
+Register a message:
+
+```python
+...
+if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+
+            messages.success(request, "Credentials saved with success")
+        else:
+            messages.error(request, "Error updating your profile")
+...
+```
+
+Listing (normaly in the `base.html` template) the messages:
+
+```django
+{% for message in messages %}
+<div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+    {{ message|safe }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+{% endfor %}
+```
+
+- Authentication is handled by the `settings.AUTHENTICATION_BACKENDS` backends.
+
+Default is the `ModelBackend`, that checks username x password using the `User` model:
+
+```python
+AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend']
+```
+
+- Every time you call `authenticate()` from `django.contrib.auth` it tris to auth the user against each of the backends in `settings.AUTHENTICATION_BACKENDS` until some has success or the list ends.
+
+- To create your own authentication backend you need to provide a class with two methods:
+
+`authenticate`: that receives the user credentials and tries to authenticate it.
+If success, returns the user, if not, `None`.
+
+`get_user`: receives an user ID and returns its instance
+
+- A simple custom authentication class:
+
+```python
+from django.contrib.auth.models import User
+
+
+class EmailBackend:
+    def authenticate(self, request, username=None, password=None):
+        try:
+            user = User.objects.get(email=username)
+            if user.check_password(password):
+                return user
+            else:
+                return None
+        except User.DoesNotExist:
+            return None
+
+    def get_user(self, pk):
+        try:
+            return User.objects.get(pk=pk)
+        except:
+            return None
+
+```
+
+- You can check an user password using its `check_password()` method:
+
+```python
+...
+if user.check_password(password):
+    return user
+...
+```
+
+To activate it, add to `settings.AUTHENTICATION_BACKENDS`:
+
+```python
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "account.authentication.EmailAuthBackend",
+]
+```
+
+- Indexes make database queries faster. Django creates indexes in three ways:
+
+Fields with `unique=True` automatically have an index.
+
+You can require Django to create an index for a field using `db_index=True` in its declaration:
+
+```python
+class Image(models.Model):
+    ...
+    created = models.DateTimeField(auto_now_add=True, db_index=True)
+    ...
+```
+
+Create index for fields that are very used in lookups.
+
+If you want compound indexes, create using `Meta.index_together` option.
+
+- To define `ManyToMany` relations, use `models.ManyToManyField(Entity)`.
+
+It creates a intermediary join table with the primary key of each `Entity`.
+
+It can be defined in any of the two entities. Normally, it is defined in the one that contains the other.
+
+- The `ManyToManyField` creates a `Manager` in the attribute, so you can add, remove, filter, .all....
+
+- `ImageField` take a parameter `upload_to` that defines the subfolder, inside `MEDIA_ROOT`, to save the file.
+
+- To persist an `ImageField` in disk you can call explictly `.image.save()`:
+
+```python
+image.image.save(
+    image_name,
+    ContentFile(response.read()),  # from django.core.files.base import ContentFile
+    save=False                     # do not save the model
+)
+```
+
