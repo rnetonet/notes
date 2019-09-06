@@ -1,12 +1,12 @@
 from django.contrib.auth.views import (
     LoginView,
     LogoutView,
-    PasswordChangeView,
     PasswordChangeDoneView,
-    PasswordResetView,
-    PasswordResetDoneView,
+    PasswordChangeView,
+    PasswordResetCompleteView,
     PasswordResetConfirmView,
-    PasswordResetCompleteView
+    PasswordResetDoneView,
+    PasswordResetView,
 )
 from django.urls import path
 
@@ -21,9 +21,7 @@ urlpatterns = [
         PasswordChangeDoneView.as_view(),
         name="password_change_done",
     ),
-    path(
-        "password_reset/", PasswordResetView.as_view(), name="password_reset"
-    ),
+    path("password_reset/", PasswordResetView.as_view(), name="password_reset"),
     path(
         "password_reset/done/",
         PasswordResetDoneView.as_view(),
@@ -42,4 +40,7 @@ urlpatterns = [
     path("register/", views.user_register, name="register"),
     path("edit/", views.edit, name="edit"),
     path("dashboard/", views.dashboard, name="dashboard"),
+    path("users/", views.user_list, name="user_list"),
+    path("users/follow/", views.user_follow, name="user_follow"),
+    path("users/<str:username>/", views.user_detail, name="user_detail"),
 ]

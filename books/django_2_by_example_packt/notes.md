@@ -1386,3 +1386,320 @@ image.image.save(
 )
 ```
 
+- `ImageField` have an `.url` attribute to use in the `<img src=...`.
+
+- You can make some view accessible only by POST or GET methods using `django.views.decorators.http` decorators:
+
+Example:
+
+```python
+@login_required
+@require_POST
+def image_like(request):
+    image_id = request.POST.get("id")
+    action = request.POST.get("action")
+    if image_id and action:
+        try:
+            image = Image.objects.get(id=image_id)
+            if action == "like":
+                image.users_like.add(request.user)
+            else:
+                image.users_like.remove(request.user)
+            return JsonResponse({"status": "ok"})
+        except:
+            pass
+
+    return JsonResponse({"status": "ko"})
+```
+
+There is also `require_GET` and `require_http_methods(["GET", "POST", "PUT"])`, that receives a list.
+
+- Default, the many to many manager `add(instance)` method does not duplicate (it does not raises an exception if you try also).
+And a `.remove(instance)` where `instance` does not exist, does not raises an exception too.
+
+- If you want to allow duplicates in your many to many, declare your own "man in the middle table":
+
+Example:
+
+```python
+class PostIcon(models.Model):
+    post = models.ForeignKey(Post)
+    icon = models.ForeignKey(Icon)
+```
+
+And use `through=`
+
+```python
+class Post(models.Model):
+    icons = models.ManyToManyField(Icon, through=PostIcon)
+```
+
+And then create it one by one:
+
+```python
+for icon in icons:
+    PostIcon(post=post, icon=icon).save()
+```
+
+- You should protect your POST requests from CSRF attacks using the `{% csrf_token %}`.
+But you need to protect AJAX requests too, to do that read the cookie and append the value to all AJAX requests:
+
+Django hosts the token in the `csrftoken` cookie:
+
+```html
+<!-- Lib to read cookie content -->
+<script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+
+<script>
+  // Append the token to all AJAX requests made by jQuery
+  var csrftoken = Cookies.get('csrftoken');
+  function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+  }
+  $.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+      if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+      }
+    }
+  });
+  $(document).ready(function(){
+    {% block domready %}
+    {% endblock %}
+  });
+</script>
+```
+
+- Some HTTP methods are considered safe and should not be augmented with CSRF tokens: GET, HEAD, OPTIONS, TRACE.
+Those methods should not realize significant changes inside your system.
+
+- The `with` tags is useful to avoid evaluating a queryset multiple times in the template, example:
+
+```django
+{% with total_likes=image.users_like.count users_like=image.users_like.all %}
+<div class="image-info">
+  <div>
+    <span class="count">
+      <span class="total">{{ total_likes }}</span>
+      like{{ total_likes|pluralize }}
+    </span>
+    <a href="#" data-id="{{ image.id }}" data-action="{% if
+    request.user in users_like %}un{% endif %}like"
+    class="like button">
+      {% if request.user not in users_like %}
+        Like
+      {% else %}
+        Unlike
+      {% endif %}
+    </a>
+  </div>
+  {{ image.description|linebreaks }}
+</div>
+{% endwith %}
+```
+
+- Use the `with` tag for a more performatic system.
+
+- All Django models support monkey patching throught `add_to_class` method.
+
+- You can define your own middle-table for many to many relations:
+
+the middle model:
+
+```python
+class Contact(models.Model):
+    user_from = models.ForeignKey("auth.User", related_name="rel_from_set", on_delete=models.CASCADE)
+    user_to = models.ForeignKey("auth.User", related_name="rel_to_set", on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ("-created", )
+
+    def __str__(self):
+        return f"{self.user_from} follows {self.user_to}"
+```
+
+Add you can add to the user:
+
+```python
+User.add_to_class(
+    "following",
+    models.ManyToManyField("self", through=Contact, related_name="followers", symmetrical=False)
+)
+```
+
+Creating the manager. Note that `add`, `remove`, etc, will be disabled, because your are using a custom middle table.
+
+The `symmetrical=False` indicates that the relationship can go only one way, if i follow you, you don´t need to follow me.
+
+- You can dinamically add a `get_absolute_url()` for some models using the `settings.ABSOLUTE_URL_OVERRIDES`:
+
+```python
+from django.urls import reverse_lazy
+
+# Dynamically add a get_absolute_url() to the listed models
+ABSOLUTE_URL_OVERRIDES = {
+    "auth.user": lambda u: reverse_lazy("user_detail", args=[u.username])
+}
+```
+
+- Polymorphic ForeignKeys can be created using the `django.contrib.contenttypes` app.
+
+It´s installed by default in every Django project. It includes a model, `ContentType`, that represents each model of each application.
+
+Django creates an instance of ContentType for every model created, automatically.
+
+The model contain three attributes:
+
+`app_label`: the app name
+
+`model`: the name of the model class
+
+`name`: model verbose_name
+
+You can query these instances:
+
+```python
+>>> ContentType.objects.filter(app_label="images")
+<QuerySet [<ContentType: image>]>
+>>>
+```
+
+You can get the original class using the `model_class()` method:
+
+```python
+>>> ct_image = ContentType.objects.filter(app_label="images").first()
+>>>
+>>> Image = ct_image.model_class()
+>>> Image
+<class 'images.models.Image'>
+>>>
+>>> Image.objects.count()
+4
+>>>
+```
+
+Its possible to go the other way too: get the contentype from the model class:
+
+```python
+>>> from images.models import Image
+>>> from django.contrib.contenttypes.models import ContentType
+>>>
+>>> ContentType.objects.get_for_model(Image)
+<ContentType: image>
+>>>
+```
+
+- To define a Generic relation in your model, you need three attributes:
+
+`target_ct`: A ForeignKey to a `ContentType` instance that is beings pointed.
+`target_id`: Id of the instance of the Model pointed in `target_ct`
+`target`: A `GenericForeignKey` model, provided by `django.contrib.contenttypes.model`, that links the previous two attributes.
+
+```python
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
+...
+class Action(models.Model):
+    user = models.ForeignKey('auth.User',
+                             related_name='actions',
+                             db_index=True,
+                             on_delete=models.CASCADE)
+    verb = models.CharField(max_length=255)
+    target_ct = models.ForeignKey(ContentType,
+                                  blank=True,
+                                  null=True,
+                                  related_name='target_obj',
+                                  on_delete=models.CASCADE)
+    target_id = models.PositiveIntegerField(null=True,
+                                            blank=True,
+                                            db_index=True)
+    target = GenericForeignKey('target_ct', 'target_id')
+...
+```
+
+
+- You can list all the ids of a relation using `values_list("id", flat=True)`:
+
+```python
+    following_ids = request.user.following.values_list("id", flat=True)
+    if following_ids:
+        actions = Action.objects.filter(user_id__in=following_ids)
+```
+
+- Django querysets provide the `select_related()` for improving the performance of ForeignKey and OneToOne relations.
+It creates a JOIN, speeding up the query and the access to the related models:
+
+```python
+actions = actions.select_related('user', 'user__profile')[:10]
+```
+
+`select_related("rel1", "rel2")` takes the attribute names of the relations to be improved.
+If none is provided, all `ForeignKey` and `OneToOne` fields are joined.
+
+Always, if possible, limit it to the relations that will be really used.
+
+- `select_related()` is useful to `ForeignKey` and `OneToOne` relations, where it´s possible to make a `JOIN`.
+
+- For `ManyToMany` or reverse lookups, we need to use `prefetch_related()`.
+This method performs a separated query and joins, using Python, the result to the original.
+
+```python
+actions = actions.select_related('user', 'user__profile').prefetch_related("target")[:10]
+```
+
+`prefetch_related()` works for `ManyToMany`, `ManyToOne` and `GenericForeignKey` fields.
+
+- But if you apply some `filter()` or `exclude()`, the `prefetch_related()` loses its capabilites, because the originary query is changed.
+
+- To achieve the better performance you need to use the new `Prefetch()` annotation:
+
+```python
+categories_qs = Category.objects.prefetch_related(
+    Prefetch(
+        'subcategories',
+        queryset=Category.objects.filter(is_active=True),
+        to_attr='active_subcategories'
+    )
+)
+
+categories = []
+
+for category in categories_qs:
+    subcategories = [sub.name for sub in category.active_subcategories]
+```
+
+- Django offers `signals` to monitor changes in models. The main signals are:
+
+`pre_save`, `post_save`, `pre_delete`, `delete` and `m2d_changed`
+
+- Define your signal handlers in a module named `signals.py` in your application.
+
+```python
+from django.db.models.signals import m2m_changed
+from django.dispatch import receiver
+
+from .models import Image
+
+
+@receiver(m2m_changed, sender=Image.users_like.through)
+def users_like_changed(sender, instance, **kwargs):
+    instance.total_likes = instance.users_like.count()
+    instance.save()
+```
+
+- Just creating the file won´t cut it, you need to import it in your app configuration class, inside the `ready()` method.
+This method is called when the application registry is fully populated:
+
+```python
+from django.apps import AppConfig
+
+
+class ImagesConfig(AppConfig):
+    name = "images"
+
+    def ready(self):
+        import images.signals
+```
+

@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 
+from django.urls import reverse_lazy
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -40,7 +42,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
+    "sorl.thumbnail",
+
     "images.apps.ImagesConfig",
+    "actions.apps.ActionsConfig",
 ]
 
 MIDDLEWARE = [
@@ -134,3 +139,13 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 # media
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
+
+# Dynamically add a get_absolute_url() to the listed models
+ABSOLUTE_URL_OVERRIDES = {
+    "auth.user": lambda u: reverse_lazy("user_detail", args=[u.username])
+}
+
+# Redis
+REDIS_HOST = 'localhost'
+REDIS_PORT = 6379
+REDIS_DB = 0

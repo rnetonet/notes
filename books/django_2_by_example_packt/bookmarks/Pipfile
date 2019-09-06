@@ -8,6 +8,8 @@ verify_ssl = true
 [packages]
 django = "*"
 pillow = "*"
+sorl-thumbnail = "*"
+redis = "*"
 
 [requires]
 python_version = "3.7"
