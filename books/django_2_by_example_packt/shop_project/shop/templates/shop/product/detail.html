@@ -1,0 +1,16 @@
+{% extends "common/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="card">
+    <img class="card-img-top w-100 h-25" src="{{ product.image.url }}">
+    <div class="card-body">
+        <h4 class="card-title">{{ product.name }}</h4>
+        <p class="card-text">
+            {{ product.description }} - <b>{{ product.price }}</b>
+        </p>
+        <a href="#!" class="btn btn-primary">Go somewhere</a>
+    </div>
+</div>
+
+{% endblock %}
