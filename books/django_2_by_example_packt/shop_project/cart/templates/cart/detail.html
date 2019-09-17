@@ -1,0 +1,89 @@
+{% extends "common/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+    Your shopping cart
+{% endblock %}
+
+{% block content %}
+    <h1>Your shopping cart</h1>
+
+    <table class="table">
+        <thead class="table-dark">
+            <tr>
+                <th>Image</th>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Remove</th>
+                <th>Unit price</th>
+                <th>Total Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart %}
+                {% with product=item.product %}
+                <tr>
+                    <td><img class="w-50 h-30" src="{% if product.image %}{{ product.image.url }}{% else %}{% static "common/img/no_image.png" %}{% endif %}"/></td>
+                    <td>{{ product }}</td>
+                    <td class="w-25">
+                        <form action="{% url "cart:cart_add" product.id %}" method="POST">
+                            {% csrf_token %}
+                            {{ item.update_quantity_form.quantity }}
+                            {{ item.update_quantity_form.update }}
+                            <input type="submit" class="btn btn-link d-inline ml-3" value="&#128190;">
+                        </form>
+                    </td>
+                    <td><a href="{% url "cart:cart_remove" product.id %}">Remove</a></td>
+                    <td>${{ item.price }}</td>
+                    <td>${{ item.total_price }}</td>
+                </tr>
+                {% endwith %}
+            {% empty %}
+                <tr>
+                    <td colspan="6">Your cart is empty</td>
+                </tr>
+            {% endfor %}
+            <tfoot>
+                {% if cart.coupon %}
+                <tr>
+                    <td>Total without discount</td>
+                    <td colspan="2">Discount</td>
+                    <td>Total <b>with</b> discount</td>
+                </tr>
+                <tr>
+                    <td>${{ cart.get_total_price|floatformat:"2" }}</td>
+                    <td colspan="2">{{ cart.coupon.code }} / {{ cart.coupon.discount|floatformat:"2" }}%</td>
+                    <td>${{ cart.get_total_price_after_discount|floatformat:"2" }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td>Total</td>
+                    <td colspan="4"></td>
+                    <td>${{ cart.get_total_price|floatformat:"2" }}</td>
+                </tr>
+                {% endif %}
+            </tfoot>
+        </tbody>
+    </table>
+
+    <div class="row mt-3 mb-3">
+        <div class="col">
+            <h3>Apply a discount:</h3>
+            <form action="{% url "coupons:coupon_apply" %}" method="POST">
+                {% csrf_token %}
+                {{ coupon_apply_form|crispy }}
+                <input type="submit" class="btn btn-primary">
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <div class="btn-group" role="group" aria-label="Basic example">
+                <a href="{% url "orders:order_create" %}" class="btn btn-primary">Checkout</a>
+                <a href="{% url "shop:products_list" %}" class="btn btn-secondary">Continue shopping</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

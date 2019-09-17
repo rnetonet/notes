@@ -18,9 +18,13 @@
         </div>
         <div class="row mb-3">
             <div class="col">
-                <div class="card bg-secondary text-white">
+                <div class="card">
                     <div class="card-body">
-                        Your cart is empty.
+                        {% if cart %}
+                        Your <a href="{% url "cart:cart_detail" %}">cart</a> has {{ cart|length }} item{{ cart|pluralize }} with a total of ${{ cart.get_total_price }}.
+                        {% else %}
+                        Oh! Your cart is empty.
+                        {% endif %}
                     </div>
                 </div>
             </div>

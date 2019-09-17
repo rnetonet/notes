@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %} Loged out {% endblock %}
+
+{% block content %}
+<div class="alert alert-warning alert-dismissible">
+  <button type="button" class="close" data-dismiss="alert"></button>
+  <b>Bye!</b>
+  <p>You can <a href="{% url "login" %}">log-in again</a>.</p>
+
+</div>
+{% endblock %}

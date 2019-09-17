@@ -37,9 +37,12 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
+    "crispy_forms",
     "common.apps.CommonConfig",
     "shop.apps.ShopConfig",
+    "cart.apps.CartConfig",
+    "orders.apps.OrdersConfig",
+    "coupons.apps.CouponsConfig",
 ]
 
 MIDDLEWARE = [
@@ -65,6 +68,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "cart.context_processors.cart",
             ]
         },
     }
@@ -119,3 +123,17 @@ STATIC_URL = "/static/"
 # Media
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
+
+# Cart
+CART_SESSION_ID = "__cart__"
+
+# Crispy
+CRISPY_TEMPLATE_PACK = "bootstrap4"
+
+# E-mail
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+# REDIS
+REDIS_HOST = "localhost"
+REDIS_PORT = 6379
+REDIS_DB = 1

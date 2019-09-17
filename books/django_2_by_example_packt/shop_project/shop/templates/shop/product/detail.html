@@ -3,13 +3,19 @@
 
 {% block content %}
 <div class="card">
-    <img class="card-img-top w-100 h-25" src="{{ product.image.url }}">
+        <img class="w-50 h-30" src="{% if product.image %}{{ product.image.url }}{% else %}{% static "common/img/no_image.png" %}{% endif %}" />
     <div class="card-body">
         <h4 class="card-title">{{ product.name }}</h4>
         <p class="card-text">
             {{ product.description }} - <b>{{ product.price }}</b>
         </p>
-        <a href="#!" class="btn btn-primary">Go somewhere</a>
+        <p>
+            <form action="{% url "cart:cart_add" product.id %}" method="POST">
+                {% csrf_token %}
+                {{ cart_product_form.as_p }}
+                <input type="submit" class="btn btn-success" value="Add">
+            </form>
+        </p>
     </div>
 </div>
 
