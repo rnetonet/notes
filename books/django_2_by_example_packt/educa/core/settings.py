@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 
+from django.urls import reverse_lazy
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -31,7 +33,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -39,7 +40,10 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "common.apps.CommonConfig",
     "courses.apps.CoursesConfig",
+    "students.apps.StudentsConfig",
     "crispy_forms",
+    "django.contrib.admin",
+    "embed_video",
 ]
 
 MIDDLEWARE = [
@@ -122,3 +126,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 
 # Crispy Forms
 CRISPY_TEMPLATE_PACK = "bootstrap4"
+
+# Login redirect URL
+
+LOGIN_REDIRECT_URL = reverse_lazy("students:student_course_list")
+

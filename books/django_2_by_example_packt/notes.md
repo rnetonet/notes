@@ -1933,7 +1933,7 @@ Where:
 `extra` number of empty forms to list
 `can_delete` are the inline formes deletable
 
-- Create a dynamic form from a model using:
+- Create a dynamic form from a model using `from django.forms.models import modelform_factory`:
 
 ```python
 from django.forms.models import modelform_factory
@@ -1946,3 +1946,4 @@ def get_form(model, *args, **kwargs):
     return Form(*args, **kwargs)
 ```
 
+- [django-braces](https://django-braces.readthedocs.io/en/latest/) provides a group of mixins usable and helpful to many contexts.

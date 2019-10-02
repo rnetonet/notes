@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if subject %}
+    <h1>Courses in {{ subject }}</h1>
+{% else %}
+    <h1>All coures</h1>
+{% endif %}
+
+<div class="row mb-3">
+    <div class="col">
+    {% for subject in subjects %}
+        <a href="{% url "courses:course_list_subject" subject.slug %}" class="badge {% if subject.slug == slug %}badge-success{% else %}badge-light{% endif %}">{{ subject }} ({{ subject.total_courses }})</a>
+    {% endfor %}
+    </div>
+</div>
+
+<table class="table">
+    <thead class="thead-light">
+    <tr>
+        <th>
+            Course
+        </th>
+        <th>
+            Modules
+        </th>
+        <th>
+            Owner
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+        {% for course in courses %}
+        <tr>
+            <td><a href="{% url "courses:course_detail_slug" course.slug %}">{{ course }}</a></td>
+            <td>{{ course.total_modules }}</td>
+            <td>{{ course.owner.username }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3">No courses</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

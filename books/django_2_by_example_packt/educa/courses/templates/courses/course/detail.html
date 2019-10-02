@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        {{ object.title }}
+    </div>
+    <div class="card-body">
+        <p class="card-text">
+            <a href="{% url "courses:course_list_subject" object.subject.slug %}">{{ object.subject.title }}</a>, {{ object.modules.count }} modules, Owner: {{ object.owner.username }}
+            <br>
+            {{ object.overview|linebreaks }}
+            <br>
+            {% if request.user.is_authenticated %}
+            <form action="{% url "students:student_enroll_course" %}" method="post">
+                {{ enroll_form }}
+                {% csrf_token %}
+                <input type="submit" class="btn btn-primary" value="Enroll now">
+            </form>
+            {% else %}
+                <a href="{% url "students:student_registration" %}" class="btn btn-secondary">
+                    Register to enroll
+                </a>
+            {% endif %}
+        </p>
+    </div>
+</div>
+{% endblock %}

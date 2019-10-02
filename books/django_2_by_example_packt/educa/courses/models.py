@@ -2,6 +2,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.template.loader import render_to_string
+from django.utils.safestring import mark_safe
 
 from .fields import OrderField
 
@@ -23,6 +25,9 @@ class Course(models.Model):
     )
     subject = models.ForeignKey(
         Subject, related_name="courses", on_delete=models.CASCADE
+    )
+    students = models.ManyToManyField(
+        get_user_model(), related_name="courses_enrolled", blank=True
     )
     title = models.CharField(max_length=250)
     slug = models.SlugField(max_length=250, unique=True)
@@ -54,13 +59,18 @@ class Content(models.Model):
     module = models.ForeignKey(
         Module, related_name="contents", on_delete=models.CASCADE
     )
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, limit_choices_to={"model__in": ["text", "file", "image", "video"]})
+    content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        limit_choices_to={"model__in": ["text", "file", "image", "video"]},
+    )
     object_id = models.PositiveIntegerField()
     item = GenericForeignKey("content_type", "object_id")
     order = OrderField(blank=True, for_fields=["module"])
 
     class Meta:
         ordering = ("order",)
+
 
 class ItemBase(models.Model):
     owner = models.ForeignKey(
@@ -76,14 +86,24 @@ class ItemBase(models.Model):
     def __str__(self):
         return self.title
 
+    def get_model_name(self):
+        return str(self.__class__)
+
+    def render(self):
+        return render_to_string(f"courses/content/{self._meta.model_name}.html", {"item": self})
+
+
 class TextItem(ItemBase):
     content = models.TextField()
+
 
 class File(ItemBase):
     file = models.FileField(upload_to="files")
 
+
 class Image(ItemBase):
     image = models.ImageField(upload_to="images")
+
 
 class Video(ItemBase):
     video = models.URLField()
