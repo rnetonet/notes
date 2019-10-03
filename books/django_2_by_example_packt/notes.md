@@ -1805,29 +1805,14 @@ python manage.py loaddata courses/fixtures/subjects.json
 
 - Django supports three kinds of inheritance
 
+**Multi-table model inheritance** - `default`: Each model in the hierachy is a complete full-featured model.
+A table is created for each model.
+
 **Abstract model**: you want to put some info in multiple models.
 No table is created for the abstract model.
 
 **Proxy models**: you want to change the **behavior** of a model.
 Change methods, default manager or meta options. No table is created for proxy models.
-
-**Multi-table model inheritance**: Each model in the hierachy is a complete full-featured model.
-A table is created for each model.
-
-- To create an **Abstract Model** just set `abstract = True` in the `Meta` class.
-  Django will not create a table for it. But, models that inherit from it will have a table with all the fields defined in the abstract father and in the child.
-
-```python
-class BaseContent(models.Model):
-    title = models.CharField(max_length=250)
-    created = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        abstract = True
-
-class Text(BaseContent):
-    body = models.TextField()
-```
 
 - **Multi-table model inheritance**: Django creates implictly an `OneToOne` relation between child and father:
 
@@ -1846,6 +1831,22 @@ Both, `BaseContent` and `Text`, would originate real database tables.
 
 - Proxy models are used to extend behavior, not to change or add fields.
   Both, the original and the proxy, operate over the same database table.
+
+
+- To create an **Abstract Model** just set `abstract = True` in the `Meta` class.
+  Django will not create a table for it. But, models that inherit from it will have a table with all the fields defined in the abstract father and in the child.
+
+```python
+class BaseContent(models.Model):
+    title = models.CharField(max_length=250)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        abstract = True
+
+class Text(BaseContent):
+    body = models.TextField()
+```
 
 To create a proxy model, add `proxy=True` in the `Meta` class.
 
