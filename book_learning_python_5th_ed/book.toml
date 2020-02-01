@@ -1,0 +1,6 @@
+[book]
+authors = ["rnetodev"]
+language = "en"
+multilingual = false
+src = "src"
+title = "Learning Python 5ed - Notes"
