@@ -379,7 +379,7 @@ c:\windows\dir
 >>>
 ```
 
-# Unicode Strings
+## Unicode Strings
 
 * Non-ASCII text (Japanese, Russian...) is handled by *unicode strings*.
 
@@ -496,5 +496,7 @@ bytearray(b'\xc3\xa0\xc3\xa9acentua\xc3\xa7\xc3\xa3o')
 * You `encode` unicode strings to save in files. And `decode` the read file back to a unicode string.
 
 
-# Pattern Matching
+## Pattern Matching
+
+
 
