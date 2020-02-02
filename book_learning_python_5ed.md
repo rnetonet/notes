@@ -4,7 +4,7 @@
 
 ### Running Modules
 
-* All Python files, modules, are compiled to bytecode.
+* All Python files are modules, and are compiled to bytecode before execution.
 
 * Imported modules bytecodes are cached in disk for optimization.
 
@@ -608,3 +608,291 @@ False
 [8, 4, 3, 2, 1]
 >>>
 ```
+
+* Python checks if the index being accessed exists, if not, an Exception is thrown:
+
+```python
+>>> l = ['a', 'b', 'c']
+>>>
+>>> l[0]
+'a'
+>>> l[1]
+'b'
+>>> l[2]
+'c'
+>>> l[3]
+---------------------------------------------------------------------------
+IndexError                                Traceback (most recent call last)
+<ipython-input-5-bb49eeb9f0db> in <module>
+----> 1 l[3]
+
+IndexError: list index out of range
+>>> l[99] = "z" # During assignment too
+---------------------------------------------------------------------------
+IndexError                                Traceback (most recent call last)
+<ipython-input-6-6c807f12f520> in <module>
+----> 1 l[99] = "z" # During assignment too
+
+IndexError: list assignment index out of range
+>>>
+```
+
+* List can contain any object type, even other lists. This is one way to implement matrixes in Python:
+
+```python
+>>> # 3x3 matrix
+>>> l = [
+...     [1, 2, 3],
+...     [7, 8, 9],
+...     [20, 30, 40]
+... ]
+>>>
+>>> l[0] # first row
+[1, 2, 3]
+>>> l[2] # third row
+[20, 30, 40]
+>>>
+>>> l[0][0] # first row, first column
+1
+>>> l[1][2] # second row, third column
+9
+>>>
+```
+
+### Comprehensions
+
+* List comprehensions are a succint way to process sequences and generate new lists.
+
+```python
+>>> # 3x3 matrix
+... matrix = [
+...     [1, 2, 3],
+...     [7, 8, 9],
+...     [20, 30, 40]
+... ]
+>>>
+>>> # Get the second column for each row
+>>> seconds = [row[1] for row in matrix]
+>>> seconds
+[2, 8, 30]
+>>>
+>>>
+```
+
+* They can be more complex and even include a conditional (`if`):
+
+```python
+>>> # 3x3 matrix
+... matrix = [
+...     [1, 2, 3],
+...     [7, 8, 9],
+...     [20, 30, 40]
+... ]
+>>>
+
+>>> # More complex expression
+>>> seconds_doubled = [row[1] * row[1] for row in matrix]
+>>> seconds_doubled
+[4, 64, 900]
+>>>
+
+>>> # seconds_doubled if lower than 50
+>>> seconds_doubled_lt_50 = [row[1] ** 2 for row in matrix if row[1] ** 2 <= 50]
+>>> seconds_doubled_lt_50
+[4]
+>>>
+```
+
+* List comprehensions can act over any *iterator*:
+
+```python
+>>> # Hardcoded
+>>> # 3x3 matrix
+... matrix = [
+...     [1, 2, 3],
+...     [7, 8, 9],
+...     [20, 30, 40]
+... ]
+>>>
+>>> # Extract diagonal, iterating over a literal list
+>>> diagonal = [matrix[i][i] for i in [0, 1, 2]]
+>>> diagonal
+[1, 8, 40]
+>>>
+>>> # Over a string
+>>> doubled_letters = [letter * 2 for letter in 'spam']
+>>> doubled_letters
+['ss', 'pp', 'aa', 'mm']
+>>>
+```
+
+* `range(included_start_index, non_included_end_index, step)` is a built-in to create sequences of numbers:
+
+```python
+#!/usr/bin/env python2
+>>> range(0, 10, 2)
+[0, 2, 4, 6, 8]
+>>>
+```
+
+```python
+#!/usr/bin/env python3
+>>> # In Py 3, range returns a generator, so its generation is on-demand, to save memory
+>>> range(0, 10, 2)
+range(0, 10, 2)
+>>>
+>>> # If you want to generate all, encapsulate it on a list
+>>> list(range(0, 10, 2))
+[0, 2, 4, 6, 8]
+>>>
+```
+
+```python
+>>> # In Py 3, range returns a generator, so its generation is on-demand, to save memory
+>>> range(0, 10, 2)
+range(0, 10, 2)
+>>>
+>>> # If you want to generate all, encapsulate it on a list
+>>> list(range(0, 10, 2))
+[0, 2, 4, 6, 8]
+>>>
+>>>
+>>> # range follow the same rules of slice indexing, supporting negative values, etc
+>>> list( range(-6, 10, 2) )
+[-6, -4, -2, 0, 2, 4, 6, 8]
+>>>
+```
+
+* List comprehension can return a list of any kind of objects, even other lists:
+
+```python
+>>> value_half_double = [[value, value/2, value*2] for value in range(0, 10)]
+>>> value_half_double
+[[0, 0.0, 0],
+ [1, 0.5, 2],
+ [2, 1.0, 4],
+ [3, 1.5, 6],
+ [4, 2.0, 8],
+ [5, 2.5, 10],
+ [6, 3.0, 12],
+ [7, 3.5, 14],
+ [8, 4.0, 16],
+ [9, 4.5, 18]]
+```
+
+* List comprehensions were expanded to generate other types beyond lists. One of them are the generators, which produce values on-demand:
+
+```python
+>>> # 3x3 matrix
+... matrix = [
+...     [1, 2, 3],
+...     [7, 8, 9],
+...     [20, 30, 40]
+... ]
+>>>
+>>> # Return a sum of each row as a generator
+>>> sum_for_each_row = (sum(row) for row in matrix) # Comprehension in parentheses return a generator
+>>> sum_for_each_row
+<generator object <genexpr> at 0x7fe7286b1c10>
+>>>
+>>> # One way to require values from a generator, is using next
+>>> next(sum_for_each_row)
+6
+>>> next(sum_for_each_row)
+24
+>>> next(sum_for_each_row)
+90
+>>>
+>>> next(sum_for_each_row) # Generator was exhausted
+---------------------------------------------------------------------------
+StopIteration                             Traceback (most recent call last)
+<ipython-input-56-c142c678b04d> in <module>
+----> 1 next(sum_for_each_row) # Generator was exhausted
+
+StopIteration:
+>>>
+>>>
+```
+
+* Generators can be used in loops:
+
+```python
+>>> # 3x3 matrix
+... matrix = [
+...     [1, 2, 3],
+...     [7, 8, 9],
+...     [20, 30, 40]
+... ]
+>>>
+>>> sum_for_each_row = (sum(row) for row in matrix) # Comprehension in parentheses return a generator
+>>>
+>>> for sum_of_row in sum_for_each_row:
+...     print(sum_of_row)
+...
+6
+24
+90
+>>> # Exhausted in the previous loop
+... for sum_of_row in sum_for_each_row:
+...     print(sum_of_row)
+...
+>>>
+>>>
+```
+
+> Remember that generators are consumed and subsequent calls can not generate values.
+
+* The `map(fx, iterator)` returns the result of the function `fx` over the `iterator`, it also returns a generator:
+
+```python
+>>> # 3x3 matrix
+... matrix = [
+...     [1, 2, 3],
+...     [7, 8, 9],
+...     [20, 30, 40]
+... ]
+>>>
+>>> sum_for_each_row = map(sum, matrix)
+>>> for sum_of_row in sum_for_each_row:
+...     print(sum_of_row)
+...
+6
+24
+90
+>>>
+```
+
+* Dictionaries and Sets can also be created using comprehension syntax:
+
+```python
+>>> # 3x3 matrix
+... matrix = [
+...     [1, 2, 3],
+...     [7, 8, 9],
+...     [20, 30, 1]
+... ]
+>>>
+>>> # Set (unique values) of the diagonal
+>>> diagonal_uniq = {matrix[i][i] for i in range(0, 3)}
+>>> diagonal_uniq
+{1, 8}
+>>>
+```
+
+```python
+>>> # 3x3 matrix
+... matrix = [
+...     [1, 2, 3],
+...     [7, 8, 9],
+...     [20, 30, 1]
+... ]
+>>>
+>>> # Dict: key is the value, value is the double
+>>> doubled_diagonal = {matrix[i][i]: matrix[i][i] ** 2 for i in range(0, 3)}
+>>> doubled_diagonal
+{1: 1, 8: 64}
+>>>
+```
+
+## Dictionaries
+
