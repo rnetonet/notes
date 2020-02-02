@@ -243,6 +243,10 @@ replace(self, old, new, count=-1, /)
 
 * Modules, classes and functions are objects too. Thus, can be passed as any other object in code.
 
+## Numbers
+
+> TODO: Fill
+
 ### Strings
 
 * Booleans are numbers in Python. `True == 1`, `False == 0`.
@@ -515,3 +519,92 @@ bytearray(b'\xc3\xa0\xc3\xa9acentua\xc3\xa7\xc3\xa3o')
 
 ### Lists
 
+* Lists are mutable ordered sequences of objects of any type.
+
+```python
+>>> l = [1, "abc", 3.14, True]
+>>> l
+[1, 'abc', 3.14, True]
+>>>
+>>> l[0] = 2
+>>> l
+[2, 'abc', 3.14, True]
+>>>
+```
+
+* Lists support the main **sequence** methods provided by Python:
+
+> The common **sequence** methods return new objects, they don´t perform in-place changes.
+
+```python
+>>> l = [1, "abc", 3.14, True]
+>>>
+>>> # Length
+>>> len(l)
+4
+>>> # Indexing
+>>> l[0]
+1
+>>> l[-1]
+True
+>>> l[2]
+3.14
+>>>
+>>> # Length slicing
+>>> l[0:3]
+[1, 'abc', 3.14]
+>>> l[2:3]
+[3.14]
+>>>
+
+>>> l + [10, 20, 30] # Returns a new list
+[1, 'abc', 3.14, True, 10, 20, 30]
+>>>
+>>> l
+[1, 'abc', 3.14, True]
+>>>
+>>> l * 2
+[1, 'abc', 3.14, True, 1, 'abc', 3.14, True]
+>>>
+>>> l
+[1, 'abc', 3.14, True]
+>>>
+```
+
+* Lists also provide some type specific methods, which can perform *in-place* changes:
+
+```python
+>>> l = [1, "abc", 3.14, True]
+>>>
+>>> l.append(False) # add to the end
+>>> l
+[1, 'abc', 3.14, True, False]
+>>>
+>>> l.pop(4) # Remove and return object in index = 4
+False
+>>> l
+[1, 'abc', 3.14, True]
+>>>
+>>> l.insert(1, -99) # Insert object into index 1
+>>> l
+[1, -99, 'abc', 3.14, True]
+>>>
+>>> l.remove(-99) # Remove by value
+>>> l
+[1, 'abc', 3.14, True]
+>>>
+>>> l.extend([10, 20, 30]) # Equivalente to: l += [10, 20, 30]
+>>> l
+[1, 'abc', 3.14, True, 10, 20, 30]
+>>>
+>>> # Sorting and reversing
+>>> l = [3, 2, 4, 8, 1]
+>>> l.sort()
+>>> l
+[1, 2, 3, 4, 8]
+>>>
+>>> l.reverse()
+>>> l
+[8, 4, 3, 2, 1]
+>>>
+```
