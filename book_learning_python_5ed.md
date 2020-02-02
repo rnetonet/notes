@@ -1,4 +1,249 @@
+# Learning Python, 5ed
+
+## How Python Runs Programs
+
+### Running Modules
+
+* All Python files, modules, are compiled to bytecode.
+
+* Imported modules bytecodes are cached in disk for optimization.
+
+* Python compiles each module once per execution. An explicit reload should be requested if necessary.
+
+* Bytecode files are regenerated if original source changes (compares timestamps) or its imported by a different interpreter.
+
+* Everything in Python happens in runtime: classes, functions creation, modules linkage.
+Everything happens in runtime, while the interpreter reads the code.
+
+### Shebangs
+
+* Avoid explicit shebang lines in unix using *env* trick:
+
+```python
+#!/usr/bin/env python3
+...
+```
+
+* Since 3.3, Python for Windows handles shebangs:
+
+```python
+#!python3
+...
+```
+
+### Windows Python Runner
+
+If you call it using the `py` utility, `python3` will be used.
+
+* You can define the version as an argument for `py`:
+
+```bash
+py -3.1 script.py
+```
+
+```bash
+py -3 script.py
+```
+
+### Importing and Reloading Modules
+
+* **Importing is also a way to run Python modules.**
+
+* Every Python file is a module, thus can be imported.
+
+* Imports load another file and make the resulting attributes accessible to the importer.
+
+* In other words, importing a module means running its code.
+
+* Imports run once per interpreter session. Subsequent imports do not reload the module.
+
+* To force a reload, use the `imp.reload` module function:
+
+```python
+import imp
+import mymodule
+
+# ...
+
+imp.reload(mymodule)
+
+# ...
+```
+
+### Accessing Modules Attributes
+
+* Modules = namespaces
+
+* Modules are run when imported (in `import` or `from` statements) .
+
+* Import example. Uses the module object and the dot operator to access attributes:
+
+```python
+# Load "lib.py", compile to bytecode, created a module object and assign to a "lib" variable in the current scope
+import lib
+
+# Access the function "func" defined in the top-level of "lib.py" through the "lib" variable/module.
+print(lib.func(a, b))
+```
+
+* `from ... import ...` example. **Copies** the listed attributes to the importer scope:
+
+```python
+# Load, compile and run "lib". From the resulting module object, copy func as a to the current scope
+from lib import func
+
+# No need for prefix
+func(a, b)
+```
+
+Its the same as in the importer:
+
+```python
+import lib
+
+func = lib.func
+```
+
+* You can `exec()` some module, as you just typed its concent, using `exec()`:
+
+```python
+exec(open('script1.py').read())
+```
+
+* Every time you call `exec()` it executes the code as you had just typed it where you called. It is not like an import.
+
+
+### Getting Help
+
+To list all the names avaiable in a module, use `dir(module)`:
+
+```python
+>>> import antigravity
+>>> dir(antigravity)
+['__builtins__',
+ '__cached__',
+ '__doc__',
+ '__file__',
+ '__loader__',
+ '__name__',
+ '__package__',
+ '__spec__',
+ 'geohash',
+ 'hashlib',
+ 'webbrowser']
+>>>
+```
+
+* `dir([object])`:
+
+    * If called without object, list the names defined in the current scope;
+
+    * If an object is passed, returns an alphabetized of its attributes.
+
+```python
+>>> # dir() -> local scope attributes
+>>> dir()
+['In',
+ 'Out',
+ '_',
+ '__',
+ '___',
+ '__builtin__',
+ '__builtins__',
+ '__doc__',
+ '__loader__',
+ '__name__',
+ '__package__'
+
+...
+
+>>> # dir(object)
+>>> s = "Hello world"
+>>> dir(s)
+['__add__',
+ '__class__',
+ '__contains__',
+ '__delattr__',
+ '__dir__',
+ '__doc__',
+ '__eq__',
+ '__format__',
+ '__ge__',
+ '__getattribute__',
+ '__getitem__',
+ '__getnewargs__',
+ '__gt__',
+ '__hash__',
+ '__init__',
+ '__init_subclass__',
+ '__iter__',
+ '__le__',
+ '__len__',
+```
+
+* `help(class) or help(class.method), shows the pydoc`:
+
+```python
+>>> help(str)
+Help on class str in module builtins:
+
+class str(object)
+ |  str(object='') -> str
+ |  str(bytes_or_buffer[, encoding[, errors]]) -> str
+ |
+ |  Create a new string object from the given object. If encoding or
+ |  errors is specified, then the object must expose a data buffer
+ |  that will be decoded using the given encoding and error handler.
+ |  Otherwise, returns the result of object.__str__() (if defined)
+ |  or repr(object).
+ |  encoding defaults to sys.getdefaultencoding().
+ |  errors defaults to 'strict'.
+ |
+ |  Methods defined here:
+ |
+ |  __add__(self, value, /)
+ |      Return self+value.
+ |
+ |  __contains__(self, key, /)
+ |      Return key in self.
+ |
+ |  __eq__(self, value, /)
+ |      Return self==value.
+ |
+ |  __format__(self, format_spec, /)
+ |      Return a formatted version of the string as described by format_spec.
+ |
+ |  __ge__(self, value, /)
+ |      Return self>=value.
+ |
+ |  __getattribute__(self, name, /)
+ |      Return getattr(self, name).
+ |
+ |  __getitem__(self, key, /)
+ |      Return self[key].
+
+
+
+>>> help(str.replace)
+Help on method_descriptor:
+
+replace(self, old, new, count=-1, /)
+    Return a copy with all occurrences of substring old replaced by new.
+
+      count
+        Maximum number of occurrences to replace.
+        -1 (the default value) means replace all occurrences.
+
+    If the optional argument count is given, only the first count occurrences are
+    replaced.
+
+```
+
+## Introducing Python Object Types
+
 * Modules, classes and functions are objects too. Thus, can be passed as any other object in code.
+
+### Strings
 
 * Booleans are numbers in Python. `True == 1`, `False == 0`.
 
@@ -111,110 +356,6 @@
 >>>
 ```
 
-* `dir([object])`:
-
-    * If called without object, list the names defined in the current scope;
-
-    * If an object is passed, returns an alphabetized of its attributes.
-
-```python
->>> # dir() -> local scope attributes
->>> dir()
-['In',
- 'Out',
- '_',
- '__',
- '___',
- '__builtin__',
- '__builtins__',
- '__doc__',
- '__loader__',
- '__name__',
- '__package__'
-
-...
-
->>> # dir(object)
->>> s = "Hello world"
->>> dir(s)
-['__add__',
- '__class__',
- '__contains__',
- '__delattr__',
- '__dir__',
- '__doc__',
- '__eq__',
- '__format__',
- '__ge__',
- '__getattribute__',
- '__getitem__',
- '__getnewargs__',
- '__gt__',
- '__hash__',
- '__init__',
- '__init_subclass__',
- '__iter__',
- '__le__',
- '__len__',
-```
-
-* `help(class) or help(class.method), shows the pydoc`:
-
-```python
->>> help(str)
-Help on class str in module builtins:
-
-class str(object)
- |  str(object='') -> str
- |  str(bytes_or_buffer[, encoding[, errors]]) -> str
- |
- |  Create a new string object from the given object. If encoding or
- |  errors is specified, then the object must expose a data buffer
- |  that will be decoded using the given encoding and error handler.
- |  Otherwise, returns the result of object.__str__() (if defined)
- |  or repr(object).
- |  encoding defaults to sys.getdefaultencoding().
- |  errors defaults to 'strict'.
- |
- |  Methods defined here:
- |
- |  __add__(self, value, /)
- |      Return self+value.
- |
- |  __contains__(self, key, /)
- |      Return key in self.
- |
- |  __eq__(self, value, /)
- |      Return self==value.
- |
- |  __format__(self, format_spec, /)
- |      Return a formatted version of the string as described by format_spec.
- |
- |  __ge__(self, value, /)
- |      Return self>=value.
- |
- |  __getattribute__(self, name, /)
- |      Return getattr(self, name).
- |
- |  __getitem__(self, key, /)
- |      Return self[key].
-
-
-
->>> help(str.replace)
-Help on method_descriptor:
-
-replace(self, old, new, count=-1, /)
-    Return a copy with all occurrences of substring old replaced by new.
-
-      count
-        Maximum number of occurrences to replace.
-        -1 (the default value) means replace all occurrences.
-
-    If the optional argument count is given, only the first count occurrences are
-    replaced.
-
-```
 
 * Ways to declare a string in Python:
 
@@ -255,7 +396,7 @@ c:\windows\dir
 >>>
 ```
 
-## Unicode Strings
+### Unicode Strings
 
 * Non-ASCII text (Japanese, Russian...) is handled by *unicode strings*.
 
@@ -372,5 +513,5 @@ bytearray(b'\xc3\xa0\xc3\xa9acentua\xc3\xa7\xc3\xa3o')
 * You `encode` unicode strings to save in files. And `decode` the read file back to a unicode string.
 
 
-## Lists
+### Lists
 
