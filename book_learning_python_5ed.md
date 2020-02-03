@@ -1212,3 +1212,100 @@ StopIteration:
 
 ### Tuples
 
+* Tuples are just like lists, sequences, nestable, of any kind of object. With one main difference: they are imutable and coded in parentheses instead of square brackets:
+
+```python
+>>> t = (1, 2, 3)
+>>> t
+(1, 2, 3)
+>>>
+>>> another_t = 1, 2, 3 # If you enumerate objects intercalated by commas, Python reads as a tuple
+>>> another_t
+(1, 2, 3)
+>>>
+>>>
+```
+
+* Tuple support all sequence operations, returning new tuples when necessary:
+
+```python
+>>> t = ("a", "b", "c")
+>>> len(t)
+3
+>>>
+>>> t + t
+('a', 'b', 'c', 'a', 'b', 'c')
+>>> t * 3
+('a', 'b', 'c', 'a', 'b', 'c', 'a', 'b', 'c')
+>>>
+>>> t[0]
+'a'
+>>> t[1]
+'b'
+>>> t[2]
+'c'
+>>>
+```
+
+* Tuple also have some especific methods:
+
+```python
+>>> t = ("a", "b", "a", "a", "b", "b", "b", "c")
+>>> t.count("a")
+3
+>>>
+>>> t.index("b") # first index
+1
+>>>
+```
+
+* Tuples can´t be changed:
+
+```python
+>>> t = ("spam", "eggs", "bacon", [1, 2, 3])
+>>> t
+('spam', 'eggs', 'bacon', [1, 2, 3])
+>>> t[0] = "42!"
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-17-9130a031421f> in <module>
+----> 1 t[0] = "42!"
+
+TypeError: 'tuple' object does not support item assignment
+>>>
+```
+
+* But you can change mutable elements inside a tuple:
+
+```python
+>>> t = ("spam", "eggs", "bacon", [1, 2, 3])
+>>> t[3].append(4)
+>>> t
+('spam', 'eggs', 'bacon', [1, 2, 3, 4])
+>>>
+```
+
+### Files
+
+* Files are a core type, but you create them using the built-in `open(fname, openmode)`:
+
+```python
+>>> fp = open("example.txt", "w") # create a text file to Write
+>>> fp.write("Spam!")
+5
+>>> fp.close()
+>>>
+```
+
+* To read, `open(fname, 'r')` the file with the `'r'` openmode, which is the default if you omit:
+
+```python
+>>> fp = open("example.txt")
+>>> # Read content: Always returns a string
+>>> fp.read()
+'Spam!'
+>>> fp.close()
+>>>
+```
+
+...
