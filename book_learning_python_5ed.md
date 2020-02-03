@@ -243,7 +243,7 @@ replace(self, old, new, count=-1, /)
 
 * Modules, classes and functions are objects too. Thus, can be passed as any other object in code.
 
-## Numbers
+### Numbers
 
 > TODO: Fill
 
@@ -894,7 +894,7 @@ StopIteration:
 >>>
 ```
 
-## Dictionaries
+### Dictionaries
 
 * Dictionaries are mutable maps that can contain any kind of object as value and any kind of imutable object as key.
 
@@ -1111,7 +1111,7 @@ c
 >>>
 ```
 
-## Loops
+### Loops
 
 * You can iterate over *iterables* using the `for` loop in Python:
 
@@ -1163,4 +1163,52 @@ Spam!
 Spam!
 >>>
 ```
+
+### Iterators
+
+* Python has an `Iterator Protocol` that make objects work with `for` loops and comprehensions. The protocol requires the object to return to respond to the `iter(object)` call with an object that return values to subsequent `next(result_object)` calls. Generators, for example, follow this protocol:
+
+```python
+>>> l = [1, 2, 3]
+>>> l_iter = iter(l)
+>>> l_iter
+<list_iterator at 0x7f9d489410d0>
+>>>
+>>> next(l_iter)
+1
+>>> next(l_iter)
+2
+>>> next(l_iter)
+3
+>>> next(l_iter) # If no more values, throw an Exception
+---------------------------------------------------------------------------
+StopIteration                             Traceback (most recent call last)
+<ipython-input-7-b7ec262db220> in <module>
+----> 1 next(l_iter) # If no more values, throw an Exception
+
+StopIteration:
+>>>
+```
+
+* Remember, any comprehension can be written as a `for` loop:
+
+```python
+>>> squares = [value ** 2 for value in [10, 20, 30]]
+>>> squares
+[100, 400, 900]
+>>>
+>>> # or...
+>>>
+>>> squares = []
+>>> for value in [10, 20, 30]:
+...     squares.append(value ** 2)
+...
+>>> squares
+[100, 400, 900]
+>>>
+```
+
+> Comprehensions will usually run faster than for loops.
+
+### Tuples
 
