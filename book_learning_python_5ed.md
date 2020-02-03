@@ -896,3 +896,271 @@ StopIteration:
 
 ## Dictionaries
 
+* Dictionaries are mutable maps that can contain any kind of object as value and any kind of imutable object as key.
+
+* Dictionaries can grown or shrink on demand.
+
+* Dictionaries literals are coded in curly braces:
+
+```python
+>>> d = {"food": "cheese", "quantity": 10, "status": "ready"}
+>>> d
+{'food': 'cheese', 'quantity': 10, 'status': 'ready'}
+>>>
+```
+
+* To get a value, you index using the key:
+
+```python
+>>> d = {"food": "cheese", "quantity": 10, "status": "ready"}
+>>>
+>>> d["food"]
+'cheese'
+>>> d["quantity"]
+10
+>>> d["status"]
+'ready'
+>>>
+```
+
+* And you can change the throught indexing also:
+
+```python
+>>> d = {"food": "cheese", "quantity": 10, "status": "ready"}
+>>>
+>>> d["food"]
+'cheese'
+>>> d["quantity"]
+10
+>>> d["status"]
+'ready'
+>>>
+>>> d["food"] = "beans"
+>>> d
+{'food': 'beans', 'quantity': 10, 'status': 'ready'}
+>>>
+>>> d["quantity"] += 1
+>>> d
+{'food': 'beans', 'quantity': 11, 'status': 'ready'}
+>>>
+```
+
+* As lists, if you index something that is not there, you get an Exception:
+
+```python
+>>> d = {"food": "cheese", "quantity": 10, "status": "ready"}
+>>>
+>>> d["name"]
+---------------------------------------------------------------------------
+KeyError                                  Traceback (most recent call last)
+<ipython-input-14-3dc752b20a59> in <module>
+----> 1 d["name"]
+
+KeyError: 'name'
+>>>
+```
+
+* But you can assign to inexistent keys, thus creating it:
+
+```python
+>>> d = {"food": "cheese", "quantity": 10, "status": "ready"}
+>>>
+>>> d["expected_time"] = 60
+>>>
+>>> d
+{'food': 'cheese', 'quantity': 10, 'status': 'ready', 'expected_time': 60}
+>>>
+```
+
+* Generally, you start with an empty dictionary `{}` and fills it:
+
+```python
+>>> john = {}
+>>> john["age"] = 22
+>>> john["city"] = "London"
+>>>
+>>> john
+{'age': 22, 'city': 'London'}
+>>>
+```
+
+> Dictionary indexing is very fast. Leverage it.
+
+* Other two common ways to create a dictionary are using the `dict` with keyword arguments and, sometimes, with support of the `zip(a, b)` built-in function:
+
+```python
+>>> john = dict(age=22, city='London')
+>>> john
+{'age': 22, 'city': 'London'}
+>>>
+>>>
+>>> # zip creates pairs (tuples) from two sequences. the first compose the keys, the second, the values
+>>> zip(["age", "city"], [22, "London"]) # zip object
+<zip at 0x7f4da5b03800>
+>>>
+>>> list( zip(["age", "city"], [22, "London"]) ) # as a list
+[('age', 22), ('city', 'London')]
+>>> john = dict(zip(["age", "city"], [22, "London"]))
+>>> john
+{'age': 22, 'city': 'London'}
+>>>
+```
+
+> Dictionaries don´t guarantee ordering, so don´t depend on it.
+
+* All the *container* types in Python support nesting: lists, dicts, etc.
+Nesting can be used to create more complex structures:
+
+```python
+>>> john = {
+...     "name": {"first": "john", "last": "doe"},
+...     "jobs": ["architect", "programmer", "cleaner"],
+...     "salary": 40.5
+... }
+>>> john
+{'name': {'first': 'john', 'last': 'doe'},
+ 'jobs': ['architect', 'programmer', 'cleaner'],
+ 'salary': 40.5}
+>>>
+>>> # You can change nested objects
+>>> john["jobs"].append("joker")
+>>> john
+{'name': {'first': 'john', 'last': 'doe'},
+ 'jobs': ['architect', 'programmer', 'cleaner', 'joker'],
+ 'salary': 40.5}
+>>>
+```
+
+* Python is garbage collected language, so all the objects that lose all references are automatically dealocated:
+
+```python
+>>> l = [0] * 1000000
+>>> l = 2 # the previous big list memory is deallocated
+>>> l
+2
+>>>
+```
+
+* Accessing a non-existent key in a dict generates an exception:
+
+```python
+>>> data = {"a": 100, "b": 211}
+>>>
+>>> data["x"]
+---------------------------------------------------------------------------
+KeyError                                  Traceback (most recent call last)
+<ipython-input-51-56c979e698fa> in <module>
+----> 1 data["x"]
+
+KeyError: 'x'
+>>>
+```
+
+* You can test the presence of a key in a dict using the `in` keyword:
+
+```python
+>>> data = {"a": 100, "b": 211}
+>>> if "x" in data:
+...     print(data["x"])
+...
+>>>
+>>> data = {"a": 100, "b": 211}
+>>> if "x" in data:
+...     print(data["x"])
+...
+>>> if not "x" in data:
+...     print("missing!")
+...
+missing!
+>>>
+```
+
+* Other ways to test-before-access keys in dictionaries:
+
+```python
+>>> data = {"a": 100, "b": 211}
+>>> print( data.get("x") ) # If not present, returns None
+None
+>>>
+>>> print( data.get("x", 0) ) # You can specify a second param to be return instead of None
+0
+>>>
+>>> data = {"a": 100, "b": 211}
+>>> print( data.get("x") ) # If not present, returns None
+None
+>>>
+>>> print( data.get("x", 0) ) # You can specify a second param to be return instead of None
+0
+>>> # Or using an if else short expression
+>>> value = data["x"] if "x" in d else 0
+>>> value
+0
+>>>
+```
+
+* Dictionaries don´t guarantee order, so, to iterate over it in an ordered manner you can use the `built-in` function `sorted()`:
+
+```python
+>>> data = {"a": 10, "b": 14, "c": 25}
+>>> for key in sorted(data):
+...     print(key)
+...
+a
+b
+c
+>>>
+```
+
+## Loops
+
+* You can iterate over *iterables* using the `for` loop in Python:
+
+```python
+>>> l = [1, 2, 3]
+>>> for item in l:
+...     print(item)
+...
+1
+2
+3
+>>>
+>>> s = "spam"
+>>> for letter in s:
+...     print(letter.upper())
+...
+S
+P
+A
+M
+>>>
+>>> d = {"a": 10, "b": 20, "c": 30}
+>>> for key in d:
+...     print(key)
+...
+a
+b
+c
+>>>
+```
+
+* The other, more generic, loop is the `while`, which tests a condition before each iteration:
+
+```python
+>>> counter = 0
+>>> while counter < 10:
+...     print("Spam!")
+...     counter = counter + 1
+...
+Spam!
+Spam!
+Spam!
+Spam!
+Spam!
+Spam!
+Spam!
+Spam!
+Spam!
+Spam!
+>>>
+```
+
