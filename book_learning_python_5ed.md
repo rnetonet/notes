@@ -1308,4 +1308,274 @@ TypeError: 'tuple' object does not support item assignment
 >>>
 ```
 
+* After iterators, the best way to read a file is to iterate directly over it:
+
+```python
+>>> fp = open("/etc/hosts")
+>>> for line in fp: print(line)
+127.0.0.1       localhost
+127.0.1.1       thinkpad
+# The following lines are desirable for IPv6 capable hosts
+::1     ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+>>> fp.close()
+>>>
+```
+
+* In Py3 the strings are always encoded before being written to a file and decoded when read. While Py2 blindly writes and reads the string bytes to and from the file.
+
+* In Py3 text is always read and decoded using some *encoding* and encoded when written, also using this encode. This encode is inherited from the system where the module is running, but you can explictly define:
+
+```python
+>>> # Save text file encoded as utf16
+>>> fp = open("/tmp/teste.txt", "w", encoding="utf16")
+>>> fp.write("acentuação!")
+11
+>>> fp.close()
+>>>
+>>> # Read the file as bytes and shows the encoded string
+>>> fp = open("/tmp/teste.txt", "rb") # read as bytes
+>>> fp.read()
+b'\xff\xfea\x00c\x00e\x00n\x00t\x00u\x00a\x00\xe7\x00\xe3\x00o\x00!\x00'
+>>> fp.close()
+>>>
+```
+
+* You can `encode` and `decode` a string manually:
+
+```python
+#!/usr/bin/env python3
+>>> st = "acentuação"
+>>> st_utf16_encoded = st.encode("utf16") # get bytes representation for utf16 encoding
+>>> st_utf16_encoded
+b'\xff\xfea\x00c\x00e\x00n\x00t\x00u\x00a\x00\xe7\x00\xe3\x00o\x00'
+>>>
+>>> st_utf16_encoded.decode("utf16") # convert bytes to unicode string using utf16 encoding
+'acentuação'
+>>>
+```
+
+### Sets
+
+* Sets are unordered collections of unique and immutable objects and are created using `set()` or `{}`:
+
+```python
+>>> x = set("spam")
+>>> x
+{'a', 'm', 'p', 's'}
+>>>
+>>> y = {"h", "a", "m", "m", "m"}
+>>> y
+{'a', 'h', 'm'}
+>>>
+>>>
+```
+
+* They support all mathematical operations for sets:
+
+```python
+>>> x = set("spam")
+>>> y = {"h", "a", "m", "m", "m"}
+>>>
+>>> x, y
+({'a', 'm', 'p', 's'}, {'a', 'h', 'm'})
+>>>
+>>> x & y # intersection
+{'a', 'm'}
+>>>
+>>> x | y # union
+{'a', 'h', 'm', 'p', 's'}
+>>>
+>>> x - y # difference
+{'p', 's'}
+>>>
+>>> x > y # superset
+False
+>>> x < y # subset
+False
+>>>
+>>>
+```
+
+* Comprehensions can be used to create sets:
+
+```python
+>>> s = {value ** 2 for value in [1, 2, 3, 4]}
+>>> s
+{1, 4, 9, 16}
+>>>
+```
+
+* Some useful usecases for sets:
+
+```python
+>>> # Remove duplicates
+>>> set("spaaaaaaam")
+{'a', 'm', 'p', 's'}
+>>>
+>>> # Find differences
+>>> set("aloha") - set("alopa")
+{'h'}
+>>>
+>>> # unordered and duplicate indifferent comparasion
+>>> set("spam") == set("spamamamamamsa")
+True
+>>>
+```
+
+* You can check for the presence of some value in a set using the `in` operator:
+
+```python
+>>> "p" in set("spam")
+True
+>>>
+```
+
+### Decimals and Fractions
+
+* `Decimal` type is a fixed-precision floating number type:
+
+```python
+>>> import decimal
+>>>
+>>> d = decimal.Decimal('3.141')
+>>> d
+Decimal('3.141')
+>>>
+>>> d + 1
+Decimal('4.141')
+>>>
+>>> decimal.getcontext().prec = 2
+>>>
+>>> decimal.Decimal('1.00') / decimal.Decimal('3.00')
+Decimal('0.33')
+>>>
+>>>
+```
+
+* Fractions `numerator / denominator`:
+
+```python
+>>> from fractions import Fraction
+>>>
+>>> f1 = Fraction(2, 3)
+>>> f1
+Fraction(2, 3)
+>>>
+>>> f2 = Fraction(3, 3)
+>>> f2
+Fraction(1, 1)
+>>>
+>>> f1 + f2
+Fraction(5, 3)
+>>>
+```
+
+### True, False and None
+
+* Python has booleans `True` and `False` which are `1` and `0` with some display logic:
+
+```python
+>>> True + True
+2
+>>>
+>>> False - True
+-1
+>>> int(True)
+1
+>>>
+>>> int(False)
+0
+>>>
+```
+
+* And a placeholder object that means no-value: `None`:
+
+```python
+>>> name_to_be_defined = None
+>>> name_to_be_defined is None # None is a singleton!
+True
+>>>
+>>> name_to_be_defined
+>>> print(name_to_be_defined)
+None
+>>>
+```
+
+### `type(object)` and how to not use it
+
+* In Python you can get the `type`, the `class`, of any object using the `type(obj)` builtin:
+
+```python
+>>> type(None)
+NoneType
+>>>
+>>> type(10)
+int
+>>>
+>>> type("Example")
+str
+>>>
+>>> type(3.14)
+float
+>>>
+>>> import decimal
+>>>
+>>> type(decimal.Decimal('114.5'))
+decimal.Decimal
+>>>
+```
+
+* Type checking is something we avoid in Python, leveraging duck typing (polymorphism), but you can do in three main forms:
+
+```python
+>>> l = [1, 2, 3]
+>>>
+>>> type(l) == type([])
+True
+>>>
+>>> type(l) == list
+True
+>>>
+>>> isinstance(l, list)
+True
+>>>
+```
+
+### User-defined classes
+
+* You can create new classes using the core types, thus extending them:
+
+```python
+>>> class Employee:
+...     def __init__(self, name, pay):
+...         self.name = name
+...         self.pay = pay
+...     def last_name(self):
+...         return self.name.split()[-1]
+...     def give_raise(self, raise_amount):
+...         self.pay += raise_amount
+...         return self.pay
 ...
+>>>
+>>> e1 = Employee("John Doe", 1000)
+>>> e1.last_name()
+'Doe'
+>>>
+>>> e1.pay
+1000
+>>> e1.name
+'John Doe'
+>>>
+>>> e1.give_raise(1000)
+2000
+>>> e1.pay
+2000
+>>>
+```
+
+## Numeric Types
+
