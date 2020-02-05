@@ -1579,3 +1579,47 @@ True
 
 ## Numeric Types
 
+### Numeric literals
+
+* Python numeric literals:
+
+```python
+>>> 123, -21, 999999999999999999999999999999999999 # Integer. Unlimited size.
+(123, -21, 999999999999999999999999999999999999)
+>>> 1.23, -2.3, 1.2123131231119881238111           # Floats. Implemented as C doubles. Precision dependes on the compiler. If precision is important, use a Decimal.
+(1.23, -2.3, 1.2123131231119881)
+>>>
+>>> 0o123, 0x9ff, 0b010101                         # Integer declared as octa, hexa and binary
+(83, 2559, 21)
+>>>
+>>> set("spam"), {"s", "p", "a", "m"}              # sets
+({'a', 'm', 'p', 's'}, {'a', 'm', 'p', 's'})
+>>>
+>>> bool(object), True, False                      # bool() builtin, which returns the boolean value of any object and the singletons True and False
+(True, True, False)
+```
+
+* To convert an `int` to hexadecimal, octal or binary:
+
+```python
+>>> i = 10
+>>>
+>>> hex(i), oct(i), bin(i)
+('0xa', '0o12', '0b1010')
+>>>
+```
+
+* To convert a string to an int:
+
+```python
+>>> int('5')
+5
+>>>
+>>> # If the string is in somebase, pass it to int()
+>>> int('0b010101', 2)
+21
+>>>
+```
+
+### Built-in numeric tools
+
