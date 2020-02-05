@@ -1609,7 +1609,7 @@ True
 >>>
 ```
 
-* To convert a string to an int:
+* To convert a string to an int use `int(st, [base])`:
 
 ```python
 >>> int('5')
