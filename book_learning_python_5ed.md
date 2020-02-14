@@ -1621,5 +1621,281 @@ True
 >>>
 ```
 
-### Built-in numeric tools
+### Numbers in Action
+
+* Python promotes different numeric types in expressions to the more complex type (`int` -> `float` -> `complex`);
+
+* Operators mean different things on different objects and can be overloaded in your classes definitions.
+
+* Python 2 and 3 difference on divisions:
+
+```python
+#!/usr/bin/env python2
+>>> 10 / 2 # only integers, integer result
+5
+>>> 10 / 2.0 # if one is float, result is float
+5.0
+>>>
+```
+
+```python
+#!/usr/bin/env python3
+>>> 10 / 2 # always float
+5.0
+>>> 10 / 2.0 # always float
+5.0
+>>>
+>>> 10 // 2 # if all are integers and you want a truncated-int result, use //
+5
+>>>
+>>> 10 // 2.0 # if one is float, the result is float, even when truncated.
+5.0
+>>>
+```
+
+### Numeric display formats
+
+* Both functions `repr` and `str` convert an object to a string representation. `repr` returns a code-like representation and `str`, a user friendly version:
+
+```python
+>>> repr('spam')
+"'spam'"
+>>> print('spam')
+spam
+>>>
+```
+
+* In Python 3 you can use `str` to decode a bytestring into an unicode string:
+
+```python
+#!/usr/bin/env python3
+>>> bstr = b'xyz'
+>>> bstr
+b'xyz'
+>>>
+>>> converted = str(bstr, "utf8") # the same as bstr.decode("utf8")
+>>> converted
+'xyz'
+>>>
+```
+
+* Python also promotes types in comparisons. And different numeric types can be compared between them.
+
+* Python allows chained comparisons, which are an efficient way to create range tests:
+
+```python
+>>> 2 < 3 < 4
+True
+>>>
+>>> # The same as
+>>> 2 < 3 and 3 < 4
+True
+>>>
+```
+
+* Chained comparisons can use any operatos and have arbitrary lengths:
+
+```python
+>>> 2 < 3 != 5 > 1
+True
+>>>
+>>> # The same as
+>>> 2 < 3 and 3 != 5 and 5 > 1
+True
+>>>
+```
+
+* Remember, `float` is imprecise (they have a limited number of bits to represent the number). What can lead to unexpected results:
+
+```python
+>>> 1.1 + 2.2 == 3.3
+False
+>>> 1.1 + 2.2
+3.3000000000000003
+>>>
+```
+
+If you want precision, use `Decimal`:
+
+```python
+>>> import decimal
+>>> decimal.getcontext().prec = 2
+>>> decimal.Decimal('1.1') + decimal.Decimal('2.2') == decimal.Decimal('3.3')
+True
+>>> decimal.Decimal('1.1') + decimal.Decimal('2.2')
+Decimal('3.3')
+>>>
+```
+
+### Division: Classic, Floor, and True
+
+* The true division operator `/` changed between Python 2 and 3.
+In 2, it truncates the result when both operands are integers, else returns a floating point.
+While in 3, it always returns a floating point.
+
+```python
+#!/usr/bin/env python2
+>>> 2 / 3
+0
+>>> 2 / 3.0
+0.6666666666666666
+>>>
+```
+
+```python
+#!/usr/bin/env python3
+>>> 2 / 3
+0.6666666666666666
+>>> 2 / 3.0
+0.6666666666666666
+>>>
+```
+
+* The floor division operator `//` in the other hand, always truncates the decimal part.
+It returns an integer when operands are integer, if not, a float:
+
+```python
+#!/usr/bin/env python3
+>>> 13 // 9
+1
+>>> 13 / 9
+1.4444444444444444
+>>>
+>>> 13 // 9.0
+1.0
+>>> 13 / 9.0
+1.4444444444444444
+>>>
+```
+
+> It works pretty much the same in Python 2.
+
+* If you want to change the true division operator behavior in Python 2 to be equal to Python 3, you can import a module from `__future__`:
+
+```python
+#!/usr/bin/env python2
+>>> 10 / 3
+3
+>>> 10 / 3.0
+3.3333333333333335
+>>>
+>>> from __future__ import division
+>>>
+>>> 10 / 3
+3.3333333333333335
+>>> 10 / 3.0
+3.3333333333333335
+>>>
+```
+
+* Mind that `//` really is a `floor` division. It rounds down the result to the closest-down integer.
+It matters for negatives only, as for positives truncation is the same as floor.
+
+```python
+>>> 10 / -2.3
+-4.347826086956522
+>>> 10 // -2.3
+-5.0
+>>>
+```
+
+* If you really want a truncated result, use `math.trunc` or `int`:
+
+```python
+>>> import math
+>>>
+>>> 10 / -2.3
+-4.347826086956522
+>>> 10 // -2.3
+-5.0
+>>>
+>>> math.trunc( 10 / -2.3 )
+-4
+>>> int( 10 / -2.3 )
+-4
+>>>
+```
+
+### Integer precision
+
+* Python integers can grow, limited only by the memory avaiable:
+
+```python
+>>> 2 ** 3000
+1230231922161117176931558813276752514640713895736833715766118029160058800614672948775360067838593459582429649254051804908512884180898236823585082482065348331234959350355845017413023320111360666922624728239756880416434478315693675013413090757208690376793296658810662941824493488451726505303712916005346747908623702673480919353936813105736620402352744776903840477883651100322409301983488363802930540482487909763484098253940728685132044408863734754271212592471778643949486688511721051561970432780747454823776808464180697103083861812184348565522740195796682622205511845512080552010310050255801589349645928001133745474220715013683413907542779063759833876101354235184245096670042160720629411581502371248008430447184842098610320580417992206662247328722122088513643683907670360209162653670641130936997002170500675501374723998766005827579300723253474890612250135171889174899079911291512399773872178519018229989376
+>>>
+```
+
+### Hex, Octal, Binary: Literals and Conversions
+
+* Python provides alternative ways to declare integer. Using binary, octal or hexadecimal notations:
+
+```python
+>>> 0b1, 0b10000 # binary: 0b prefix
+(1, 16)
+>>> 0o1, 0o20    # octal: 0o prefix
+(1, 16)
+>>> 0x1, 0x10    # hex: 0x prefix
+(1, 16)
+>>>
+```
+
+> Mind that it is just *written* in these notations, Python converts it to a decimal integer and stores.
+
+* Python always store and presents integers in their decimal form. However, you can format their output using some builtins:
+
+```python
+>>> value = 1234
+>>>
+>>> print(bin(value)) # binary
+0b10011010010
+>>> print(oct(value)) # octal
+0o2322
+>>>
+>>> print(hex(value)) # hexadecimal
+0x4d2
+>>>
+```
+
+* The other way, convert a string into a base different then decimal into an integer, you can use `int(str, base_number)`:
+
+```python
+>>> value = 1234
+>>> binary = bin(value)
+>>> octal = oct(value)
+>>> hexa = hex(value)
+>>>
+>>> binary, octal, hexa
+('0b10011010010', '0o2322', '0x4d2')
+>>>
+>>> int(binary, 2)
+1234
+>>> int(octal, 8)
+1234
+>>> int(hexa, 16)
+1234
+>>>
+>>> # 10 base is the default
+>>> int('1234')
+1234
+>>> int('1234', 10)
+1234
+>>>
+```
+
+* You can also convert the integers to other bases directly in the string:
+
+```python
+>>> value = 1234
+>>> binary = bin(value)
+>>> octal = oct(value)
+>>> hexa = hex(value)
+>>>
+>>> binary, octal, hexa
+('0b10011010010', '0o2322', '0x4d2')
+>>>
+>>> print(f"{value:b} / {value:o} / {value:x}")
+10011010010 / 2322 / 4d2
+>>>
+```
 
