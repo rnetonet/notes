@@ -1899,3 +1899,370 @@ It matters for negatives only, as for positives truncation is the same as floor.
 >>>
 ```
 
+### Bitwise Operations
+
+* Bitwise operations interpret the integers as binary strings and operate on them. Mind that the returned value is a decimal integer:
+
+```python
+>>> value = 1
+>>> bin(value)
+'0b1'
+>>>
+>>> value << 2
+4
+>>> bin(value << 2)
+'0b100'
+>>>
+```
+
+* Other logical bitwise operations:
+
+```python
+>>> a = 1
+>>> b = 2
+>>>
+>>> bin(a), bin(b)
+('0b1', '0b10')
+>>>
+>>> a | b # or. 1 if either bit is 1.
+3
+>>> bin(a | b) # or. 1 if either bit is 1.
+'0b11'
+>>>
+>>> a & b # and. 1 if both bits are 1.
+0
+>>> bin(a & b) # and. 1 if both bits are 1.
+'0b0'
+>>>
+```
+
+* To know how many bits an integer takes to be represented as binary, use `bit_length` method:
+
+```python
+>>> a = 10
+>>> b = 1000
+>>> a.bit_length()
+4
+>>> b.bit_length()
+10
+>>> bin(a), bin(b)
+('0b1010', '0b1111101000')
+>>>
+```
+
+### Other Built-in Numeric Tools
+
+* Other numeric tools provided by the `math` module:
+
+```python
+>>> import math
+>>> # Constants
+>>> math.pi, math.e
+(3.141592653589793, 2.718281828459045)
+>>>
+>>> # Sin, tangent and cosine
+>>> math.sin(3)
+0.1411200080598672
+>>> math.tan(3)
+-0.1425465430742778
+>>> math.cos(3)
+-0.9899924966004454
+>>>
+>>> # Square root
+>>> math.sqrt(9)
+3.0
+>>>
+>>> # Exponentiation (power)
+>>> math.pow(2, 4)
+16.0
+>>>
+>>> # Builtins: abs value, summation, minimum, maximum
+>>> abs(-3)
+3
+>>> sum([1, 2, 3])
+6
+>>> min([1, 2, 3])
+1
+>>> max([1, 2, 3])
+3
+>>>
+```
+
+* `max()` and `min()` can receive multiple positional arguments instead of an iterator:
+
+```python
+>>> max(1, 2, 3)
+3
+>>> min(1, 2, 3)
+1
+>>>
+```
+
+* Ways to drop the decimal part of a float point number:
+
+```python
+>>> # Next lower integer
+>>> math.floor(3.14)
+3
+>>>
+>>> # Trucate. Drop the decimal part.
+>>> math.trunc(3.99)
+3
+>>>
+>>> # Another way to truncate
+>>> int(3.99)
+3
+>>>
+>>> # round > .5, up, else, down
+>>> round(2.567)
+3
+>>> round(2.500)
+2
+>>> # Round only part of the decimal part
+>>> round(2.567, 2) # round up to two decimal digits
+2.57
+>>>
+```
+
+* You can round directly during string formatation:
+
+```python
+>>> num = 3.467
+>>> print(f"{num:.2f}")
+3.47
+>>>
+```
+
+### `random` numbers
+
+* The `random` module allows the generation of random floats, ints, and to pick some item of an iterator randomly.
+
+```python
+>>> import random
+>>>
+>>> # random float between 0 and 1
+>>> random.random()
+0.34056710414897984
+>>> random.random()
+0.2017077255141171
+>>> random.random()
+0.008713778769984803
+>>>
+>>>
+>>> # random int between two ints
+>>> random.randint(1, 6)
+5
+>>> random.randint(1, 6)
+4
+>>> random.randint(1, 6)
+2
+>>>
+>>> # choose a random item in a sequence
+>>> random.choice(["John", "Paul", "Vincent"])
+'John'
+>>>
+>>> # shuffle (reorder) a sequence
+>>> seq = ["John", "Paul", "Vincent"]
+>>> random.shuffle(seq)
+>>> seq
+['John', 'Vincent', 'Paul']
+>>>
+```
+
+### Decimal type
+
+* The Decimal type is a fixed-precision float. You define how many digits the decimal part will have.
+And, beyond that, you define how the extra decimal digits are handled, allowing better numeric accuracy.
+
+
+* A simple example to prove the `float` type imprecision and how `Decimal` can help:
+
+```python
+>>> 0.1 + 0.1 + 0.1 - 0.3
+5.551115123125783e-17
+>>>
+>>> from decimal import Decimal
+>>>
+>>> Decimal('0.1') + Decimal('0.1') + Decimal('0.1') - Decimal('0.3')
+Decimal('0.0')
+>>>
+```
+
+* The `Decimal` type is a class provided by the `decimal` module. The precision is inherited from the value used in its creation:
+
+```python
+>>> Decimal(1)
+Decimal('1')
+>>>
+>>> Decimal('1.3')
+Decimal('1.3')
+>>> Decimal('1.30')
+Decimal('1.30')
+>>>
+>>> Decimal(1.3) # Ops! Maximum float precision used
+Decimal('1.3000000000000000444089209850062616169452667236328125')
+>>>
+>>>
+```
+
+* When used in operations, `Decimal` precision is promoted to the biggest `Decimal` involved in the operation:
+
+```python
+>>> Decimal('1.1') + Decimal('1.20') + Decimal('1.300')
+Decimal('3.600')
+>>>
+```
+
+* You can specify a global (for the calling Thread) the precision and extra digits resolution method through the `decimal` module `Context` object:
+
+```python
+>>> import decimal
+>>>
+>>> decimal.getcontext().prec = 2
+>>>
+>>> decimal.Decimal(1) / decimal.Decimal(7)
+Decimal('0.14')
+>>>
+>>> decimal.getcontext().prec = 4
+>>>
+>>> decimal.Decimal(1) / decimal.Decimal(7)
+Decimal('0.1429')
+>>>
+>>>
+>>> decimal.getcontext().prec = 2
+>>>
+>>> decimal.Decimal(1) / decimal.Decimal(7)
+Decimal('0.14')
+>>>
+```
+
+* Lastly, you can override the global precision using `decimal.localcontext()` and the `with` statement:
+
+```python
+>>> import decimal
+>>>
+>>> decimal.getcontext().prec = 3
+>>>
+>>> decimal.Decimal(1) / decimal.Decimal(7)
+Decimal('0.143')
+>>>
+>>> with decimal.localcontext() as ctx:
+...     ctx.prec = 6
+...     print( decimal.Decimal(1) / decimal.Decimal(7) )
+...
+0.142857
+>>>
+```
+
+### Fractions
+
+* Fractions represent rational numbers, which have a numerator and a denominator.
+Avoiding the conversion to a decimal (float) result, thus avoiding the imprecision.
+
+* Its use is very similar to `decimal.Decimal`, also being imported from a module `fractions`.
+
+> Fractions are simplified when created.
+
+* Basic usage:
+
+```python
+>>> from fractions import Fraction
+>>>
+>>> x = Fraction(1, 3)
+>>> y = Fraction(4, 6) # will be simplified
+>>>
+>>> x
+Fraction(1, 3)
+>>> y
+Fraction(2, 3)
+>>>
+>>> # Now, we can use them in mathematical operations
+>>> x + y
+Fraction(1, 1)
+>>>
+>>> x - y
+Fraction(-1, 3)
+>>>
+>>> x * y
+Fraction(2, 9)
+>>>
+>>> x / y
+Fraction(1, 2)
+>>>
+
+>>> # Fractions can be created from floating point number STRINGS
+>>>
+>>> Fraction('1.34')
+Fraction(67, 50)
+>>>
+>>> Fraction('0.25')
+Fraction(1, 4)
+>>>
+```
+
+* Conversions between `Fractions` and `floats` are possible:
+
+```python
+>>> v = 2.5
+>>> v.as_integer_ratio() # get a possible numerator and denominator tuple for a float value
+(5, 2)
+>>>
+>>> # Use the ratio to create a fraction
+>>> frac = Fraction(* v.as_integer_ratio() ) # * unpacks a tuple as positional args
+>>> frac
+Fraction(5, 2)
+>>>
+>>> # Convert frac back to float
+>>> float(frac)
+2.5
+>>>
+>>> # And, to create a Fraction directly from float
+>>> Fraction.from_float(2.5)
+Fraction(5, 2)
+>>>
+>>> Fraction(2.5)
+Fraction(5, 2)
+>>>
+>>> Fraction('2.5')
+Fraction(5, 2)
+>>>
+```
+
+* If you use a `Fraction` with a `float` in an expression, the result is a `float`. Else, always a `Fraction`:
+
+```python
+>>> f = Fraction(3, 4)
+>>> f
+Fraction(3, 4)
+>>>
+>>> f + 1
+Fraction(7, 4)
+>>>
+>>> f + 1.5
+2.25
+>>>
+>>> f * f
+Fraction(9, 16)
+>>>
+```
+
+* To handle imprecise rations, use `limit_denominator()`:
+
+```python
+>>> # Sometimes, the integer ratio is unprecise
+>>> fl = 4.0 / 3.0
+>>> fl
+1.3333333333333333
+>>>
+>>> fr = Fraction(*fl.as_integer_ratio())
+>>> fr
+Fraction(6004799503160661, 4503599627370496)
+>>>
+>>> fr.limit_denominator(10) # round the fraction to this denominator or lower, if simplifiable
+Fraction(4, 3)
+>>>
+```
+
+### Sets
+
+...
