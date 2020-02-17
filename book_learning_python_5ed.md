@@ -2265,4 +2265,387 @@ Fraction(4, 3)
 
 ### Sets
 
-...
+* Collection of **unique** and **immutable** objects that support set theory operations.
+
+* Sets are **mutable** but can only hold **immutable** objects:
+
+```python
+>>> s = {1, 'b', [4, 5, 6]}
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-1-9527d1eb6911> in <module>
+----> 1 s = {1, 'b', [4, 5, 6]}
+
+TypeError: unhashable type: 'list'
+>>>
+```
+
+* Thus, a `set` can not contain another `set`:
+
+```python
+>>> sa = {1, 2, 3}
+>>> sb = {sa, 4, 5, 6} # Ops! Sets are mutable!
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-3-39f2d0362c71> in <module>
+----> 1 sb = {sa, 4, 5, 6} # Ops! Sets are mutable!
+
+TypeError: unhashable type: 'set'
+>>>
+
+```
+
+* Old way to create a `set`:
+
+```python
+>>> x = set('abcde')
+>>> y = set('bdxyz')
+>>>
+>>> x, y
+({'a', 'b', 'c', 'd', 'e'}, {'b', 'd', 'x', 'y', 'z'})
+>>>
+>>> x - y # difference
+{'a', 'c', 'e'}
+>>>
+>>> x | y # union
+{'a', 'b', 'c', 'd', 'e', 'x', 'y', 'z'}
+>>>
+>>> x & y # intersection
+{'b', 'd'}
+>>>
+>>> x ^y  # symmetric difference (XOR)
+{'a', 'c', 'e', 'x', 'y', 'z'}
+>>>
+>>> x > y, x < y # superset, subset
+(False, False)
+>>>
+```
+
+* You can test membership in a set using `in`:
+
+```python
+>>> x = set('abcde')
+>>>
+>>> x
+{'a', 'b', 'c', 'd', 'e'}
+>>>
+>>> 'z' in x
+False
+>>>
+>>> 'e' in x
+True
+>>>
+```
+
+* Set operators produce **new** sets. Each operator has a correspondent `method`. Sets also provides some method to change it in-place:
+
+```python
+>>> x = set('abcde')
+>>> y = set('bdxyz')
+>>>
+>>> x, y
+({'a', 'b', 'c', 'd', 'e'}, {'b', 'd', 'x', 'y', 'z'})
+>>>
+>>> z = x.intersection(y) # same as z = x & y
+>>>
+>>> z
+{'b', 'd'}
+>>>
+>>> z.update(set(['k', 'l'])) # in-place intersection
+>>> z
+{'b', 'd', 'k', 'l'}
+>>>
+>>> z.add('z') # add one item
+>>> z
+{'b', 'd', 'k', 'l', 'z'}
+>>>
+>>> z.remove('z') # remove an item by value
+>>> z
+{'b', 'd', 'k', 'l'}
+>>>
+```
+
+* `Sets` are sequences, then you can iterate over them, count - using `len()`, apply in comprehensions:
+
+```python
+>>> x = set('abcde')
+>>>
+>>> for letter in x: print(letter)
+e
+a
+c
+d
+b
+>>>
+>>> len(x)
+5
+>>>
+>>>
+```
+
+* The operators require both sides to bet sets. But, the set methods can receive any kind of iterable:
+
+```python
+>>> x = set('abcde')
+>>>
+>>> x
+{'a', 'b', 'c', 'd', 'e'}
+>>>
+>>> x.intersection(["a", "z"])
+{'a'}
+>>>
+>>> x
+{'a', 'b', 'c', 'd', 'e'}
+>>>
+```
+
+* Sets have a literal syntax also:
+
+```python
+>>> a = {1, 2, 3, 4}
+>>> b = set([1, 2, 3, 4])
+>>>
+>>> a
+{1, 2, 3, 4}
+>>> b
+{1, 2, 3, 4}
+>>>
+```
+
+* Sets are close cousins of dictionary keys. They are unique, unordered and immutable.
+Its so true that dictionary `.keys()` return a `view` object that supports many set operations.
+
+* Empty sets, however, should be created using the `set()` constructor:
+
+```python
+>>> emp = set()
+>>> emp
+set()
+>>>
+```
+
+> Note that an empty pair of curly braces `{}` produces an empty dictionary:
+
+```python
+>>> emp2 = {}
+>>> emp2
+{}
+>>> type( emp2 )
+dict
+>>>
+```
+
+* `set()` is the best way to convert sequences into sets:
+
+```python
+>>> set( [1, 2, 3] )
+{1, 2, 3}
+>>> set( (1, 2, 3) )
+{1, 2, 3}
+>>>
+```
+
+### Immutable constraints and frozen sets
+
+* Remember: `set` can only contain immutable types. So, you can't add `lists`, `dictionaries` or other `sets`:
+
+```python
+>>> s = set()
+>>>
+>>> s.add([1, 2, 3])
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-14-66452cf70b8f> in <module>
+----> 1 s.add([1, 2, 3])
+
+TypeError: unhashable type: 'list'
+>>>
+>>> s.add({"a": 1, "b": 2, "c": 3})
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-15-2791967cf8f1> in <module>
+----> 1 s.add({"a": 1, "b": 2, "c": 3})
+
+TypeError: unhashable type: 'dict'
+>>>
+>>> s.add({1, 2, 3})
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-16-2b7b42142396> in <module>
+----> 1 s.add({1, 2, 3})
+
+TypeError: unhashable type: 'set'
+>>>
+```
+
+* Immutable types can be added, as `tuples`:
+
+```python
+>>> s = set()
+>>>
+>>> s.add( (1, 2, 3) )
+>>> s
+{(1, 2, 3)}
+>>>
+>>> s.add("a")
+>>> s
+{(1, 2, 3), 'a'}
+>>>
+```
+
+* If you want an immutable `set`, use the `frozenset` variant:
+
+```python
+>>> fs = frozenset([1, 1, 2, 2, 3, 3])
+>>> fs
+frozenset({1, 2, 3})
+>>>
+>>> fs.add(4) # Ops!
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-24-debfc77a6c56> in <module>
+----> 1 fs.add(4) # Ops!
+
+AttributeError: 'frozenset' object has no attribute 'add'
+>>>
+>>> # frozenset can be present in other sets
+>>> s = set()
+>>> s.add(fs)
+>>> s.add(1)
+>>> s.add(2)
+>>> s.add(3)
+>>>
+>>> s
+{1, 2, 3, frozenset({1, 2, 3})}
+>>>
+```
+
+* Sets can also be created from comprehensions:
+
+```python
+>>> {x * x for x in (1, 2, 3)}
+{1, 4, 9}
+>>> {letter.upper() for letter in 'spam'}
+{'A', 'M', 'P', 'S'}
+>>>
+```
+
+### Sets use cases
+
+* Remove duplicates:
+
+```python
+>>> l = [1, 2, 1, 3, 4, 2, 2, 5]
+>>>
+>>> unique_l = set(l)
+>>> unique_l
+{1, 2, 3, 4, 5}
+>>>
+>>> unique_l_as_list = list(unique_l)
+>>> unique_l_as_list
+[1, 2, 3, 4, 5]
+>>>
+>>> sorted_unique_l_list = sorted(unique_l_as_list)
+>>> sorted_unique_l_list
+[1, 2, 3, 4, 5]
+>>>
+```
+
+> Rememver: the sort of the elements can be lost during the `set` conversion, because `sets` are inherently unordered.
+
+* Use set theory operations to find differences:
+
+```python
+>>> set([1, 3, 4]) - set([1, 2, 3, 5])
+{4}
+>>>
+>>> set('abcdefgh') - set('abdefghij')
+{'c'}
+>>> set('abcdefgh') ^ set('abdefghij')
+{'c', 'i', 'j'}
+>>> set('abcdefgh') & set('abdefghij')
+{'a', 'b', 'd', 'e', 'f', 'g', 'h'}
+>>>
+```
+
+* Order-neutral equality tests. Just convert both sequences to set, as the order is not taken into account for sets comparisons.
+The sets just need to be a subset of each other:
+
+```python
+>>> a = set([1, 2, 3, 4])
+>>> b = set([3, 2, 1, 1, 4])
+>>>
+>>> a == b
+True
+
+>>> a.issubset(b)
+True
+>>> b.issubset(a)
+True
+>>>
+
+>>> set('spam') == set('pams')
+True
+>>>
+```
+
+* You can use sets to hold "visited" items in sequences and avoid repetition.
+Remember that lists, tuples, etc, require linear search, while `dicts` and `sets` use hash-based searchs, which are faster.
+
+* An example:
+
+```python
+>>> engineers = {'bob', 'sue', 'ann', 'vic'}
+>>> managers = {'tom', 'sue'}
+>>>
+>>> 'bob' in engineers
+True
+>>> engineers & managers # who is engineer and manager
+{'sue'}
+>>> engineers | managers # who is not both
+{'ann', 'bob', 'sue', 'tom', 'vic'}
+>>>
+>>> engineers - managers # engineers who are not managers
+{'ann', 'bob', 'vic'}
+>>>
+>>> managers - engineers # managers who are not engineers
+{'tom'}
+>>>
+>>> engineers > managers # are all managers also engineers ? (superset)
+False
+>>> {'bob', 'sue'} < engineers # are both bob and sue engineers?
+True
+>>>
+>>> managers ^ engineers # who is not in both!
+{'ann', 'bob', 'tom', 'vic'}
+>>>
+>>> managers - engineers # all managers that are not engineers
+{'tom'}
+>>>
+```
+
+### Booleans
+
+* In essence Python's boolean values `True` and `False` are just the integers `1` and `0` modified to print diferently:
+
+```python
+>>> True + True
+2
+>>>
+>>> False - True
+-1
+>>> int(True)
+1
+>>> int(False)
+0
+>>> # bool() is a subclass of int
+>>> issubclass(bool, int)
+True
+>>>
+```
+
+## Dynamic typing interlude
+
+
+
+
