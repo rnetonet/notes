@@ -2646,6 +2646,259 @@ True
 
 ## Dynamic typing interlude
 
+### Variables, objects and references
 
+* Variables (*names*) are created when declared.
 
+* Variables are simple links to objects, without inherent type information, which is tied to the object itself.
+
+* Variables are agnostic. Can point to any kind of object and can be *relinked* over thei lifetime.
+
+* Variables are replaced in expressions by the object they link to, thus they need to be assigned before use.
+Referecing unassigned variables in Python generate an exception.
+
+#### Distinguish name and objects
+
+* A variable assignment like:
+
+```python
+>>> a = 3
+>>>
+```
+
+Is handled by Python in 3 steps:
+
+1. Create an object `3` in memory;
+2. Create a variable `a`, if non existent;
+3. Link the variable `a` to the `3` object;
+
+* Variables and objects are stored in different parts of memory.
+
+* Variables always link to objects (**references**), and **never** to other variables.
+
+* But objects can contain links to other, intrisic, objects (e.g. list containing another list).
+
+* The links between variables and objects (references) are implemented as pointes in Python. Then, whenever a variable is used in an expression, its pointer is automatically followed by the Python interpreter and the pointed object returned.
+
+* In simpler english:
+
+    * Variables are entries in a table, with space for links to objects;
+
+    * Objects are memory spaces with data and code.
+
+    * References are automatically followed pointers from variables to objects.
+
+#### Types Live with Objects, Not Variables
+
+* Objects are memory spaces with its data, a reference counter (for gc) and a *type designator* field, to store the object type.
+
+* Look the following code:
+
+```python
+>>> a = 1
+>>> a = 'spam'
+>>> a = 3.14
+>>>
+```
+
+Before saying that the type of the variable `a` has changed, remember that variables have **no** type in Python. The type belongs to the object.
+What really happens is that the **name** `a` is reassigned to new objects.
+
+#### Objects are garbage collected
+
+* Python objects keep a reference counter, when this number reachs zero (no more references to it in the code), the interpreter garbage collects the objects, freeing the memory. Example:
+
+```python
+>>> x = 42
+>>> x = 'spam' # 42 is reclaimed
+>>> x = 3.14   # 'spam' is reclaimed
+>>> x = [1, 2, 3] # 3.14 is reclaimed
+>>>
+```
+
+### Shared References
+
+> Note: `id(object)` returns the object address in the memory.
+
+* Example:
+
+```python
+>>> a = 42
+>>> b = a   # a is replaced by "42", remember?
+>>>
+>>> id(a)
+94683459779616
+>>> id(b)
+94683459779616
+>>>
+```
+
+In the preceding code example, the `a` variable references an `int` object with value of `42`.
+
+Then, we create a new variable `b` and assign it to the `a` variable.
+But, during this assignment the `a` variable is replaced by the object it refers to, `42`. Thus, both `a` and `b` reference the same object, `42`.
+
+* Note that variables are never related. They can point to the same object as a coincidence, but changing one to reference a new object does not affect the other:
+
+```python
+>>> a = 42
+>>> b = a
+>>> a = 'spam'
+>>>
+>>> a
+'spam'
+>>> b
+42
+>>>
+```
+
+### Shared References and in-place changes
+
+* Some objects performe in-place change, for example, list assignments.
+
+* Considerating that objects are always passed by references, these objects can be changed in-place and reflect in the other references:
+
+```python
+>>> l = [1, 2, 3]
+>>> z = l
+>>>
+>>> l[0] = 3
+>>>
+>>> l
+[3, 2, 3]
+>>>
+>>> z
+[3, 2, 3]
+>>>
+>>> z[1] = 10
+>>> z
+[3, 10, 3]
+>>>
+>>> l
+[3, 10, 3]
+>>>
+```
+
+* But if you don´t want to share references, pass a copy. Example, with lists:
+
+```python
+>>> l = [1, 2, 3]
+>>> z = l[:] # copy!
+>>>
+>>> l[0] = 3
+>>> l
+[3, 2, 3]
+>>>
+>>> z
+[1, 2, 3]
+>>>
+>>> z[1] = 10
+>>> z
+[1, 10, 3]
+>>>
+>>> l
+[3, 2, 3]
+>>>
+```
+
+> To copy dicts and sets, use the object `.copy()` method. For lists, use the special slice syntax `[:]`.
+
+> You also can copy passing the core object to its type constructor:
+
+```python
+>>> l = [1, 2, 3]
+>>> z = list(l)
+>>>
+>>> l[0] = 3
+>>> l
+[3, 2, 3]
+>>>
+>>> z
+[1, 2, 3]
+>>>
+>>> z[1] = 10
+>>> z
+[1, 10, 3]
+>>>
+>>> l
+[3, 2, 3]
+>>>
+```
+
+> And there is a generic `copy` module that can performe shallow copies or deepcopies (objects descedent structure is also copied):
+
+```python
+>>> import copy
+>>>
+>>> orig = [ [1], [2], [3] ]
+>>>
+>>> cp = copy.copy(orig)
+>>> cp
+[[1], [2], [3]]
+>>>
+>>>
+>>> id( orig[0] )
+139970774568320
+>>>
+>>> id( cp[0] )
+139970774568320
+>>>
+>>>
+>>> dcp = copy.deepcopy(orig)
+>>>
+>>> dcp
+[[1], [2], [3]]
+>>>
+>>> id( orig[0] )
+139970774568320
+>>> id( dcp[0] )
+139970774283712
+>>>
+```
+
+### Shared References and Equality
+
+* Python provides two ways to compare objects.
+
+The first, compares the object data. If its equal in both (`==`):
+
+```python
+>>> a = [1, 2, 3]
+>>> b = [1, 2, 3]
+>>>
+>>> a == b
+True
+>>>
+```
+
+The other (`is`) compare if both variables point to the same `memory address` (reference):
+
+```python
+>>> a = [1, 2, 3]
+>>> b = a
+>>>
+>>> a is b
+True
+>>>
+>>> id(a), id(b)
+(139970775002048, 139970775002048)
+>>>
+```
+
+```python
+>>> a = [1, 2, 3]
+>>> b = [1, 2, 3]
+>>>
+>>> a == b
+True
+>>>
+>>> a is b
+False
+>>>
+>>> id(a), id(b)
+(139970774753216, 139970775003328)
+>>>
+```
+
+### Dynamic Typing Is Everywhere
 
