@@ -2902,3 +2902,400 @@ False
 
 ### Dynamic Typing Is Everywhere
 
+* Everything work by reference in Python. Variables are pointers (references) to objects.
+
+* These variables, when used in expressions, are replaced by the object itself.
+
+* If you assign a variable to another, the new variable will point to the object of the original variable also.
+
+* A variable does not references another variable, never.
+
+* `weakref` are references that dont prevent the object of being garbage collected. You can create them using the `weakref` module.
+
+## String fundamentals
+
+### Unicode: the short story
+
+* Python unicode support:
+
+    * `str` is an unicode text;
+    * `bytes` is a binary data (remember: encode text is binary data also;
+    * `bytearray` is a mutable `bytes`;
+    * Files have two modes:
+        * `text` (unicodes) and `binary`
+
+### String literals
+
+* Strings are immutable sequences
+
+* There are multiple ways to create a string:
+
+```python
+>>> # Ways to create a string
+>>> s1 = 'sp"am'
+>>> s1
+'sp"am'
+>>>
+>>> s2 = "sp'am"
+>>> s2
+"sp'am"
+>>>
+>>> s3 = '''
+... multiple
+... lines
+... "spam"
+... '''
+>>> s3
+'\nmultiple\nlines\n"spam"\n'
+>>>
+>>> s4 = """
+... multiple
+... lintes
+... 'spam'
+... """
+>>> s4
+"\nmultiple\nlintes\n'spam'\n"
+>>>
+>>> s5 = "s\tp\na\0m"
+>>> s5
+'s\tp\na\x00m'
+>>> print(s5)
+s       p
+am
+>>>
+>>> s6 = r"c:\windows\test.spm"
+>>> s6
+'c:\\windows\\test.spm'
+>>>
+>>> s7 = b"sp\x01am"
+>>> s7
+b'sp\x01am'
+>>> print(s7)
+b'sp\x01am'
+>>>
+>>> print(s7.decode())
+spam
+>>>
+>>>
+```
+
+* Single quotes and double quotes have the same effect, but using one allows you to embed the other inside the string without escaping:
+
+```python
+>>> "knight's"
+"knight's"
+>>> 'knight"s'
+'knight"s'
+>>>
+```
+
+* Strings put side by side are automatically concatenated. But avoid it, explictly use the `+` operator:
+
+```python
+>>> "hello" " " "world"
+'hello world'
+>>> ("hello"
+... " "
+... "world")
+'hello world'
+>>>
+```
+
+#### Escape sequences and special characters
+
+* You can escape some special characters inside strings, avoiding their special mining in Python syntax:
+
+```python
+>>> 'knight\'s'
+"knight's"
+>>> "knight\"s"
+'knight"s'
+>>>
+```
+
+* Backslashes allow the insertion of special characters in strings.
+
+* The pair backslash and a char (e.g. `\t`) is replaced by a single char in the resulting string, which has the binary value specified by the escape sequence. For example, the following string results in a five-character string length:
+
+```python
+>>> s = 'a\nb\tc'
+>>> s
+'a\nb\tc'
+>>> print(s)
+a
+b       c
+>>> len(s)
+5
+>>>
+```
+
+* These escape sequences are usually only interpreted by the `print` function. The default, `repr()`, shell feedback does not interpret it.
+
+```python
+>>> s = "a\nb\tc"
+>>> repr(s)
+"'a\\nb\\tc'"
+>>> print(s)
+a
+b       c
+>>> s
+'a\nb\tc'
+>>>
+>>>
+>>> print(repr(s))
+'a\nb\tc'
+>>>
+```
+
+* Escape sequences are read as a single char:
+
+```python
+>>> s = "a\nb\tc"
+>>>
+>>> s
+'a\nb\tc'
+>>>
+>>> print(s)
+a
+b       c
+>>>
+>>> len(s)
+5
+>>>
+```
+
+#### Unicode and bytes
+
+* For the tenth time, bytes have no meaning or relation in the unicode world. The ASCII encoding that coincidently represents each char with a single byte. Besides that, bytes have no direct relation whatsoever with unicode characters.
+
+* Strings (`str` in Python 3 and `unicode` in Python 2) are sequences of **code points**.
+
+#### List of escape sequences
+
+```python
+>>> # newline
+>>> print("a\nb")
+a
+b
+>>>
+>>> # backslash
+>>> print("\\test")
+\test
+>>>
+>>> # single quote
+>>> print('hello \'world\'')
+hello 'world'
+>>>
+>>> # double quote
+>>> print("hello \"world\"")
+hello "world"
+>>>
+>>> # bell
+>>> print("bell: \a")
+bell:
+>>>
+>>> # backspace
+>>> print("a \b x")
+a x
+>>> print("a \b\b x")
+ x
+>>> print("a \bx")
+ax
+>>> # formfeed
+>>> print("a\fb")
+a
+ b
+>>> # horizontal tab
+>>> print("a\tb")
+a       b
+>>> # vertical tab
+>>> print("a\vb")
+a
+ b
+>>> # character with hex value (two digits)
+>>> print("\x19")
+
+>>> print("\x99")
+
+>>> print("\xAF")
+¯
+>>> print("\xAE")
+®
+>>>
+>>> # character with octal value (up to three digits)
+>>> print("\123")
+S
+>>>
+>>> # null: binary 0 character (string end in C, but no effect in Python)
+>>> print("a\0b")
+ab
+>>>
+>>> # unicode char by id
+>>> print("\N{asterisk}")
+*
+>>>
+>>> # unicode character with 16 hex value (4 digits)
+>>> print("\u24C2")
+Ⓜ
+>>>
+>>> # unicode character with 32 hex value (8 digits)
+>>> print("\U0001F601")
+😁
+>>>
+>>> # if the escape sequence is not recognized, python just keeps the backslash and the other char in th
+... e resulting string
+>>>
+>>> print("c:\python\way")
+c:\python\way
+>>> repr("c:\python\way") # represented as \\
+"'c:\\\\python\\\\way'"
+>>>
+>>> print(repr("c:\python\way")) # represented as \\
+'c:\\python\\way'
+>>>
+>>> len("c:\python\way")
+13
+>>>
+```
+
+#### Avoid escape sequences using `r`aw strings
+
+* `r`aw strings avoid escape sequences interpretation. Useful for file paths, for example:
+
+```python
+>>> file_path = r"c:\new\path\for\the\file.txt"
+>>> file_path
+'c:\\new\\path\\for\\the\\file.txt'
+>>>
+>>> # you can avoid the "r" prefix escaping the backslashs
+>>>
+>>> file_path = "c:\\new\\path\\for\\the\\file.txt"
+>>> file_path
+'c:\\new\\path\\for\\the\\file.txt'
+>>> print(file_path)
+c:\new\path\for\the\file.txt
+>>>
+```
+
+> Again, remember that default shell output uses the `repr()` representation, which tries to mimic the literal code representation of the object. To have a friendly output, you need to use `print()`:
+
+```python
+>>> file_path = r"c:\new\path\for\the\file.txt"
+>>>
+>>> # repr, code-like representation
+>>> file_path
+'c:\\new\\path\\for\\the\\file.txt'
+>>>
+>>> # friendly, using print
+>>> print(file_path)
+c:\new\path\for\the\file.txt
+>>>
+```
+
+> In Python you can use forward slashes for file paths in both windows and unix environments:
+
+```python
+>>> # would work the same as: open(r"c:\windows\system32\hosts")
+>>> open("c:/windows/system32/hosts")
+```
+
+#### Triple quotes for multiline strings
+
+* You start and end with thee (single or double) quotes. You can embed escape sequences or single / double quotations. The strings ends only when another three are found:
+
+```python
+>>> a = """
+... Roses are red
+... Violets are blue
+... "Spam"
+... 'Eggs'
+... """
+>>> a
+'\nRoses are red\nViolets are blue\n"Spam"\n\'Eggs\'\n'
+>>> print(a)
+
+Roses are red
+Violets are blue
+"Spam"
+'Eggs'
+
+>>>
+```
+
+* Spaces are taken into account:
+
+```python
+>>> b = """
+... Roses are red
+...       Violets are blue
+... "Spam"
+...    'Eggs'
+... """
+>>>
+>>> b
+'\nRoses are red\n      Violets are blue\n"Spam"\n   \'Eggs\'\n'
+>>>
+>>> print(b)
+
+Roses are red
+      Violets are blue
+"Spam"
+   'Eggs'
+
+>>>
+```
+
+* Triple quotes are also used for commenting code. But, avoid this if you can.
+
+
+### Strings in Action
+
+#### Basic operations
+
+* Concatenation and repetition:
+
+```python
+>>> # Concatenate
+>>> s = "a" + "B"
+>>> s
+'aB'
+>>>
+>>> # Concatenate side by side
+>>> s = "a" "B"
+>>> s
+'aB'
+>>>
+>>> # Repetition
+>>> s = "a" * 4
+>>> s
+'aaaa
+```
+
+```python
+>>> print("-" * 80, "\n message \n", "-" * 80)
+--------------------------------------------------------------------------------
+ message
+--------------------------------------------------------------------------------
+>>>
+```
+
+* Iteration `for` and membership test using `in`
+
+```python
+>>> for letter in "spam":
+...     print(letter * 2)
+...
+ss
+pp
+aa
+mm
+>>>
+>>> "s" in "spam"
+True
+>>>
+>>> "pam" in "spam"
+True
+>>>
+```
+
+#### Indexing and slicing
