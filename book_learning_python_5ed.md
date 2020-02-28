@@ -3299,3 +3299,286 @@ True
 ```
 
 #### Indexing and slicing
+
+* Indexing allows access to characters in a string by offset. Starting with `0` to `len(string) - 1`:
+
+```python
+>>> s = "spam"
+>>>
+>>> s[0]
+'s'
+>>> s[1]
+'p'
+>>> s[2]
+'a'
+>>> s[3]
+'m'
+>>>
+```
+
+* You can use negative offsets, which are added to the `len(string)`, generating a positive offset:
+
+```python
+>>> s = "spam"
+>>>
+>>> s[-1]
+'m'
+>>> s[len(s) - 1]
+'m'
+>>>
+>>> s[-2]
+'a'
+>>> s[len(s) - 2]
+'a'
+>>>
+>>> s[-3]
+'p'
+>>> s[len(s) - 3]
+'p'
+>>>
+>>>
+```
+
+* Slices permit the extraction of subsequences of characters:
+
+```python
+>>> s = "spam"
+>>>
+>>> s[1:3]
+'pa'
+>>> s[1:] # the second position defaults to len(s)
+'pam'
+>>> s[1:len(s)]
+'pam'
+>>>
+>>> s[:-1] # the first position defaults to 0
+'spa'
+>>>
+>>> # remember that the last position is not included in the slice
+>>> s[0:3]
+'spa'
+>>> s[0:4]
+'spam'
+>>>
+```
+
+* In slices `[lower:upper]`, `lower` is inclusive but `upper` is noninclusive.
+
+```python
+>>> s = "spam"
+>>> s[0:3]
+'spa'
+>>> s[0:4]
+'spam'
+>>>
+```
+
+* In slices `[lower:upper]`, if you omit `lower` it defaults to `zero`, else, if you omit `upper`, it defaults to the length of the sequence being sliced.
+
+```python
+>>> s = "spam"
+>>>
+>>> s[0:]
+'spam'
+>>> s[:len(s)]
+'spam'
+>>> s[:]
+'spam'
+>>>
+```
+
+> Slices always return **new** objects with the fetched items. So its a common way to make copies of sequences `seq[:]`:
+
+```python
+>>> a = [1, 2, 3]
+>>> b = a[:]
+>>>
+>>> b[1] = 10
+>>>
+>>> a
+[1, 2, 3]
+>>> b
+[1, 10, 3]
+>>>
+```
+
+* Slices also support a third parameter know as step, that increments the index for each interation:
+
+```python
+>>> s = "hello world"
+>>>
+>>> s[::2] # indexes: 0, ..., 2, ..., 4...
+'hlowrd'
+>>>
+>>> s[::-1] # can be negative also. indexes: 0, -1, -2, -3...
+'dlrow olleh'
+>>>
+>>> s[5:1:-1] # you are, virtually, reversing the meaning of the lower and upper bound limits
+' oll'
+>>>
+```
+
+* Slice literals are just a sugar syntax for indexing with slice objects:
+
+```python
+>>> s = "hello world"
+>>> # Slice syntax is just sugar syntax for slice objects:
+>>> s[slice(None, None, 2)]
+'hlowrd'
+>>> s[slice(None, None, -1)]
+'dlrow olleh'
+>>> s[slice(5, 1, -1)]
+' oll'
+>>>
+```
+
+* One very common use of slices is to get the arguments passed for a script:
+
+```python
+import sys
+print(sys.argv[1:]) # 0 is the script name
+```
+
+* Another use is to drop the very last char of a string, which can be made:
+
+```python
+>>> s = "hello worldX"
+>>> print(s)
+hello worldX
+>>>
+>>> print(s[:-1])
+hello world
+>>>
+```
+
+> If you just want to remove newlines and other "space" chars, use the `.rstrip()` method of the `str` type, as slicing like the last example can cut off important chars.
+
+#### String conversion tools
+
+* To convert a string to `int`, use `int()`:
+
+```python
+>>> int("42") + int("-10")
+32
+>>>
+```
+
+* To convert any object to a human-friendly string representation, use `str()`:
+
+```python
+>>> str(3.14111222229213121319232139111)
+'3.141112222292131'
+>>>
+>>>
+```
+
+* To get a literal code representation, use `repr()`:
+
+```python
+>>> s = """
+... spam
+... eggs
+... bacon
+...     test
+... """
+>>> repr(s)
+"'\\nspam\\neggs\\nbacon\\n    test\\n'"
+>>>
+```
+
+* To convert to float use `float`:
+
+```python
+>>> float("3.1441111223111")
+3.1441111223111
+>>>
+```
+
+* `float`s can be converted to string using `str` also:
+
+```python
+>>> str(3.1411131)
+'3.1411131'
+>>>
+```
+
+* You can, but should not, convert strings to numeric types using the `eval()` builtin function:
+
+```python
+>>> eval("3.14") + eval("12")
+15.14
+>>>
+```
+
+> Avoid!
+
+#### Character code conversions
+
+* Convert a char to its numeric value using `ord()`:
+
+```python
+>>> ord("a"), ord("b"), ord("c")
+(97, 98, 99)
+>>>
+```
+
+* To convert a numeric value to a char, use `chr()`:
+
+```python
+>>> chr(97), chr(98), chr(99)
+('a', 'b', 'c')
+>>>
+```
+
+> These numbers represent the underlying unicode codepoint. In Python 3, usually the `utf-8`.
+
+#### Changing strings 1
+
+* Strings are immutable. To "change" a string you have to create a new one, using concatenation, slicing, etc:
+
+```python
+>>> s = "spam"
+>>> s = "spam" + " " + "SPAM!"
+>>> s
+'spam SPAM!'
+>>>
+
+>>> s = "hello world"
+>>> s = s[-1:-6:-1] + s[:5]
+>>> s
+'dlrowhello'
+>>>
+```
+
+* Strings provide some methods that change (really, create new strings):
+
+```python
+>>> s = "Hello World"
+>>> # Create new string. Does not change in-place.
+>>>
+>>> s.replace("World", "Bakery")
+'Hello Bakery'
+>>>
+>>> # Original, unchanged
+>>> s
+'Hello World'
+>>>
+>>> s = s.replace("World", "Stadium")
+>>> s
+'Hello Stadium'
+>>>
+```
+
+* Formatting also creates new strings:
+
+```python
+>>> a = "Hello"
+>>> b = "World"
+>>>
+>>> print("{} {}!!!".format(b, a))
+World Hello!!!
+>>>
+```
+
+### String methods
+
