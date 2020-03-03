@@ -3582,3 +3582,1577 @@ World Hello!!!
 
 ### String methods
 
+* Replacing and finding substrings:
+
+```python
+>>> # Replace substring
+>>> s = "spammy"
+>>> s = s.replace("mm", "xx")
+>>> s
+'spaxxy'
+>>>
+>>> s = s.replace("xx", "zXzXzXzXzXzXzXzZx")
+>>> s
+'spazXzXzXzXzXzXzXzZxy'
+>>>
+>>> # Search the offset (index) where a substring starts in the main string
+>>> s = "hello world"
+>>> s.find("world")
+6
+>>> where = s.find("world")
+>>> s[where:]
+'world'
+>>>
+>>> # find returns -1 if not found
+>>> s.find("XXX")
+-1
+>>>
+```
+
+> Caution: `find()` has a semantic close to the `in` operator, but the fact it results `-1` when not found can lead to wrong results:
+
+```python
+>>> s = "spam"
+>>>
+>>> bool( "p" in s )
+True
+>>> bool( s.find("p") )
+True
+>>>
+>>> bool( "x" in s )
+False
+>>> bool( s.find("x") ) # Ops!
+True
+>>>
+>>> s.find("x")
+-1
+>>> bool(-1)
+True
+>>>
+```
+
+* Python's `replace()` replaces all occurrences, but you can limit it with a third argument:
+
+```python
+>>> s = "hello world"
+>>>
+>>> s.replace("l", "x")
+'hexxo worxd'
+>>>
+>>> s.replace("l", "x", 1) # only first
+'hexlo world'
+>>>
+>>> s.replace("l", "x", 2) # only first and second
+'hexxo world'
+>>>
+```
+
+* If you want to mimic a `bytearray` with an unicode string, explode it into a `list`, apply the changes, then `join` it as a string again:
+
+```python
+>>> s = "hello world"
+>>> s = list(s)
+>>> s
+['h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd']
+>>>
+>>> s[1] = 'i'
+>>> s[5] = 'z'
+>>>
+>>> s
+['h', 'i', 'l', 'l', 'o', 'z', 'w', 'o', 'r', 'l', 'd']
+>>>
+>>> s = "".join(s)
+>>> s
+'hillozworld'
+>>>
+```
+
+* `spit([delimiter])`. the default `delimiter` is one or more `whitespace` chars:
+
+```python
+>>> s = "aaa bbb     ccc  ddd"
+>>> s.split()
+['aaa', 'bbb', 'ccc', 'ddd']
+>>>
+>>> s2 = "aaa, bbb, ccc, ddd"
+>>> s2.split(",")
+['aaa', ' bbb', ' ccc', ' ddd']
+>>>
+>>> s3 = "a->b->c"
+>>> s3.split("->")
+['a', 'b', 'c']
+>>>
+```
+
+* Strip whitespace, convert case, check chars nature, check start or end:
+
+```python
+>>> line = "The knights who say Ni!\n"
+>>> line.rstrip()
+'The knights who say Ni!'
+>>>
+>>> line.upper()
+'THE KNIGHTS WHO SAY NI!\n'
+>>>
+>>> line.lower()
+'the knights who say ni!\n'
+>>>
+>>> line.isalpha() # all alphanumric?
+False
+>>>
+>>> line.startswith("The")
+True
+>>> line.endswith("\n")
+True
+>>>
+```
+
+### String formating
+
+* Python 3.6 introduced the awesome `f-strings`, which are strings with native support for interpolation. To create them, just prefix a string (single, double, or triple quotes) with an `f`:
+
+```python
+>>> name = "John"
+>>> message = f"Hello! {name}"
+>>> message
+'Hello! John'
+>>>
+>>> name = "Doe"
+>>> message # still the same!
+'Hello! John'
+>>>
+```
+
+> Note that the interpolation is done one time, when the line of code is interpreted, then it becomes a normal string.
+
+* `f-strings` allow you to evaluate any valid Python expression:
+
+```python
+>>> print(f"{5 + 5}")
+10
+>>> name = "john"
+>>>
+>>> print(f"{name.upper()}") # functions can be called
+JOHN
+>>>
+>>>
+```
+
+* `f-string` can be used in classes representations:
+
+```python
+>>> class Person:
+...     def __init__(self, name, age):
+...         self.name = name
+...         self.age = age
+...     def __str__(self):
+...         return f"{self.name} is {self.age} years old"
+...
+>>> john = Person("John", 19)
+>>> john
+<__main__.Person at 0x7f338b328430>
+>>> print(john)
+John is 19 years old
+>>>
+```
+
+* To display braces, use double braces:
+
+```python
+>>> print(f"{{name}}")
+{name}
+>>>
+```
+
+* To access dictionaries keys inside f-strings you have to use a different quotation:
+
+```python
+>>> data = {"name": "John", "age": 23}
+>>> data
+{'name': 'John', 'age': 23}
+>>>
+>>> print(f"{data['name']} is {data['age']} years old")
+John is 23 years old
+>>>
+```
+
+* Datetime format:
+
+```python
+>>> import datetime
+>>>
+>>> now = datetime.datetime.now()
+>>>
+>>> print(f"{now:%d/%m/%Y}")
+28/02/2020
+>>>
+```
+
+* Float precision:
+
+```python
+>>> val = 12.35678
+>>>
+>>> print(f"{val:.2f}")
+12.36
+>>> print(f"{val:.4f}")
+12.3568
+>>>
+```
+
+* Format width (with spaces or other char)
+
+```python
+>>> val = 3
+>>>
+>>> print(f"{val:10}") # 10 positions, filled with space
+         3
+>>> print(f"{val:010}") # 10 positions, filled with zero
+0000000003
+```
+
+* By default, f-strings are left-justified (`<`). But you can right-justify `>` or center justify `^`:
+
+```python
+>>> print(f"{val:<10}") # 10 positions, filled with space, left justified
+3
+>>> print(f"{val:^10}") # 10 positions, filled with space, center justified
+    3
+>>> print(f"{val:>10}") # 10 positions, filled with space, right justified
+         3
+>>>
+```
+
+* You can format numbers under different notations:
+
+```python
+>>> num = 300
+>>>
+>>> print(f"Hexadecimal: {num:x}")
+Hexadecimal: 12c
+>>> print(f"Octal: {num:o}")
+Octal: 454
+>>> print(f"Binary: {num:b}")
+Binary: 100101100
+>>> print(f"Scientific: {num:e}")
+Scientific: 3.000000e+02
+>>>
+```
+
+## Lists and Dictionaries
+
+### Lists
+
+* Lists are arrays of object references, which Python fecths when accessed.
+
+* When you assign to a data structure component or variable, a new reference to the same object in the right side is stored, unless you explictly require a copy.
+
+* Ways to declare:
+
+```python
+>>> # empty
+>>> l = []
+>>>
+>>> # literal
+>>> l = [1, "a", 3.14]
+>>> l
+[1, 'a', 3.14]
+>>>
+>>> # nested
+>>> x = [
+...     [1, 2, 3],
+...     [4, 5, 6],
+...     [7, 8, 9]
+... ]
+>>> x
+[[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+>>>
+```
+
+#### Basic list operations
+
+* Length, concatenation and repetition
+
+```python
+>>> # length
+>>> len([1, 2, 3])
+3
+>>>
+>>> # concatenation
+>>> [1, 2, 3] + [4, 5, 6]
+[1, 2, 3, 4, 5, 6]
+>>>
+>>> # repetition
+>>> [1, 2, 3] * 3
+[1, 2, 3, 1, 2, 3, 1, 2, 3]
+>>>
+```
+
+* Lists can be concatenated only with other lists
+
+```python
+>>> # lists can be concatenated only with other lists
+>>> [1, 2, 3] + (1, 2, 3)
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-8-9812ea45e4bd> in <module>
+----> 1 [1, 2, 3] + (1, 2, 3)
+
+TypeError: can only concatenate list (not "tuple") to list
+>>>
+>>> [1, 2, 3] + "aloha"
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-9-c24ae2a0b18d> in <module>
+----> 1 [1, 2, 3] + "aloha"
+
+TypeError: can only concatenate list (not "str") to list
+>>>
+```
+
+* Membership and iteration:
+
+```python
+>>> 10 in [1, 2, 3]
+False
+>>>
+>>> 3 in [1, 2, 3]
+True
+>>>
+>>> for x in [1, 2, 3]:
+...     print(x + 1)
+...
+...
+2
+3
+4
+>>>
+```
+
+* Comprehension and `map()`:
+
+```python
+>>> l = [c * 4 for c in 'spam']
+>>> l
+['ssss', 'pppp', 'aaaa', 'mmmm']
+>>>
+>>>
+>>> list(map(abs, [-1, -2, -3]))
+[1, 2, 3]
+>>>
+```
+
+* Indexing, slicing and matrixes:
+
+```python
+>>> # Indexing
+>>> l = [1, 'spam', 3.14]
+>>> l[0]
+1
+>>> l[1]
+'spam'
+>>> l[2]
+3.14
+>>>
+>>> # Slicing
+>>> l[1:3]
+['spam', 3.14]
+>>>
+>>> # Copy with slicing
+>>> l_copy = l[:]
+>>> l_copy
+[1, 'spam', 3.14]
+>>>
+>>> l[0] = 10
+>>> l
+[10, 'spam', 3.14]
+>>> l_copy
+[1, 'spam', 3.14]
+>>>
+>>> # Matrixes
+>>> l = [
+...     [1, 2, 3],
+...     [4, 5, 6],
+...     [7, 8, 9]
+... ]
+>>>
+>>> l[0] # entire row
+[1, 2, 3]
+>>> l[0][1] # element
+2
+>>> l[0][2]
+3
+>>>
+```
+
+#### Changing lists in-place
+
+* Lists are mutable. You can change their content, thus affecting all references to it.
+
+```python
+>>>
+>>> l = [1, "spam", 3.14, [10, 20, 30]]
+>>>
+>>> # Change through indexing
+>>> l[3] = 6.18
+>>> l
+[1, 'spam', 3.14, 6.18]
+>>>
+>>> # Change using slices
+>>> l[1:] = [2, 3, 4, 5]
+>>> l
+[1, 2, 3, 4, 5]
+>>>
+```
+
+* Slices assignments are really two operations. First, the selected indexes are deleted, then, the left side is inserted in the "empty space" (actually, in the first selected index and so on...). An example to help:
+
+```python
+>>> l = ["a", "b", "c", "d", "e"]
+>>>
+>>> l[0:2] = ["x", "y", "z"] # delete the indexes 0, 1 (remember 2 is not included) and insert x, y, zst
+... arting in index 0...
+>>> l
+['x', 'y', 'z', 'c', 'd', 'e']
+>>>
+```
+
+> Note that the left side can have more or less elements then the total of indexes selected.
+
+* Given this property, you can performe insertions (using an empty slice) or deletions:
+
+```python
+>>> l = ["a", "b", "c"]
+>>>
+>>> l[0:1] = ["x", "y", "z"] # replacement
+>>> l
+['x', 'y', 'z', 'b', 'c']
+>>>
+>>> l = ["a", "b", "c"]
+>>> l[0:0] = ["x", "y", "z"] # insertion. 0:0 is empty, so items are inserted in position 0 and so on
+>>> l
+['x', 'y', 'z', 'a', 'b', 'c']
+>>>
+>>> l = ["a", "b", "c"]
+>>> l[1:] = [] # deletes, but inserts nothing
+>>> l
+['a']
+>>>
+```
+
+* You can clear list using this syntax:
+
+```python
+>>> l = ["a", "b", "c"]
+>>>
+>>> l[:] = []
+>>> l
+[]
+>>>
+```
+
+* Or extend:
+
+```python
+>>> l = ["a", "b", "c"]
+>>>
+>>> l[-1:] = ["d", "e", "f"]
+>>> l
+['a', 'b', 'd', 'e', 'f']
+>>>
+>>> l[-1:] = ["g", "h", "i"]
+>>> l
+['a', 'b', 'd', 'e', 'g', 'h', 'i']
+>>>
+```
+
+* You should use for extension the more mnemonic `.extend()` method:
+
+```python
+>>> l = [1, 2, 3]
+>>>
+>>> l.extend([4, 5, 6])
+>>> l
+[1, 2, 3, 4, 5, 6]
+>>>
+```
+
+* Appending, in-place, to a list with `.append()`:
+
+```python
+>>> l = [1, 2, 3]
+>>> l.append(4)
+>>> l
+[1, 2, 3, 4]
+>>>
+>>> # Caution! append acts in-place, but + (concatenation) produces a new list
+>>> l + [5]
+[1, 2, 3, 4, 5]
+>>> l
+[1, 2, 3, 4]
+>>>
+```
+
+* Sorting in-place with the `.sort()` method:
+
+```python
+>>> # In-place, default ascending sort
+>>> l = [4, 1, 3, 2, 7, 0]
+>>>
+>>> l.sort() # in-place, ascending
+>>> l
+[0, 1, 2, 3, 4, 7]
+>>>
+>>> # Use reverse=True, to sort descending
+>>> l = [4, 1, 3, 2, 7, 0]
+>>>
+>>> l.sort(reverse=True) # in-place, descending
+>>> l
+[7, 4, 3, 2, 1, 0]
+>>>
+>>> # Use key= to specify a function to be applied to elements before comparisons
+>>> l = ["Abc", "bAc", "CdA"]
+>>> l.sort()
+>>> l
+['Abc', 'CdA', 'bAc']
+>>>
+>>> # specify a function to be applied to each element before comparison
+>>> l = ["Abc", "bAc", "CdA"]
+>>> l.sort(key=str.lower)
+>>> l
+['Abc', 'bAc', 'CdA']
+>>>
+```
+
+* You cant sort mixed types:
+
+```python
+>>> l = [1, "a", 3.14]
+>>> l.sort()
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-71-fb07ac7c73ab> in <module>
+----> 1 l.sort()
+
+TypeError: '<' not supported between instances of 'str' and 'int'
+>>>
+```
+
+* You can also sort using the builtin `sorted()` function, which returns a new object instead of modifying the source object in place. It accepts the same arguments as the `.sort()` method:
+
+```python
+>>> l = [4, 1, 3, 2, 7, 0]
+>>>
+>>> sorted(l) # new list, sorted ascending
+[0, 1, 2, 3, 4, 7]
+>>>
+>>> l
+[4, 1, 3, 2, 7, 0]
+>>>
+>>> sorted(l, reverse=True) # new list, sorted descending
+[7, 4, 3, 2, 1, 0]
+>>>
+>>> l
+[4, 1, 3, 2, 7, 0]
+>>>
+>>> l = ["Abc", "bAc", "CdA"]
+>>>
+>>> sorted(l) # new list, sorted ascending
+['Abc', 'CdA', 'bAc']
+>>>
+>>> sorted(l, key=str.lower) # new list sorted ascending with a key function defined
+['Abc', 'bAc', 'CdA']
+>>>
+```
+
+> The function used as `key=` in the `.sort()` method or the `sorted()` builtin should accept one and only one argument.
+
+* Mind that the methods that perform in-place changes don't return the changed list as value, but `None`:
+
+```python
+>>> l = [4, 1, 3, 2, 7, 0]
+>>>
+>>> l = l.sort() # Ops!
+>>> l
+>>> print(l)
+None
+>>>
+>>> l = [4, 1, 3, 2, 7, 0]
+>>>
+>>> l = l.append(3)
+>>> l
+>>> print(l)
+None
+>>>
+```
+
+* Mind 2: the `key=` function returned value is used in the comparison, but the list original value remains unchanged:
+
+```python
+>>> l = ["Abc", "bAc", "CdA"]
+>>> sorted(l, key=str.lower) # l values remain unchanged
+['Abc', 'bAc', 'CdA']
+>>>
+>>> l = ["Abc", "bAc", "CdA"]
+>>> sorted([c.lower() for c in l]) # change l values before sorting, different results
+['abc', 'bac', 'cda']
+```
+
+#### Other list methods
+
+* `reversed()` builtin, that reverses the list order, returning a new list. Caution: it does not orders the list, just reverts.
+
+```python
+>>> l = [4, 1, 3, 2, 7, 0]
+>>>
+>>> list(reversed(l))
+[0, 7, 2, 3, 1, 4]
+>>>
+>>>
+```
+
+* `.reverse()` method that inverts the elements of the list. Caution, it does not perform a sorting:
+
+```python
+>>> l = [4, 1, 3, 2, 7, 0]
+>>>
+>>> l.reverse()
+>>>
+>>> l
+[0, 7, 2, 3, 1, 4]
+>>>
+```
+
+* `.extend()` to grow the list in-place:
+
+```python
+>>> l = [1, 2, 3]
+>>> l.extend([4, 5, 6])
+>>> l
+[1, 2, 3, 4, 5, 6]
+>>>
+```
+
+* `.pop()` removes the last element of the list and returns:
+
+```python
+>>> l = [1, 2, 3]
+>>> last = l.pop()
+>>>
+>>> last
+3
+>>>
+>>> l
+[1, 2]
+>>>
+```
+
+* You can implement a simple `LIFO` (`last in first out`) stack using append and pop:
+
+```python
+>>> l = []
+>>> l.append(1)
+>>> l.append(2)
+>>>
+>>> l
+[1, 2]
+>>>
+>>> l.pop()
+2
+>>>
+>>> l
+[1]
+>>>
+```
+
+* `.pop()` accepts an offset as argument, which is, by default, `-1`:
+
+```python
+>>> l = ["a", "b", "c"]
+>>> l.pop(0) # pops first element
+'a'
+>>>
+>>> l
+['b', 'c']
+>>>
+```
+
+`.pop(0)` can be used to implement a `FIFO stack`.
+
+* `.remove(value)` remove the first occurence of `value`:
+
+```python
+>>> l = [1, 2, 1, 2, 3]
+>>> l.remove(1)
+>>> l
+[2, 1, 2, 3]
+>>>
+>>> l.remove(99) # ops!
+---------------------------------------------------------------------------
+ValueError                                Traceback (most recent call last)
+<ipython-input-121-fe5f094d900d> in <module>
+----> 1 l.remove(99) # ops!
+
+ValueError: list.remove(x): x not in list
+>>>
+```
+
+* `.insert(position, obj)` insert `obj` into `position` pushing the other elements to the right:
+
+```python
+>>> l = [1, 2, 3]
+>>>
+>>> l.insert(0, 99)
+>>> l
+[99, 1, 2, 3]
+>>>
+```
+
+* `.index(obj)` find the offset/index of the first occurrence of `obj`:
+
+```python
+>>> l = ["a", "b", "c", "a", "b", "c"]
+>>>
+>>> l.index("c")
+2
+>>>
+>>> l.index("x") # Ops!
+---------------------------------------------------------------------------
+ValueError                                Traceback (most recent call last)
+<ipython-input-132-2f8bbb30c658> in <module>
+----> 1 l.index("x") # Ops!
+
+ValueError: 'x' is not in list
+>>>
+```
+
+* `.count(obj)` count occurrences of `obj`:
+
+```python
+>>> l = ["s", "p", "a", "a", "m"]
+>>>
+>>> l.count("s")
+1
+>>> l.count("a")
+2
+>>>
+```
+
+* `del` elements:
+
+```python
+>>> l = ["spam", "eggs", "bacon"]
+>>>
+>>> # del by index
+>>>
+>>> del l[1]
+>>> l
+['spam', 'bacon']
+>>>
+>>> # del by slice
+>>> l = ["spam", "eggs", "bacon"]
+>>>
+>>> del l[1:]
+>>> l
+['spam']
+>>>
+```
+
+> Remember that a slice assigment with an empty sequence is, in practice, a deletion. But if you assign an empty list to an index, you are filling it with an empty list:
+
+```python
+>>> l = ["spam", "eggs", "bacon"]
+>>>
+>>> l[1:] = [] # deletion! slice assignment
+>>> l
+['spam']
+>>>
+>>> l = ["spam", "eggs", "bacon"]
+>>>
+>>> l[0] = [] # attribution
+>>> l
+[[], 'eggs', 'bacon']
+>>>
+```
+
+### Dictionaries
+
+* Collections of objects referenced by `keys`
+
+* `keys` must be immutable, hashable, objects
+
+* Dicts are unordered
+
+* Can grown or shrink under demand. The hosted objects can be of any type. The immutable, hashable, restriction applys only for the `keys`.
+
+* Ways to declare:
+
+```python
+>>> d = {"name": "John", "age": 40} # simple dict
+>>> d
+{'name': 'John', 'age': 40}
+>>>
+>>> d = {"name": "John", "data": {"age": 40, "color": "blue"}} # nesting
+>>> d
+{'name': 'John', 'data': {'age': 40, 'color': 'blue'}}
+>>>
+>>> d = dict(name="John", age=40) # alternative constructor
+>>> d
+{'name': 'John', 'age': 40}
+>>>
+>>> d = dict([("name", "john"), ("age", 40)]) # list of tuples constructor
+>>> d
+{'name': 'john', 'age': 40}
+>>>
+>>> d = dict(zip(["name", "age"], ["john", 40])) # using zip()
+>>> d
+{'name': 'john', 'age': 40}
+>>>
+>>> d = dict.fromkeys(["name", "age"]) # start a dict from keys without values
+>>> d
+{'name': None, 'age': None}
+>>>
+>>>
+```
+
+* Indexing:
+
+```python
+>>> d = {"name": "John", "data": {"age": 40, "color": "blue"}}
+>>>
+>>> # indexing
+>>> d["name"]
+'John'
+>>>
+>>> # nesting indexing
+>>> d["data"]["age"]
+40
+>>>
+```
+
+* Check for membership using `in`:
+
+```python
+>>> d = {"name": "John", "data": {"age": 40, "color": "blue"}}
+>>>
+>>> "name" in d
+True
+>>>
+>>> "age" in d # it dosent check inner dicts! caution
+False
+>>>
+```
+
+* Number of keys `len(dict)`:
+
+```python
+>>> d = {"name": "John", "age": 40}
+>>>
+>>> len(d)
+2
+>>>
+```
+
+#### Dictionaries in action
+
+* Return `.keys()`:
+
+```python
+>>> d = {"name": "John", "age": 40}
+>>>
+>>> list(d.keys()) # .keys() returns an iterator, thus list() is necessary
+['name', 'age']
+>>>
+```
+
+```python
+>>> # .keys() is implicityly called when a dict is converted or iterated
+>>>
+>>> d = {"name": "John", "age": 40}
+>>>
+>>> list(d)
+['name', 'age']
+>>>
+>>> for key in d: print(key)
+name
+age
+>>>
+```
+
+* Creating new keys, updating and deleting:
+
+```python
+>>> d = {"name": "John", "data": {"age": 40, "color": "blue"}} # nesting
+>>> d
+>>> d = {}
+>>>
+>>> # creating
+>>> d["name"] = "John" # just assign
+>>>
+>>> d
+{'name': 'John'}
+>>>
+>>> # updating
+>>> d["name"] = "Paul" # simple assignment also
+>>>
+>>> d
+{'name': 'Paul'}
+>>>
+>>> # deleting
+>>> del d["name"]
+>>> d
+{}
+>>>
+>>> # caution when deleting unexisting keys
+>>> del d["age"]
+---------------------------------------------------------------------------
+KeyError                                  Traceback (most recent call last)
+<ipython-input-204-c279bbd0f0e6> in <module>
+----> 1 del d["age"]
+
+KeyError: 'age'
+>>>
+```
+
+You can use any object as values. There is no restriction, even when updating:
+
+```python
+>>> d = {"value": 5}
+>>>
+>>> d
+{'value': 5}
+>>>
+>>> d["value"] = "John Doe"
+>>> d
+{'value': 'John Doe'}
+>>>
+>>> d["value"] = 3.14
+>>> d
+{'value': 3.14}
+>>>
+```
+
+* Listing and iterating over values:
+
+```python
+>>> d = {"name": "John", "age": 40}
+>>>
+>>> d.values()
+dict_values(['John', 40])
+>>>
+>>> list(d.values())
+['John', 40]
+>>>
+>>> for value in d.values(): print(value) # no list necessary
+John
+40
+>>>
+>>>
+```
+
+* Listing and iterating over pairs of key and value:
+
+```python
+>>> d = {"name": "John", "age": 40}
+>>>
+>>> d.items()
+dict_items([('name', 'John'), ('age', 40)])
+>>>
+>>> list(d.items())
+[('name', 'John'), ('age', 40)]
+>>>
+>>> for key, value in d.items():
+...     print(key, value)
+...
+name John
+age 40
+>>>
+```
+
+* Fetching a non-existent key in a dict produces an exception, to avoid it, use the `.get(key)` method, which returns `None` or the passed argument as result if the key is non-existent:
+
+```python
+>>> d = {"name": "John", "age": 40}
+>>>
+>>> d["gender"] # ops!
+---------------------------------------------------------------------------
+KeyError                                  Traceback (most recent call last)
+<ipython-input-222-5736e263e07d> in <module>
+----> 1 d["gender"] # ops!
+
+KeyError: 'gender'
+>>>
+>>> d.get("gender") # None!
+>>> d.get("gender", "They") # argument value
+'They'
+>>>
+```
+
+* Dicts dont support concatenation:
+
+```python
+>>> {"a": 1} + {"b": 2}
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-225-557db3d74bb0> in <module>
+----> 1 {"a": 1} + {"b": 2}
+
+TypeError: unsupported operand type(s) for +: 'dict' and 'dict'
+>>>
+```
+
+* To join two dicts, use the `.update(another_dict)` to merge them. Caution: `another_dict` values will overwrite already existent keys:
+
+```python
+>>> a = {"name": "John", "age": 45}
+>>> b = {"age": 50, "address": "Bakersvile"}
+>>>
+>>> a.update(b) # in-place update!
+>>>
+>>> a
+{'name': 'John', 'age': 50, 'address': 'Bakersvile'}
+>>>
+```
+
+* Dicts also have a `.pop(key)` method that returns the correspondent value and deletes the key from the dict:
+
+```python
+>>> a = {"name": "John", "age": 45}
+>>>
+>>> a
+{'name': 'John', 'age': 45}
+>>>
+>>> a.pop("age")
+45
+>>>
+>>> a
+{'name': 'John'}
+>>>
+```
+
+* Mapping value to key:
+
+```python
+>>> d = {"name": "John", "age": 40, "cats": 30, "dogs": 40}
+>>>
+>>> ks = []
+>>> for key, value in d.items():
+...     if value == 40:
+...         ks.append(key)
+...
+>>> ks
+['age', 'dogs']
+>>>
+>>> # Or, using comprehensions
+>>> ks = [key for key, value in d.items() if value == 40]
+>>> ks
+['age', 'dogs']
+>>>
+```
+
+* You can use dicts  as flexible and sparse lists:
+
+```python
+>>> d = {}
+>>>
+>>> d[1988] = "John"
+>>> d[1976] = "Paul"
+>>> d[1999] = "Adrian"
+>>>
+>>> d
+{1988: 'John', 1976: 'Paul', 1999: 'Adrian'}
+>>>
+>>> d.get(2000)
+>>>
+```
+
+* Dicts can be used to implement sparse matrixes:
+
+```python
+>>> matrix = {}
+>>>
+>>> matrix[(2, 3)] = 10
+>>> matrix[(1, 4)] = 3
+>>>
+>>> for i in range(5):
+...     for j in range(5):
+...         print(matrix.get((i, j), 0))
+...
+0
+0
+0
+0
+0
+0
+0
+0
+0
+3
+0
+0
+0
+10
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+>>>
+```
+
+* Dealing with missing key exceptions:
+
+```python
+>>> d = {"name": "John", "age": 40}
+>>> # Previous check
+>>> if "name" in d: print(d["name"])
+John
+>>> if "address" in d: print(d["address"])
+>>>
+>>> # Dealing with the exception
+>>> try:
+...     print(d["address"])
+... except:
+...     print("ops!")
+...
+ops!
+>>>
+>>> # using .get() method
+>>> print(d.get("address"))
+None
+>>>
+```
+
+* Alternative ways to create dictionaries:
+
+```python
+>>> d = {"name": "Bob", "age": 40}
+>>>
+>>> d
+{'name': 'Bob', 'age': 40}
+>>>
+>>> d = dict(name="bob", age=40)
+>>> d
+{'name': 'bob', 'age': 40}
+>>>
+>>>
+>>> d = dict([("name", "Bob"), ("age", 40)])
+>>> d
+{'name': 'Bob', 'age': 40}
+>>>
+>>> d = dict(zip(["name", "age"], ["Bob", 40]))
+>>> d
+{'name': 'Bob', 'age': 40}
+>>>
+```
+
+* You can create all keys with a default value (if not specified, its `None`):
+
+```python
+>>> d = dict.fromkeys(["name", "age"])
+>>> d
+{'name': None, 'age': None}
+>>>
+>>> d2 = dict.fromkeys(["age", "njobs"], 0) # instead of None, default will be 0
+>>> d2
+{'age': 0, 'njobs': 0}
+>>>
+```
+
+#### Dictionaries comprehensions
+
+* `zip()` usage for dictionary creation example:
+
+```python
+>>> k = ["name", "age"]
+>>> v = ["Bob", 40]
+>>>
+>>> list( zip(k, v) ) # list is necessary. zip returns an iterator.
+[('name', 'Bob'), ('age', 40)]
+>>>
+>>> # to construct a dict, pass the zip result as arg
+>>> d = dict( zip(k, v) )
+>>> d
+{'name': 'Bob', 'age': 40}
+>>>
+```
+
+* Using dict comprehensions to create dicts, similarly to `zip`:
+
+```python
+>>> d = {k:v for k, v in zip(["name", "age"], ["Bob", 40])}
+>>> d
+{'name': 'Bob', 'age': 40}
+>>>
+```
+
+* Comprehensions look more verbose, but you can calculate expressions with tem:
+
+```python
+>>> d = {x: x ** 2 for x in [2, 4, 6]}
+>>> d
+{2: 4, 4: 16, 6: 36}
+>>>
+>>> words = ["spam", "eggs", "bacon"]
+>>>
+>>> words_adjusted = {word: word.upper() for word in words}
+>>> words_adjusted
+{'spam': 'SPAM', 'eggs': 'EGGS', 'bacon': 'BACON'}
+>>>
+```
+
+* Comprehensions can be used to create dict with keys only and default values, just like the `dict.fromkeys()` method:
+
+```python
+>>> d = {k:0 for k in ["age", "njobs", "wins"]}
+>>> d
+{'age': 0, 'njobs': 0, 'wins': 0}
+>>>
+>>> d = dict.fromkeys("spam")
+>>> d
+{'s': None, 'p': None, 'a': None, 'm': None}
+>>>
+>>> d = {k:None for k in "spam"}
+>>> d
+{'s': None, 'p': None, 'a': None, 'm': None}
+>>>
+```
+
+### Dictionaries views
+
+* In Python 3 `.keys()`, `.values()` and `.items()` return `views` objects, which are iterators that return elements on demand:
+
+```python
+>>> d = {"name": "Bob", "age": 40}
+>>>
+>>> d
+{'name': 'Bob', 'age': 40}
+>>>
+>>> d.keys()
+dict_keys(['name', 'age'])
+>>>
+>>> d.values()
+dict_values(['Bob', 40])
+>>>
+>>> d.items()
+dict_items([('name', 'Bob'), ('age', 40)])
+>>>
+```
+
+* These `views` objects present some interesting characteristics:
+
+1. `views` reflect changes in the original dict:
+
+```python
+>>> d = {"name": "Bob", "age": 40}
+>>>
+>>> keys = d.keys()
+>>> values = d.values()
+>>> items = d.items()
+>>>
+>>> keys
+dict_keys(['name', 'age'])
+>>> values
+dict_values(['Bob', 40])
+>>> items
+dict_items([('name', 'Bob'), ('age', 40)])
+>>>
+>>> d["job"] = "manager"
+>>>
+>>> keys
+dict_keys(['name', 'age', 'job'])
+>>> values
+dict_values(['Bob', 40, 'manager'])
+>>> items
+dict_items([('name', 'Bob'), ('age', 40), ('job', 'manager')])
+>>>
+```
+
+2. `.keys()` `view` support `set` operations:
+
+```python
+>>> a = {"name": "bob", "age": 40, "job": "manager"}
+>>> b = {"age": 50, "address": "Bakersvile"}
+>>>
+>>> a.keys() & b.keys()
+{'age'}
+>>>
+>>> a.keys() | b.keys()
+{'address', 'age', 'job', 'name'}
+>>>
+>>> a.keys() ^ b.keys()
+{'address', 'job', 'name'}
+>>>
+```
+
+3. Caution. `views` objects don't support indexing or slicing. You need to convert them to lists:
+
+```python
+>>> d = {"name": "Bob", "age": 40}
+>>>
+>>> keys = d.keys()
+>>> values = d.values()
+>>> items = d.items()
+>>>
+>>> keys
+dict_keys(['name', 'age'])
+>>> values
+>>> a = {"name": "bob", "age": 40, "job": "manager"}
+>>>
+>>> a.keys()
+dict_keys(['name', 'age', 'job'])
+>>>
+>>> keys = a.keys()
+>>> keys
+dict_keys(['name', 'age', 'job'])
+>>>
+>>> keys[0] # no!
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-65-9dc1b17cffa2> in <module>
+----> 1 keys[0] # no!
+
+TypeError: 'dict_keys' object is not subscriptable
+>>>
+>>> keys[1:] # no!
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-66-c8c21e2fb74b> in <module>
+----> 1 keys[1:] # no!
+
+TypeError: 'dict_keys' object is not subscriptable
+>>>
+>>> keys_lst = list(keys)
+>>> keys_lst
+['name', 'age', 'job']
+>>>
+>>> keys_lst[0]
+'name'
+>>>
+>>> keys_lst[1:]
+['age', 'job']
+>>>
+```
+
+* If interact a `.keys()` `view` with another dictionary, the `dictionary` `.keys()` method is implictly used:
+
+```python
+>>> a = {"name": "John", "age": 45}
+>>>
+>>> a.keys() & {"age": 50, "job": "manager"}
+{'age'}
+>>>
+>>> a.keys() ^ {"age": 50, "job": "manager"}
+{'job', 'name'}
+>>>
+```
+
+* To iterate over the keys of a dict in a sorted manner you need to conver it to a `list` and call the `.sort()` method or use the `sorted()` builtin function:
+
+```python
+>>> a = {"name": "John", "age": 45}
+>>>
+>>> keys = list(a)
+>>> keys
+['name', 'age']
+>>>
+>>> keys.sort()
+>>>
+>>> for key in keys:
+...     print(a[key])
+...
+45
+John
+>>>
+>>> # or, using sorted(), which is the preferable way
+>>> for key in sorted(a):
+...     print(key, a[key])
+...
+age 45
+name John
+>>>
+```
+
+* Lastly, since Python 3, the method `.has_key()` has been removed. Test with the `in` operator instead.
+
+## Tuple, files and everything ele
+
+### Tuples
+
+* Are like immutable lists which are declared using parentheses, instead of square brackets:
+
+```python
+>>> l = (1, 3.14, "spam")
+>>> l
+(1, 3.14, 'spam')
+>>>
+>>> l[0]
+1
+>>>
+>>> l[0] = 2 # ops!
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-7-0430b62a20fd> in <module>
+----> 1 l[0] = 2 # ops!
+
+TypeError: 'tuple' object does not support item assignment
+>>>
+```
+
+* Ways to declare and main operations:
+
+```python
+>>> # empty tuple
+>>> t = ()
+>>>
+>>> # single element tuple (comma is required)
+>>> t = (10,)
+>>> t
+(10,)
+>>>
+>>> # tuple with more elements
+>>> t = (0, "ni", 1.2, 3)
+>>> t
+(0, 'ni', 1.2, 3)
+>>>
+>>> t = 0, "ni", 1.2, 3 # items separated only by a comma are intepreted as a tuple also
+>>> t
+(0, 'ni', 1.2, 3)
+>>>
+>>> # nested tuple
+>>> t = ("Bob", ("manager", "developer"))
+>>> t
+('Bob', ('manager', 'developer'))
+>>>
+>>> # create a new tuple from an iterable
+>>> t = tuple("spam")
+>>> t
+('s', 'p', 'a', 'm')
+>>>
+>>> # indexing
+>>> t = (1, 3.14, "spam")
+>>> t[0]
+1
+>>>
+>>> # slicing
+>>> t[1:]
+(3.14, 'spam')
+>>>
+>>> # length
+>>> len(t)
+3
+>>>
+>>> # copy, using slices
+>>> t2 = t[:]
+>>> t2
+(1, 3.14, 'spam')
+>>>
+>>> # concatenation, producing a new tuple
+>>> t + t
+(1, 3.14, 'spam', 1, 3.14, 'spam')
+>>>
+>>> # repetition
+>>> t * 3
+(1, 3.14, 'spam', 1, 3.14, 'spam', 1, 3.14, 'spam')
+>>>
+>>> # looping
+>>> for e in t: print(e)
+1
+3.14
+spam
+>>>
+>>> # membership using "in"
+>>> 1 in t
+True
+>>>
+>>> # comprehension
+>>> [x * 2 for x in t]
+[2, 6.28, 'spamspam']
+>>>
+>>> # methods index() and count()
+>>> t = (1, 3.14, "spam")
+>>> t.index("spam")
+2
+>>>
+>>> t = tuple("aloha")
+>>> t
+('a', 'l', 'o', 'h', 'a')
+>>>
+>>> t.count("a") # how many "a"
+2
+>>>
+```
+
+* Tuples are immutable, so you dont have the same methos as with lists.
+
+* To sort a tuple, or convert it to list, sort and convert back:
+
+```python
+>>> t = (3, 1, 2, 0, 4)
+>>> t = tuple( sorted(t) )
+>>> t
+(0, 1, 2, 3, 4)
+>>>
+>>> t = (3, 1, 2, 0, 4)
+>>> t = list(t)
+>>> t.sort()
+>>> t
+[0, 1, 2, 3, 4]
+>>>
+>>> t = tuple(t)
+>>> t
+(0, 1, 2, 3, 4)
+>>>
+```
+
+* You can convert a tuple to a list while processing it using comprehensions (in fact, you can do it with any iterator type of object):
+
+```python
+>>> t = (10, 20, 30)
+>>>
+>>> t2 = [v - 1 for v in t]
+>>> t2
+[9, 19, 29]
+>>>
+```
+
+* Note that `tuples` are immutable but can hold mutable objects, and these objects can be changed:
+
+```python
+>>> t = ([1, 2, 3], {"name": "Bob"})
+>>>
+>>> t[0].append(4)
+>>>
+>>> t[1]["age"] = 40
+>>>
+>>> t
+([1, 2, 3, 4], {'name': 'Bob', 'age': 40})
+>>>
+```
+
+* Tuples with mutable objects are not hashable and cant be used as dict keys:
+
+```python
+>>> # when a tuple has mutable objects inside, it stops being "hashable", thus cant be used as a dict ke
+... y
+>>>
+>>> t = ([1, 2, 3], {"name": "Bob"})
+>>>
+>>> d = {t: "t"} # ops!
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-24-f703edc027bc> in <module>
+----> 1 d = {t: "t"} # ops!
+
+TypeError: unhashable type: 'list'
+>>>
+```
+
+### namedtuple
+
