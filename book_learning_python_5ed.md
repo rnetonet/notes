@@ -5156,3 +5156,92 @@ TypeError: unhashable type: 'list'
 
 ### namedtuple
 
+* Somewhat similary to dictionaries, `namedtuple` allows the creation of `tuples` which can be accessed by `key` or `position`:
+
+```python
+>>> from collections import namedtuple
+>>>
+>>> Person = namedtuple("Person", ("name", "age", "jobs"))
+>>>
+>>> p1 = Person("Bob", 40, ["dev", "manager"]) # keyword args are required
+>>> p1
+Person(name='Bob', age=40, jobs=['dev', 'manager'])
+>>> p1.name
+'Bob'
+>>> p1[0]
+'Bob'
+>>>
+>>> p1.age
+40
+>>> p1[1]
+40
+>>>
+```
+
+* `namedtuple` can be converted to dictionaries using the `._asdict()` method:
+
+```python
+>>> from collections import namedtuple
+>>> Person = namedtuple("Person", ("name", "age", "jobs"))
+>>>
+>>> p1 = Person("Bob", 40, ["dev", "manager"]) # args are mandatory
+>>> p1
+Person(name='Bob', age=40, jobs=['dev', 'manager'])
+>>>
+>>> p1.name
+'Bob'
+>>> p1[0]
+'Bob'
+>>>
+>>> p1._asdict()
+{'name': 'Bob', 'age': 40, 'jobs': ['dev', 'manager']}
+>>>
+```
+
+* `tuples` and `namedtuples` can be used for unpacking assignment:
+
+```python
+>>> p1
+Person(name='Bob', age=40, jobs=['dev', 'manager'])
+>>>
+>>> name, age, jobs = p1
+>>> name
+'Bob'
+>>> age
+40
+>>> jobs
+['dev', 'manager']
+>>>
+>>> for value in p1: print(value)
+Bob
+40
+['dev', 'manager']
+>>>
+```
+
+### Files
+
+#### Opening files
+
+* To open a file, use the builtin `open(filename, mode)`.
+
+Three modes are avaiable:
+
+`r`, the default, for `reading`;
+`w`, for `writing`;
+`a`, for appending, usually for log files
+
+These modes handle all data as unicode strings. If you want to deal with bytes directly, suffix them with a `b`:
+
+`rb`, `wb` and `ab`.
+
+If you suffix the modes with a `+`, you can `write` and `read` to it:
+
+`r+`, `w+` and `a+`.
+
+* You can specify a third positional argument `open(filename, mode, buffersize)` to define the buffersize.
+If you set it to `0`, no buffer will be used, meaning that data is written in the moment it is requested.
+
+* In Python 3, a keyword argument `encoding=` can be used, to define the encoding used in the file.
+Remember, if you dont suffix with `b`, the file is treated as unicode text.
+
