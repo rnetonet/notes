@@ -5734,5 +5734,18 @@ TypeError: 'tuple' object does not support item assignment
 >>> t
 (2, 0, 3)
 >>>
-
 ```
+
+## Python statements
+
+* If you need to span an expression for multiple lines, enclose in parentheses:
+
+```python
+if (A == 1 and
+    B == 2 and
+    C == 3):
+        print('spam' * 3)
+```
+
+### Interactive loops example
+
