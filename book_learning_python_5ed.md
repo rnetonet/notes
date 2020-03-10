@@ -5747,5 +5747,149 @@ if (A == 1 and
         print('spam' * 3)
 ```
 
-### Interactive loops example
+### Assignments
 
+* Assignments create references. Python variables are more like pointers than data storage areas.
+
+* Variables are, whenever used in an expression, replaced by the value/object it points to.
+
+* Assignments forms:
+
+```python
+>>> spam = "Spam"
+>>> spam
+'Spam'
+>>>
+>>> spam, ham = "spam", "eggs"
+>>> spam
+'spam'
+>>> ham
+'eggs'
+>>>
+>>> a, b, c, d = "spam"
+>>> a, b, c, d
+('s', 'p', 'a', 'm')
+>>>
+>>> a, *b = "spam"
+>>> a, b
+('s', ['p', 'a', 'm'])
+>>>
+>>> spam = ham = "lunch"
+>>> spam
+'lunch'
+>>> ham
+'lunch'
+>>>
+>>> spam = 0
+>>> spam += 1
+>>> spam
+1
+>>>
+```
+
+* Tuple unpacking. If you declare multiple variables on left and multiple values on right side, Python bind them respectively.
+
+```python
+>>> a, b, c = 1, 2, 3 # tuple unpacking. tuple is implictly created
+>>> a
+1
+>>> b
+2
+>>> c
+3
+>>>
+>>> a, b, c = (1, 2, 3) # tuple unpacking. same behavior.
+>>> a, b, c
+(1, 2, 3)
+>>> a
+1
+>>> b
+2
+>>> c
+3
+>>>
+```
+
+* Tuple unpacking has been expanded for different sequence types:
+
+```python
+>>> [a, b, c] = (1, 2, 3)
+>>> a
+1
+>>> b
+2
+>>> c
+3
+>>>
+```
+
+* In tuple unpacking, number of left side variables should match right side values.
+If not, an exception is thrown:
+
+```python
+>>> [a, b, c] = (1, 2)
+---------------------------------------------------------------------------
+ValueError                                Traceback (most recent call last)
+<ipython-input-42-5004ed3e1c4e> in <module>
+----> 1 [a, b, c] = (1, 2)
+
+ValueError: not enough values to unpack (expected 3, got 2)
+>>>
+```
+
+* You can handle a variant number of right side values with the extended sequence assignment:
+
+```python
+>>> a, *b = [1, 2, 3, 4, 5]
+>>> a
+1
+>>> b
+[2, 3, 4, 5]
+>>>
+```
+
+#### Sequence assignments
+
+```python
+>>> nudge = 1
+>>> wink = 2
+>>>
+>>> a, b = nudge, wink
+>>> a, b
+(1, 2)
+>>>
+>>> [c, d] = [nudge, wink]
+>>> c, d
+(1, 2)
+>>>
+```
+
+* The right side is evaluated first, so you can use sequence assignments to swap two variables values without an auxiliar:
+
+```python
+>>> a = 1
+>>> b = 2
+>>> a, b
+(1, 2)
+>>>
+>>> a, b = b, a
+>>> a
+2
+>>> b
+1
+>>>
+```
+
+* You can use it with any sequence:
+
+```python
+>>> [a, b, c] = (1, 2, 3)
+>>> a, b, c
+(1, 2, 3)
+>>>
+>>> (a, b, c) = "ABC"
+>>> a, b, c
+('A', 'B', 'C')
+>>>
+
+```
