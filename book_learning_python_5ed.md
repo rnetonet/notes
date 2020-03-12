@@ -5891,5 +5891,169 @@ ValueError: not enough values to unpack (expected 3, got 2)
 >>> a, b, c
 ('A', 'B', 'C')
 >>>
+```
 
+* Even nested sequences can be used:
+
+```python
+>>> (a, b), c = "AB", "SP"
+>>> a
+'A'
+>>> b
+'B'
+>>> c
+'SP'
+>>>
+```
+
+* One common idiom is assignments with `range()` series:
+
+```python
+>>> a, b, c = range(3)
+>>> a, b, c
+(0, 1, 2)
+>>>
+```
+
+* Another idiom is to separate the first column of a "row" (list):
+
+```python
+>>> l = [1, 2, 3, 4]
+>>> while l:
+...     front, l = l[0], l[1:]
+...     print(front, l)
+...
+1 [2, 3, 4]
+2 [3, 4]
+3 [4]
+4 []
+>>>
+```
+
+* If you dont know the lenght of the right side values to unpack, you can used the extended syntax `*variable`, which creates a list with the remaining unassigned values of the right side:
+
+```python
+>>> a, *b = range(10)
+>>> a, b
+(0, [1, 2, 3, 4, 5, 6, 7, 8, 9])
+>>>
+```
+
+You can use it in the start or in the middle also:
+
+```python
+>>> *a, b = range(10)
+>>> a, b
+([0, 1, 2, 3, 4, 5, 6, 7, 8], 9)
+>>>
+```
+
+```python
+>>> a, *b, c = range(10)
+>>> a, b, c
+(0, [1, 2, 3, 4, 5, 6, 7, 8], 9)
+>>>
+```
+
+The extended syntax works with any iterable:
+
+```python
+>>> *a, b = "spam"
+>>> a, b
+(['s', 'p', 'a'], 'm')
+>>>
+>>> a, *b, c = "spam"
+>>> a, b, c
+('s', ['p', 'a'], 'm')
+>>>
+>>> a, b, *c = "spam"
+>>> a, b, c
+('s', 'p', ['a', 'm'])
+>>>
+```
+
+> Caution: extended unpacking remembers a slicing, but it is not the same. Extended slicing always returns a list, while slicing returns an object of the same type as the sliced:
+
+```python
+>>> a, *b, c = (1, 2, 3, 4, 5)
+>>> a, b, c
+(1, [2, 3, 4], 5)
+>>>
+>>> t = (1, 2, 3, 4, 5)
+>>> a = t[0]
+>>> c = t[-1]
+>>> b = t[1:-1]
+>>> b
+(2, 3, 4)
+>>>
+```
+
+* With extended syntax, the last example becomes even easier to write:
+
+```python
+>>> l = 1, 2, 3, 4, 5
+>>>
+>>> while l:
+...     front, *l = l
+...     print(front, l)
+...
+1 [2, 3, 4, 5]
+2 [3, 4, 5]
+3 [4, 5]
+4 [5]
+5 []
+>>>
+```
+
+#### Some boundary cases:
+
+* The starred name is always assigned a list, even when only one element is matched:
+
+```python
+>>> a, *b = (10, 20)
+>>> a, b
+(10, [20])
+>>>
+```
+
+* The starred name is assigned last, so it can be an empty list sometimes:
+
+```python
+>>> a, *b, c = [1, 2]
+>>> a, b, c
+(1, [], 2)
+>>>
+```
+
+* You can only have one starred name:
+
+```python
+>>> *a, *b = [1, 2, 3, 4]
+  File "<ipython-input-5-d621ef55cf15>", line 1
+    *a, *b = [1, 2, 3, 4]
+    ^
+SyntaxError: two starred expressions in assignment
+
+>>>
+```
+
+* You cant have only a starred name:
+
+```python
+>>> *a = [1, 2, 3]
+  File "<ipython-input-6-2e13dd4112ba>", line 1
+    *a = [1, 2, 3]
+    ^
+SyntaxError: starred assignment target must be in a list or tuple
+
+>>>
+```
+
+You need it to be a tuple at least:
+
+```python
+>>> *a, = [1, 2, 3]
+>>> a
+[1, 2, 3]
+>>>
 ```
