@@ -6057,3 +6057,193 @@ You need it to be a tuple at least:
 [1, 2, 3]
 >>>
 ```
+
+* First, rest syntax using extended assignment syntax:
+
+```python
+>>> first, *rest = [1, 2, 3]
+>>> first, rest
+(1, [2, 3])
+```
+
+* Rest, last syntax using ext. assignment syntax:
+
+```python
+>>> *rest, last = [1, 2, 3]
+>>> rest, last
+([1, 2], 3)
+>>>
+```
+
+* Extended assignment syntax in foor loops:
+
+```python
+>>> for a, *middle, end in [(1, 2, 3, 4), (5, 6, 7, 8), (9, 10, 11, 12)]:
+...     print(a, middle, end)
+...
+1 [2, 3] 4
+5 [6, 7] 8
+9 [10, 11] 12
+>>>
+```
+
+* Multiple target assignment make all references point to the same object:
+
+> Caution: there is only one object and multiple, shared, references. Which are subject to side-effects of in-place change with mutable types.
+
+```python
+>>> a = b = c = [1, 2, 3]
+>>> a, b, c
+([1, 2, 3], [1, 2, 3], [1, 2, 3])
+>>>
+>>> c[0] = 10
+>>>
+>>> a, b, c
+([10, 2, 3], [10, 2, 3], [10, 2, 3])
+>>>
+```
+
+* Avoid that assigning to multiple lists:
+
+```python
+>>> a, b, c = [], [], []
+>>> a, b, c
+([], [], [])
+>>>
+>>> a.append(10)
+>>> a
+[10]
+>>> b
+[]
+>>> c
+[]
+>>>
+```
+
+* **Augmented assignments**, shorthands
+
+```python
+>>> a = [1, 2, 3]
+>>>
+>>> a = a + [4, 5, 6] # concatenation, creating a new object
+>>> a
+[1, 2, 3, 4, 5, 6]
+>>>
+>>> a.extend([7, 8, 9]) # appends in-place
+>>> a
+[1, 2, 3, 4, 5, 6, 7, 8, 9]
+>>>
+>>> # if you call a shorthand concatenation syntax +=, python implictly uses the .extend() method, which is faster
+>>> a += [10]
+>>> a
+[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+>>>
+```
+
+> This intelligent behavior is more flexible with types, while simple concatenation is more restrict:
+
+```python
+>>> a = [1, 2, 3]
+>>>
+>>> a += "spam"
+>>> a
+[1, 2, 3, 's', 'p', 'a', 'm']
+>>>
+>>> a = a + "spam" # Ops!
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-27-0f920944855b> in <module>
+----> 1 a = a + "spam" # Ops!
+
+TypeError: can only concatenate list (not "str") to list
+>>>
+```
+
+* Other augmented assignments examples:
+
+```python
+>>> a = 10
+>>>
+>>> a += 1
+>>> a
+11
+>>>
+>>> a *= 2
+>>> a
+22
+>>> a /= 3
+>>> a
+7.333333333333333
+>>>
+>>> a **= 2
+>>> a
+53.77777777777777
+>>>
+```
+
+* The intelligent behavior of shorthand assignments can cause divergences when using mutable types. Concatenation (`a = a + [...]`) always create a new object, while `.extend([...])` or `a += [...]` change the object in  place. Its important for shared references:
+
+```python
+>>> a = b = [1, 2, 3]
+>>> a, b
+([1, 2, 3], [1, 2, 3])
+>>>
+>>> a = a + [4]
+>>> a
+[1, 2, 3, 4]
+>>>
+>>> b
+[1, 2, 3]
+>>>
+>>>
+>>> # shorthand
+>>> a = b = [1, 2, 3]
+>>> a += [4]
+>>> a, b
+([1, 2, 3, 4], [1, 2, 3, 4])
+>>>
+```
+
+#### Naming conventions
+
+* Names started with an underscore `_x` are not imported in a statement like `from module import *`
+
+* Names with two underscore as prefix and suffix `__example__` are system-defined and have special meaning, usually, for the intepreter
+
+* `__var` (underscore only as prefix) are *mangled* (localized) to the enclosing class.
+
+* `_` is the last expression result in the shell
+
+#### Names have no type. Objects do.
+
+* names/variables are only references which are auto-translated when used in expression. They don't keep track of the referenced object type. The type information resides in the object itself.
+
+* Expression statements and in-place changes:
+
+
+#### print()
+
+`print([obj1, obj2, ...], [sep=' '], [end='\n'], file=sys.stdout, flush=False)`
+
+* `print()` converts the object to a string representation (`str(object)`), then outputs.
+
+* Some examples:
+
+```python
+>>> print() # blank line
+
+>>>
+```
+
+```python
+>>> print(1, 2, 3, sep='-')
+1-2-3
+>>>
+```
+
+```python
+>>> print(1, 2, 3, sep='-', end='*\n*\n')
+1-2-3*
+*
+>>>
+```
