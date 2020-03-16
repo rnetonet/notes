@@ -6247,3 +6247,94 @@ TypeError: can only concatenate list (not "str") to list
 *
 >>>
 ```
+
+* `print()` is the same as `sys.stdout.write()`, just friendly
+
+```python
+>>> import sys
+>>> sys.stdout.write("Hello World" + "\n") # it dosent include \n by default and returns the numbers of chars written
+Hello World
+12
+>>>
+```
+
+* `sys.stdout` is a file-like object which is used by default in the `print()` function.
+So, you can reassign it and make `print()` write to a file or any other stream:
+
+> You should open the file as `a+` (append mode) if you want to mantain the current content before opening it.
+
+```python
+>>> import sys
+>>> sys.stdout = open("/tmp/output.txt", "w")
+>>> print("Hello World!")
+>>> print("Bye!")
+>>>
+
+rnetodev@T440s:~$ cat /tmp/output.txt
+Hello World!
+Bye!
+Do you really want to exit ([y]/n)?
+```
+
+* If you want to temporaly change the `print()`/`sys.stdout` behavior, you can save `sys.stdout` to a temporary variable and then reassign it:
+
+```python
+>>> import sys
+>>> _stdout = sys.stdout
+>>> sys.stdout = open("/tmp/log.txt", "a")
+>>> print("Hi!")
+>>> print("Hello!")
+>>>
+>>> sys.stdout = _stdout
+>>>
+>>> print("Hi!")
+Hi!
+>>> print("Hello!")
+Hello!
+>>>
+Do you really want to exit ([y]/n)?
+rnetodev@T440s:~$ cat /tmp/log.txt
+Hi!
+Hello!
+Hi!
+Hello!
+rnetodev@T440s:~$
+```
+
+* Or, more simple, use the `file` keyword parameter of the `print()` function in Python 3. You should pass an open `file` object or any other object with a `write()` method, which will be then used by `print()`:
+
+```python
+#!/usr/bin/env python3
+>>> fp = open("/tmp/log.txt", "a")
+>>>
+>>> print("Another bye!", file=fp)
+>>>
+>>> fp.close()
+>>>
+>>> print("Byeeee")
+Byeeee
+>>>
+rnetodev@T440s:~$ cat /tmp/log.txt
+Hi!
+Hello!
+Hi!
+Hello!
+Another bye!
+rnetodev@T440s:~$
+```
+
+* The `file` keyword of the `print()` function can be used to print to `stderr` also:
+
+```python
+import sys
+print("Bug!", file=sys.stderr)
+```
+
+* Outer objects are represented using `__str__`, inner objects, with `__repr__`:
+
+```python
+>>> print("spam", ("eggs", "bacon")) # spam is outer, no quotes. eggs and bacon, inner, quotes.
+spam ('eggs', 'bacon')
+>>>
+```
+
