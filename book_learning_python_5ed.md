@@ -6338,3 +6338,239 @@ spam ('eggs', 'bacon')
 >>>
 ```
 
+* A simple `if` statement:
+
+```python
+>>> x = 'killer'
+>>> if x == 'roger':
+...     print("shave")
+... elif x == 'bugs':
+...     print('ops!')
+... elif x == 'chairs':
+...     print('ops! again!')
+... else:
+...     print('run away!')
+...
+run away!
+```
+
+> You can have multiple `elif` statements.
+
+* There is no *switch*. Use `if` and multiple `elif` or a dictionarie:
+
+```python
+>>> job = 'manager'
+>>>
+>>> if job == 'manager':
+...     pay = 10_000
+... elif job == 'developer':
+...     pay = 9_000
+... elif job == 'designer':
+...     pay = 9_500
+... else:
+...     pay = 0
+...
+>>> print(pay)
+10000
+>>> print(job)
+manager
+>>>
+>>> # or, as a dict
+>>> d = {
+...     "manager": 10_000,
+...     "developer": 9_000,
+...     "designer": 9_5000
+... }
+>>> print(d[job])
+10000
+>>>
+```
+
+* In `if` statements, the `else` clause handles the default behavior (if not condition is match). With dictionaries, you can use the `.get()` method:
+
+```python
+>>> default_price = 1.99
+>>>
+>>> prices = {
+...     "apple": 0.99,
+...     "mango": 1.29,
+...     "pineapple": 1.49
+... }
+>>>
+>>> prices.get("grape", default_price)
+1.99
+>>>
+```
+
+Or, using an `if` with the `in` operator and an `else` clause:
+
+```python
+>>> default_price = 1.99
+>>>
+>>> prices = {
+...     "apple": 0.99,
+...     "mango": 1.29,
+...     "pineapple": 1.49
+... }
+>>>
+>>> if "grape" in prices:
+...     print(prices["grape"])
+... else:
+...     print(default_price)
+...
+1.99
+>>>
+```
+
+Or, with a `try` block:
+
+```python
+>>> default_price = 1.99
+>>>
+>>> prices = {
+...     "apple": 0.99,
+...     "mango": 1.29,
+...     "pineapple": 1.49
+... }
+>>>
+>>> try:
+...     print(prices["grape"])
+... except KeyError:
+...     print("bad choice")
+...
+bad choice
+>>>
+```
+
+* boolean tests `and` / `or` always return one of the objects used, instead of `True` or `False`:
+
+```python
+>>> a = 0.0 or 9
+>>> a
+9
+>>> a = "" and -1
+>>> a
+''
+>>>
+```
+
+* Python logical operators `and` / `or` always return one of the object compared and short-circuit:
+
+> `and` returns the first object with a false value or the last with a true value.
+
+> `or` returns the first object with a true value or the last with a false value.
+
+```python
+# and returns
+>>> 1 and 2 # both are true, so the second is returned
+2
+>>>
+>>> "spam" or {} # first is true: returns spam, {} is not interpreted
+'spam'
+>>>
+>>> [] and {} # [] first is false: short circuits and is returned
+[]
+>>>
+>>> [] or {} # doesn't short circuits, returns {}
+{}
+>>>
+```
+
+* `if/else` ternary operator:
+
+```python
+>>> x = 10
+>>>
+>>> answer = "spam" if x == 11 else "eggs"
+>>> answer
+'eggs'
+>>>
+>>>
+```
+
+> Caution: The ternary operator also short circuits:
+
+```python
+>>> print("spam") if 10 / 2 > 0 else print("eggs")
+spam
+>>> print("spam") if 10 / 2 < 0 else print("eggs")
+eggs
+>>>
+```
+
+* The "return object" behavior is used in some common coding idioms:
+
+1. Return the first True object from a fixed set:
+
+```python
+>>> a = 0
+>>> b = ""
+>>> c = []
+>>> d = 1.618
+>>> e = {}
+>>>
+>>> answer = a or b or c or d or e
+>>> answer
+1.618
+>>>
+```
+
+2. Designate a default value if variable is false:
+
+```python
+>>> name = input("Enter your name:") or "anonymous"
+Enter your name:
+>>> name
+'anonymous'
+>>>
+```
+
+* Again, caution with the short circuit behavior:
+
+```python
+>>> input("Click enter to continue: ") and print("Bye!")
+Click enter to continue:
+''
+>>>
+```
+
+To guarantee both functions will run, execute them before comparisons:
+
+```python
+>>> tmp1 = f1()
+>>> tmp2 = f2()
+>>>
+>>> tmp1 or tmp2
+```
+
+* You can use `filter()`, `any()` and `all()` builtins to perform some logical filtering/analysis:
+
+1. `filter()` return only Treu values from seq:
+
+```python
+>>> lst = [1, 2, 3, 0, "", 6, 7]
+>>> list(filter(bool, lst))  # bool is the function to apply for each element. list() is necessary, as it returns a generator
+[1, 2, 3, 6, 7]
+>>>
+```
+
+2. `any(seq)` any value is `True` in `seq` ?
+
+```python
+>>> any([0, "", {}])
+False
+>>> any([0, "", {}, 3.14])
+True
+>>>
+```
+
+3. `all(seq)` are all elements `True` ?
+
+```python
+>>> all([1, 2, 3])
+True
+>>>
+>>> all([1, 2, 3, 0])
+False
+>>>
+```
