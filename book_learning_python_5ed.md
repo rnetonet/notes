@@ -6574,3 +6574,392 @@ True
 False
 >>>
 ```
+
+## while and for loops
+
+* `while` syntax:
+
+```python
+while condition:
+    ...logic_block...
+else:
+    ...no_break_block...
+```
+
+The `condition` is checked. If `True`, the `logic_block` is executed. The `logic_block` does not trigger any `break` statement, the `condition` is checked again and, if `True`, the `logic_block` is run again, and so on:
+
+```python
+>>> x = 3
+>>> while x: # x != 0
+...     print(x)
+...     x -= 1
+...
+3
+2
+1
+>>>
+```
+
+The `else` statement block is executed if no `break` statement is triggered in the `logic_block.`
+
+```python
+>>> x = 3
+>>> while x: # x != 0
+...     print(x)
+...     x -= 1
+... else:
+...     print("No breaks so far!")
+...
+3
+2
+1
+No breaks so far!
+>>>
+```
+
+* Other `while` examples:
+
+Infinite loop:
+
+```python
+>>> while True:
+...     print("CTRL+C to stop!")
+...
+```
+
+Progressive slicing a string:
+
+```python
+>>> s = "spam!"
+>>> while s:
+...     print(s)
+...     s = s[1:]
+...
+spam!
+pam!
+am!
+m!
+!
+>>>
+```
+
+* Python does not have a `do/while`, to emulate it, create an `infinite loop` with a `break` on the exit condition:
+
+```python
+while True:
+    .....logic_block.....
+    if exit_condition: break
+```
+
+* Python has some especial statements that can be used inside loops:
+
+`continue`: skips the remainder of the current logic block and jumps to the next condition check (header line):
+
+```python
+>>> a = 10
+>>>
+>>> # print only odds
+>>> while a:
+...     a -= 1
+...     if not a % 2 == 0:
+...         continue
+...     print(a)
+...
+8
+6
+4
+2
+0
+>>>
+```
+
+`break`: terminates the closest loop immediately:
+
+```python
+>>> a = 10
+>>>
+>>> while a:
+...     a -= 1
+...     if a == 3: break
+...     print(a)
+...
+9
+8
+7
+6
+5
+4
+>>>
+```
+
+> Caution: `break` just stops one loop, the on which it is inclosed. Not all loops.
+
+```python
+>>> a = 5
+>>> b = 3
+>>>
+>>> while a:
+...     print("a", a)
+...     a -= 1
+...     while b:
+...         if b == 1: break
+...         print("b", b)
+...         b -= 1
+...
+a 5
+b 3
+b 2
+a 4
+a 3
+a 2
+a 1
+>>>
+>>>
+```
+
+* Python also has a `pass` statement that does **nothing**! It is just a placeholder:
+
+```python
+>>> a = 10
+>>>
+>>> while a:
+...     pass
+...     a -= 1
+...
+>>>
+```
+
+* And, remember, the `else` clause in loops are executed when the loop executes fully, that is, no `break` statement is issued:
+
+```python
+>>> lst = [1, 3, 5, 7, 9]
+>>>
+>>> while lst:
+...     item = lst.pop()
+...     if item % 2 == 0: break # even? exit
+...     print(item)
+... else:
+...     print("No even in list!")
+...
+9
+7
+5
+3
+1
+No even in list!
+>>>
+```
+
+Its commonly used to execute some action just after the loop concludes:
+
+```python
+>>> s = 0
+>>> lst = [1, 3, 5, 7, 9]
+>>> while lst:
+...     s += lst.pop()
+... else:
+...     print("The sum is", s)
+...
+The sum is 25
+>>>
+```
+
+Or to get the last value of some variable changed in the loop:
+
+```python
+>>> lst = [1, 3, 5, 7, 2, 9]
+>>>
+>>> # look for the even one
+>>> there_is_some_even = False
+... while lst:
+...     item = lst.pop()
+...     if item % 2 == 0: there_is_some_even = True
+... else:
+...     print("There is some even?", there_is_some_even)
+...
+There is some even? True
+>>>
+```
+
+### ... (Ellipsis) as an alternative to `pass` or as an initial variable value
+
+In Python 3, `...` can be used instead of `pass` or as a placeholder for variables.
+
+```python
+>>> def to_be_defined(): ...  # ... = pass
+>>>
+```
+
+Or as an initial variable value:
+
+```python
+>>> placeholder_var = ... # ... = None
+>>> placeholder_var
+Ellipsis
+>>> bool( placeholder_var )
+True
+>>> placeholder_var is None
+False
+>>> placeholder_var == None
+False
+>>>
+```
+
+> Caution! `...` creates an `Ellipsis` object, which is completely different from `None`, and has a `True` boolean value.
+
+* `continue` jumps to the next loop cycle, immediately interrupting the current one:
+
+```python
+>>> x = 10
+>>>
+>>> while x:
+...     x -= 1
+...     if x % 2 == 0: continue # skip odds
+...     print(x)
+...
+9
+7
+5
+3
+1
+>>>
+```
+
+* To break out from multiple chained loops you should exceptions. Remember: `break` just ends the closest loop.
+
+* The `else` clause of loops is run if the loops dosent run at all. That is, the condition first check is `False` for `while` loops or the sequence is empty, in for loops:
+
+```python
+>>> x = 0
+>>>
+>>> while x:
+...     print(x)
+...     x -= 1
+... else:
+...     print("X is not valid")
+...
+X is not valid
+>>>
+```
+
+### `for` loops
+
+Structure:
+
+```python
+for targets in objects_sequence:
+    logic_block
+else: # no break
+    nobreak_block
+```
+
+It assigns each item (or collection of items) from `objects_sequence` into `targets` and execute the `logic_block` with this context.
+
+`targets` usually (if no `break` is issued) mantain the last objects from the sequence when the loop ends.
+
+The `else` clause has the same behavior as in `while` loops: run a block of code if no `break` happend during the loop.
+
+Some examples:
+
+```python
+>>> for x in ["spam", "eggs", "bacon"]:
+...     print(x)
+...
+spam
+eggs
+bacon
+>>>
+```
+
+Another example with sum and multiplication product of a list:
+
+```python
+>>> summation = 0
+>>> product = 1
+>>>
+>>> for item in [1, 2, 3, 4]:
+...     summation += item
+...     product *= item
+...
+>>> summation
+10
+>>> product
+24
+>>>
+```
+
+* `for` works with any sequence type or object that respects the iterator protocol:
+
+```python
+>>> b = ("and", "you", "are")
+>>>
+>>> for x in a: print(x)
+l
+u
+m
+b
+e
+r
+j
+a
+c
+k
+>>>
+>>> for y in b: print(y)
+and
+you
+are
+>>>
+```
+
+* `Tuple unpacking` work in `for` header declarations:
+
+```python
+>>> t = [ (1, 2), (3, 4), (5, 6) ]
+>>>
+>>> for a, b in t:
+...     print(a)
+...     print(b)
+...
+1
+2
+3
+4
+5
+6
+>>>
+>>> t = [ (1, 2, 2, 1), (3, 4, 4, 3), (5, 6, 6, 5) ]
+>>> for a, *b in t:
+...     print(a)
+...     print(b)
+...
+1
+[2, 2, 1]
+3
+[4, 4, 3]
+5
+[6, 6, 5]
+>>>
+```
+
+* Tuple unpacking and for loops are useful to iterate over dictionaries:
+
+```python
+>>> d = {"a": 1, "b": 2, "c": 3}
+>>>
+>>> for key in d:
+...     print(key)
+...
+a
+b
+c
+>>>
+>>> for key, value in d.items():
+...     print(key, " -> ", value)
+...
+a  ->  1
+b  ->  2
+c  ->  3
+>>>
+```
+
