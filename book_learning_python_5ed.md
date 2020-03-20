@@ -7728,3 +7728,64 @@ True
 >>>
 >>>
 ```
+
+> **Caution:** many iterators are exhaustable!
+
+```python
+>>> lst = [1, 2, 3]
+>>>
+>>> mlst = map(lambda x: x + 1, lst)
+>>>
+>>> list(mlst) # ok!
+[2, 3, 4]
+>>>
+>>> list(mlst) # exhausted!
+[]
+>>>
+```
+
+* Some new iterables in Python 3:
+
+`range()`
+
+```python
+>>> r = range(6)
+>>> i = iter(r)
+>>> next(i)
+0
+>>> next(i)
+1
+>>> next(i)
+2
+>>> next(i)
+3
+>>> next(i)
+4
+>>> next(i)
+5
+>>> next(i)
+-------------------------------------------------------------
+StopIteration               Traceback (most recent call last)
+<ipython-input-206-a883b34d6d8a> in <module>
+----> 1 next(i)
+
+StopIteration:
+>>>
+```
+
+`range()`, despite being an iterator, supports indexing, slicing, and `len()`:
+
+```python
+>>> l = range(11)
+>>>
+>>> l[0:5]
+range(0, 5)
+>>>
+>>> l[6]
+6
+>>>
+>>> len(l)
+11
+>>>
+```
+
