@@ -6963,3 +6963,768 @@ c  ->  3
 >>>
 ```
 
+* A more complicated `for` example with an inner `for` and an `else` clause:
+
+```python
+In [1]: items = ["aaa", 111, (4, 5), 2.01]
+
+In [2]: searches = [(4, 5), 3.14]
+
+In [3]: for search in searches:
+   ...:     for item in items:
+   ...:         if search == item:
+   ...:             print(f"{search} was found!")
+   ...:             break # break the for item in items loop
+   ...:         else:
+   ...:             print(f"{search} was NOT found") # if no break is issued, the search was not found
+   ...:
+(4, 5) was NOT found
+(4, 5) was NOT found
+(4, 5) was found!
+3.14 was NOT found
+3.14 was NOT found
+3.14 was NOT found
+3.14 was NOT found
+
+In [4]:
+```
+
+* To read a file char by char use `_file_.read(1)` and check if it is empty `EOF`:
+
+```python
+>>> fp = open("/etc/hostname", "r")
+>>>
+>>> while True:
+...     char = fp.read(1) # read exactly one char
+...     if not char:      # EOF returns an empty char. While newlines come as \n.
+...         break
+...     print(char)
+...
+T
+4
+4
+0
+s
+>>>
+```
+
+or
+
+```python
+>>> fp = open("/etc/hostname", "r")
+>>>
+>>> for char in fp.read():
+...     print(char)
+...
+T
+4
+4
+0
+s
+
+
+>>>
+
+```
+
+* You can, also, read a file line by line:
+
+using a while:
+
+```python
+>>> fp = open("/etc/shells", "r")
+>>> while True:
+...     line = fp.readline()
+...     if not line: break
+...     print(line)
+...
+# /etc/shells: valid login shells
+
+/bin/sh
+
+/bin/bash
+
+/bin/rbash
+
+/bin/dash
+
+>>>
+```
+
+Or, using a for:
+
+```python
+>>> fp = open("/etc/shells", "r")
+>>>
+>>> for line in fp.readlines(): print(line)
+# /etc/shells: valid login shells
+
+/bin/sh
+
+/bin/bash
+
+/bin/rbash
+
+/bin/dash
+
+>>>
+```
+
+You can even omit the `.readlines()` call, which is the default iterator for file objects:
+
+```python
+>>> fp = open("/etc/shells", "r")
+>>>
+>>> for line in fp: print(line)
+# /etc/shells: valid login shells
+
+/bin/sh
+
+/bin/bash
+
+/bin/rbash
+
+/bin/dash
+
+>>>
+>>> fp.close()
+>>>
+```
+
+* When in doubt, use `for` loops. Avoid, if possible, `while`.
+
+* `range(start, end, step)` create integers (generator):
+
+> you need to convert it to a `list()` to see the results, as it returns a generator.
+
+> `start` is inclusive, but `end` is exclusive:
+
+```python
+>>> # It default starts from zero
+>>> list( range(11) )
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+>>> # end is not inclusive
+>>> list( range(0, 10) )
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+>>>
+>>> # To go until 10, end should be 11
+>>> list( range(0, 11) )
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+>>>
+>>> # You can define a custom step
+>>> list( range(0, 11, 2) )
+[0, 2, 4, 6, 8, 10]
+>>>
+>>> list( range(0, 11, 3) )
+[0, 3, 6, 9]
+>>>
+>>> # It handles negatives
+>>> list( range(10, -1, -1) )
+[10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+>>>
+>>>
+```
+
+* Iterate using offsets (indexes) instead of an iterator:
+
+```python
+>>> lst = [1, 3.14, "spam"]
+>>>
+>>> for i in range(len(lst)): # len(lst) is 3, as range-end is exclusive, it generates 0, 1, 2
+...     print(lst[i])
+...
+1
+3.14
+spam
+>>>
+```
+
+* Indexes can be useful if you need to create slices or something like that:
+
+```python
+>>> s = "spam"
+>>> for i in range(len(s)):
+...     s = s[1:] + s[:1]
+...     print(s)
+...
+pams
+amsp
+mspa
+spam
+```
+
+```python
+>>> s = "spam"
+>>> for i in range(len(s)):
+...     x = s[i:] + s[:i]
+...     print(x)
+...
+spam
+pams
+amsp
+mspa
+>>>
+```
+
+* You can use indexes to skip some items while looping:
+
+```python
+>>> s = "hello world"
+>>>
+>>> for i in range(0, len(s), 2):
+...     print(s[i])
+...
+h
+l
+o
+w
+r
+d
+>>>
+```
+
+> Note that you can do the same, in a simpler way, using slices:
+
+```python
+>>> s = "hello world"
+>>>
+>>> for char in s[::2]:
+...     print(char)
+...
+h
+l
+o
+w
+r
+d
+>>>
+```
+
+* Indexes and `for` loops are useful to traverse a list while changing it:
+
+```python
+>>> s = "hello world"
+>>>
+>>> for char in s[::2]:
+...     print(char)
+...
+h
+l
+o
+w
+r
+d
+>>>
+```
+
+You need to use indexes:
+
+```python
+>>> l = [1, 2, 3, 4, 5]
+>>>
+>>> for i in range(len(l)):
+...     l[i] += 1
+...
+>>> l
+[2, 3, 4, 5, 6]
+>>>
+```
+
+* Travese two sequence in parallel with `zip()`:
+
+* `zip(seq1, seq2, seq3...)` returns a list of tuples pairing elements of the sequences in tuples:
+
+> `zip()` returns a generator, so `list` is necessary.
+
+```python
+>>> list( zip([1, 2, 3], [4, 5, 6], [7, 8, 9]) )
+[(1, 4, 7), (2, 5, 8), (3, 6, 9)]
+>>>
+```
+
+Its quite useful in `for` loops:
+
+```python
+>>> names = ["john", "paul", "manoela"]
+>>> ages = [31, 33, 25]
+>>>
+>>> for name, age in zip(names, ages):
+...     print(name, " -> ", age)
+...
+john  ->  31
+paul  ->  33
+manoela  ->  25
+>>>
+```
+
+* `zip()` truncates on the lowest length:
+
+```python
+>>> list( zip([1, 2, 3, 4, 5], ["a", "b", "c"]) )
+[(1, 'a'), (2, 'b'), (3, 'c')]
+>>>
+```
+
+* `zip()` can be used to create `dict` also:
+
+```python
+>>> keys = ["name", "age"]
+>>> items = ["John", 32]
+>>>
+>>> data = dict( zip(keys, items) )
+>>> data
+{'name': 'John', 'age': 32}
+>>>
+```
+
+* If you need to iterate over a sequence and gather the indexes and values, use `enumerate()`:
+
+```python
+>>> s = "spam"
+>>> for index, value in enumerate(s):
+...     print(f"{index}: {value}")
+...
+0: s
+1: p
+2: a
+3: m
+>>>
+```
+
+* `os.popen` provides a file-like interface for executing and reading shell commands:
+
+```python
+>>> import os
+>>>
+>>> fp = os.popen("ls /tmp")
+>>> fp.readlines()
+['sddm-:0-tvDMFr\n',
+ 'sddm-auth2a1e5e24-f8a7-4255-975f-ec4ddf02ae52\n',
+ 'ssh-voDvxxKvIxCW\n',
+ 'systemd-private-9657f3a3970c402b85f01132f2e26ec8-ModemManager.service-lQDJ33\n',
+ 'systemd-private-9657f3a3970c402b85f01132f2e26ec8-redis-server.service-Jqk3nt\n',
+ 'systemd-private-9657f3a3970c402b85f01132f2e26ec8-rtkit-daemon.service-eqhFDz\n',
+ 'systemd-private-9657f3a3970c402b85f01132f2e26ec8-systemd-resolved.service-YJppUU\n',
+ 'systemd-private-9657f3a3970c402b85f01132f2e26ec8-systemd-timesyncd.service-v3f1nZ\n',
+ 'tmp.2bOs3ttxT9\n',
+ 'upd\n',
+ 'VSCode Crashes\n',
+ 'xauth-1000-_0\n']
+>>> fp.close()
+>>>
+```
+
+### Iteration protocol
+
+* `iterable`: object that responds to the `iter()` builtin returning an `iterator` object, which returns a value for each `next(iterator)` call.
+
+* An `iterator` object has a method `__next__()` that returns a value each time it is called or raises a `StopIteration` exception. Example, files are `iterators`:
+
+```python
+>>> fp = open("/etc/shells")
+>>>
+>>> fp.__next__()
+'# /etc/shells: valid login shells\n'
+>>> fp.__next__()
+'/bin/sh\n'
+>>> fp.__next__()
+'/bin/bash\n'
+>>> fp.__next__()
+'/bin/rbash\n'
+>>> fp.__next__()
+'/bin/dash\n'
+>>> fp.__next__()
+---------------------------------------------------------------------------
+StopIteration                             Traceback (most recent call last)
+<ipython-input-69-ea64a490840b> in <module>
+----> 1 fp.__next__()
+
+StopIteration:
+>>>
+```
+
+This `__next__()` call and treating the `StopIteration` exception is exactly what `for` does under the hood:
+
+```python
+>>> fp = open("/etc/shells")
+>>>
+>>> for line in fp:
+...     print(line)
+...
+# /etc/shells: valid login shells
+
+/bin/sh
+
+/bin/bash
+
+/bin/rbash
+
+/bin/dash
+```
+
+> Its the best way to read a file!
+
+* In Python 2 the method was called `next()` without underscores. In Python 3, it became `__next__`. To enhance compability, a builtin function `next()` was created to call the right method.
+
+```python
+>>> fp = open("/etc/shells")
+>>>
+>>> next(fp)
+'# /etc/shells: valid login shells\n'
+>>> next(fp)
+'/bin/sh\n'
+>>> next(fp)
+'/bin/bash\n'
+>>> next(fp)
+'/bin/rbash\n'
+>>> next(fp)
+'/bin/dash\n'
+>>> next(fp)
+---------------------------------------------------------------------------
+StopIteration                             Traceback (most recent call last)
+<ipython-input-80-651d4e07234e> in <module>
+----> 1 next(fp)
+
+StopIteration:
+>>>
+```
+
+* One detail is missing. Before the successive calls to `next(iterator)` the for loop asks the object for an iterator through the builtin `iter(object)`, the `object` then returns an `iterator`, in which the successive `next(iterator)` calls are made. Example:
+
+```python
+>>> fp = open("/etc/shells")
+>>>
+>>> i = iter(fp)
+>>> i
+<_io.TextIOWrapper name='/etc/shells' mode='r' encoding='UTF-8'>
+>>>
+>>> next(i)
+'# /etc/shells: valid login shells\n'
+>>> next(i)
+'/bin/sh\n'
+>>> next(i)
+'/bin/bash\n'
+>>> next(i)
+'/bin/rbash\n'
+>>> next(i)
+'/bin/dash\n'
+>>> next(i)
+---------------------------------------------------------------------------
+StopIteration                             Traceback (most recent call last)
+<ipython-input-90-a883b34d6d8a> in <module>
+----> 1 next(i)
+
+StopIteration:
+>>>
+```
+
+* Sometimes the `iterable` and the `iterator` are the same objects, a good example are files:
+
+```python
+>>> fp = open("/etc/shells")
+>>>
+>>> iter(fp) is fp
+True
+>>>
+```
+
+But lists, tuples, dictionaries, return different objects as `iterators`:
+
+```python
+>>> lst = [1, 2, 3]
+>>>
+>>> i_lst = iter(lst)
+>>> i_lst
+<list_iterator at 0x7fcc0578cba8>
+>>>
+>>> lst is i_lst
+False
+>>>
+>>> lst == i_lst
+False
+>>>
+```
+
+This enables concurrent iterations in different positions:
+
+```python
+>>> lst = [1, 2, 3]
+>>>
+>>> i1 = iter(lst)
+>>> i2 = iter(lst)
+>>>
+>>> next(i1)
+1
+>>> next(i1)
+2
+>>>
+>>> next(i2)
+1
+>>>
+>>> next(i1)
+3
+>>>
+>>> next(i2)
+2
+>>>
+```
+
+* Dictionaries, for example, are `iterable` too, and their `iterator` return its keys.
+
+```python
+>>> d = {"name": "John", "age": 23, "job": "developer"}
+>>>
+>>> i_d = iter(d)
+>>>
+>>> next(i_d)
+'name'
+>>> next(i_d)
+'age'
+>>> next(i_d)
+'job'
+>>>
+```
+
+You can iterate directly over dicts:
+
+```python
+>>> d = {"name": "John", "age": 23, "job": "developer"}
+>>>
+>>> i_d = iter(d)
+>>>
+>>> next(i_d)
+'name'
+>>> next(i_d)
+'age'
+>>> next(i_d)
+'job'
+>>>
+>>> for key in d:
+...     print(key)
+...
+name
+age
+job
+>>>
+```
+
+* All `iterable` objects return a value per time, thats why we use `list()` conversion to see all the values:
+
+```python
+>>> r = range(11)
+>>>
+>>> it_r = iter(r)
+>>> next(it_r)
+0
+>>> next(it_r)
+1
+>>> next(it_r)
+2
+>>> next(it_r)
+3
+>>>
+>>>
+>>>
+>>> r = range(11)
+>>>
+>>> list(r)
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+>>>
+```
+
+* Even `enumerate()` is an `iterable`:
+
+```python
+>>> lst = ["spam", "eggs", "bacon"]
+>>>
+>>> e = enumerate(lst)
+>>>
+>>> i = iter(e)
+>>> next(i)
+(0, 'spam')
+>>> next(i)
+(1, 'eggs')
+>>> next(i)
+(2, 'bacon')
+>>>
+```
+
+* The basic `iterator` usage is:
+
+```python
+# Get iterator from iterable object with iter()
+i = iter(obj)
+
+# Get all values until StopIteration is launched:
+while True:
+    try:
+        v = next(i)
+        # do something with v
+    except StopIteration:
+        break
+```
+
+#### list comprehension
+
+* Are an inverted for
+
+* Basic syntax:
+
+```python
+>>> s = 'spam'
+>>>
+>>> z = [c.upper() for c in s]
+>>> z
+['S', 'P', 'A', 'M']
+>>>
+```
+
+* Extended syntax with an `if`:
+
+```python
+>>> s = 'spam'
+>>>
+>>> z = [c.upper() * 2 for c in s if c in ('a', 'p')]
+>>>
+>>> z
+['PP', 'AA']
+>>>
+```
+
+* You can nest `for` and `if` in list comprehensions:
+
+```python
+>>> a = ["spam", "eggs", "bacon"]
+>>> b = ["america", "bulgaria", "zambia"]
+>>>
+>>> lst = [f"{x} -> {y}" for x in a if "s" in x for y in b if "b" in y]
+>>> lst
+['spam -> bulgaria', 'spam -> zambia', 'eggs -> bulgaria', 'eggs -> zambia']
+>>>
+```
+
+* Basically, the syntax is:
+
+`[expr for_and_if1  aninhanated_for_and_if2 aninhanted_for_and_if3]`...
+
+Which can be translated to:
+
+
+```python
+res = []
+
+for_and_if1:
+    for_and_if2:
+        for_and_if3:
+            res.append( expr )
+
+return res
+```
+
+* In Python, every time you read a sequence left-to-right you are using the iterator protocol described (`iter()`, `next()...next...next()`):
+
+Iterator protocolo usage in builtins:
+
+```python
+>>> # Many builtins work and/or produce iterators
+>>> # Example: a file
+>>>
+>>> sorted(open("/etc/shells"))
+['# /etc/shells: valid login shells\n',
+ '/bin/bash\n',
+ '/bin/dash\n',
+ '/bin/rbash\n',
+ '/bin/sh\n']
+>>>
+>>> list( zip( open("/etc/shells"), open("/etc/shells") ) )
+[('# /etc/shells: valid login shells\n',
+  '# /etc/shells: valid login shells\n'),
+ ('/bin/sh\n', '/bin/sh\n'),
+ ('/bin/bash\n', '/bin/bash\n'),
+ ('/bin/rbash\n', '/bin/rbash\n'),
+ ('/bin/dash\n', '/bin/dash\n')]
+>>>
+>>> list( enumerate(open("/etc/shells") ))
+[(0, '# /etc/shells: valid login shells\n'),
+ (1, '/bin/sh\n'),
+ (2, '/bin/bash\n'),
+ (3, '/bin/rbash\n'),
+ (4, '/bin/dash\n')]
+>>>
+>>> list( open("/etc/shells") )
+['# /etc/shells: valid login shells\n',
+ '/bin/sh\n',
+ '/bin/bash\n',
+ '/bin/rbash\n',
+ '/bin/dash\n']
+>>>
+>>> tuple( open("/etc/shells") )
+('# /etc/shells: valid login shells\n',
+ '/bin/sh\n',
+ '/bin/bash\n',
+ '/bin/rbash\n',
+ '/bin/dash\n')
+>>>
+>>> "$".join( open("/etc/shells") )
+'# /etc/shells: valid login shells\n$/bin/sh\n$/bin/bash\n$/bin/rbash\n$/bin/dash\n'
+>>>
+>>>
+```
+
+Iterator protocol usage in language syntax:
+
+```python
+>>> a, b, c, d, e = open("/etc/shells")
+>>> a, b, c, d, e
+('# /etc/shells: valid login shells\n',
+ '/bin/sh\n',
+ '/bin/bash\n',
+ '/bin/rbash\n',
+ '/bin/dash\n')
+>>>
+>>> a, *b = open("/etc/shells")
+>>> a, b
+('# /etc/shells: valid login shells\n',
+ ['/bin/sh\n', '/bin/bash\n', '/bin/rbash\n', '/bin/dash\n'])
+>>>
+>>> "/bin/bash\n" in open("/etc/shells")
+True
+>>>
+>>> l = [1, 2, 3]
+>>>
+>>> l[1:] = open("/etc/shells")
+>>> l
+[1,
+ '# /etc/shells: valid login shells\n',
+ '/bin/sh\n',
+ '/bin/bash\n',
+ '/bin/rbash\n',
+ '/bin/dash\n']
+>>>
+>>> l = ["spam"]
+>>> l.extend(open("/etc/shells"))
+>>> l
+['spam',
+ '# /etc/shells: valid login shells\n',
+ '/bin/sh\n',
+ '/bin/bash\n',
+ '/bin/rbash\n',
+ '/bin/dash\n']
+>>>
+```
+
+* Functions have a special `*arg` syntax that unpacks a sequence into positional arguments and support iterables also. So you can, for example, unzip a `zip()` object:
+
+```python
+>>> a = ["john", "paul", "amelia"]
+>>> b = [3000, 5000, 1500]
+>>>
+>>> list( zip(a, b) )
+[('john', 3000), ('paul', 5000), ('amelia', 1500)]
+>>>
+>>> x, y = zip( *zip(a, b) )
+>>> x, y
+(('john', 'paul', 'amelia'), (3000, 5000, 1500))
+>>>
+>>>
+```
