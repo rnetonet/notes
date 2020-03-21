@@ -7789,3 +7789,720 @@ range(0, 5)
 >>>
 ```
 
+* `range()` returns a inexhaustible iterator, so you can have multiple concurrent:
+
+```python
+>>> r = range(11)
+>>>
+>>> i1 = iter(r)
+>>> i2 = iter(r)
+>>>
+>>> next(i1)
+0
+>>> next(i1)
+1
+>>> next(i1)
+2
+>>>
+>>>
+>>> next(i2)
+0
+>>>
+```
+
+* Some iterators are exhaustible: `zip`, `map` and `filter`:
+
+```python
+>>> a = [1, 2, 3]
+>>> b = ['a', 'b', 'c']
+>>>
+>>> z = zip(a, b)
+>>>
+>>> # uses the iterator
+>>> for pair in z:
+...     print(pair)
+...
+(1, 'a')
+(2, 'b')
+(3, 'c')
+>>>
+>>> # exhausted
+>>> for pair in z:
+...     print(pair)
+...
+>>>
+>>>
+```
+
+```python
+>>> lst = (-1, -2, -3.14)
+>>>
+>>> abs_map = map(abs, lst)
+>>>
+>>> i1 = iter(abs_map)
+>>> i2 = iter(abs_map)
+>>>
+>>> next(i1)
+1
+>>> next(i2)
+2
+>>>
+```
+
+```python
+>>> # filter return only the elements for which the passed function returns True
+>>>
+>>> lst = [1, 0, '', 'spam', 3.14]
+>>> filt_lst = filter(bool, lst)
+>>>
+>>> for true_el in filt_lst:
+...     print(true_el)
+...
+1
+spam
+3.14
+>>>
+>>> # exhausted
+>>> for true_el in filt_lst:
+...     print(true_el)
+...
+>>>
+```
+
+* `range()` is a really different `iterable`. It supports multiple/concurrent iterators, indexing and slicing.
+
+```python
+>>> r = range(0, 11, 2)
+>>> list(r) # see the generated numbers
+[0, 2, 4, 6, 8, 10]
+>>>
+>>> r[1]
+2
+>>>
+>>> r[1:3]
+range(2, 6, 2)
+>>>
+>>> i1 = iter(r)
+>>> i2 = iter(r)
+>>>
+>>> next(i1)
+0
+>>> next(i1)
+2
+>>>
+>>> next(i2)
+0
+>>>
+>>> len(r)
+6
+>>>
+```
+
+> `range()` requires an `iter()` call. You cant iterate directly over it:
+
+```python
+>>> r = range(0, 11, 2)
+>>>
+>>> next(r) # ops! iter is required
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-27-98884c9717c1> in <module>
+----> 1 next(r) # ops! iter is required
+
+TypeError: 'range' object is not an iterator
+>>>
+
+```
+
+`map`, `zip` and `filter` can be iterated directly, because the object itself is the iterator:
+
+```python
+>>> lst = ["spam", "eggs", "bacon"]
+>>>
+>>> m_lst = map(str.upper, lst)
+>>>
+>>> next(m_lst)
+'SPAM'
+>>> next(m_lst)
+'EGGS'
+>>> next(m_lst)
+'BACON'
+>>> next(m_lst)
+---------------------------------------------------------------------------
+StopIteration                             Traceback (most recent call last)
+<ipython-input-43-eac1f37a30b8> in <module>
+----> 1 next(m_lst)
+
+StopIteration:
+>>>
+>>> # There is only one iterator, which is the object and is exhausted
+>>> new_iter_m_lst = iter(m_lst)
+>>> next(new_iter_m_lst)
+---------------------------------------------------------------------------
+StopIteration                             Traceback (most recent call last)
+<ipython-input-46-bcc66cdbe430> in <module>
+----> 1 next(new_iter_m_lst)
+
+StopIteration:
+>>>
+```
+
+* Dictionaries methods `.keys()`, `.values()` and `.items()` return iterator `views` objects.
+These `views` reflect at all time the dictionarie structure and respond to the iterator protocol:
+
+```python
+>>> d = {"name": "John", "age": 45}
+>>>
+>>> keys = d.keys()
+>>>
+>>> ikeys = iter(keys) # you need to require an iterator
+>>> next(ikeys)
+'name'
+>>> next(ikeys)
+'age'
+>>> next(ikeys)
+---------------------------------------------------------------------------
+StopIteration                             Traceback (most recent call last)
+<ipython-input-52-b89178b9aff7> in <module>
+----> 1 next(ikeys)
+
+StopIteration:
+>>>
+>>> d["job"] = "developer"
+>>>
+>>> # To see the new key, you need a new iterator throught iter()
+>>> ikeys = iter(keys) # you need to require an iterator
+>>> next(ikeys)
+'name'
+>>> next(ikeys)
+'age'
+>>> next(ikeys)
+'job'
+>>> next(ikeys)
+---------------------------------------------------------------------------
+StopIteration                             Traceback (most recent call last)
+<ipython-input-59-b89178b9aff7> in <module>
+----> 1 next(ikeys)
+```
+
+This behavior is repeated by `.values()` and `.items()`:
+
+```python
+>>> d["job"] = "developer"
+>>>
+>>> next(ikeys)
+---------------------------------------------------------------------------
+StopIteration                             Traceback (most recent call last)
+>>> d = {"name": "John", "age": 45}
+>>>
+>>> ivalues = iter(d.values())
+>>> next(ivalues)
+'John'
+>>> next(ivalues)
+45
+>>> next(ivalues)
+---------------------------------------------------------------------------
+StopIteration                             Traceback (most recent call last)
+<ipython-input-64-e0b0802e7d22> in <module>
+----> 1 next(ivalues)
+
+StopIteration:
+>>>
+>>> iitems = iter(d.items())
+>>> next(iitems)
+('name', 'John')
+>>> next(iitems)
+('age', 45)
+>>> next(iitems)
+---------------------------------------------------------------------------
+StopIteration                             Traceback (most recent call last)
+<ipython-input-68-cee89d66f73b> in <module>
+----> 1 next(iitems)
+
+StopIteration:
+>>>
+>>>
+```
+
+* Dict are themselves iterables and respond to `iter()`, returning the `keys_view`:
+
+```python
+>>> d = {"name": "John", "age": 45}
+>>>
+>>> i_d = iter(d)
+>>> next(i_d)
+'name'
+>>> next(i_d)
+'age'
+>>> next(i_d)
+---------------------------------------------------------------------------
+StopIteration                             Traceback (most recent call last)
+<ipython-input-75-7e3ea04201b3> in <module>
+----> 1 next(i_d)
+
+StopIteration:
+>>>
+>>> i_d2 = iter(d)
+>>> next(i_d2)
+'name'
+>>> next(i_d2)
+'age'
+>>>
+>>> iter(d)
+<dict_keyiterator at 0x7f7c0785cb88>
+>>> iter(d.keys())
+<dict_keyiterator at 0x7f7c07ebf138>
+>>>
+>>>
+```
+
+> To iterate over a sorted sequence of dictionary keys, use `sorted(dict)`:
+
+```python
+>>> d = {"z": 3, "b": 10, "x": 15, "a": 1}
+>>>
+>>> for key in sorted(d):
+...     print(key)
+...
+a
+b
+x
+z
+>>>
+```
+
+
+## Documentation and getting help
+
+* emty `dir()`  returns the caller context local variables, just like `locals()`:
+
+```python
+>>> dir() # return local variables
+['In',
+ 'Out',
+ '_',
+ '_1',
+ '_2',
+ '_3',
+ '_4',
+ '__',
+ '___',
+ '__builtin__',
+ '__builtins__',
+ '__doc__',
+ '__loader__',
+ '__name__',
+ '__package__',
+ '__spec__',
+ '_dh',
+ '_i',
+ '_i1',
+ '_i2',
+ '_i3',
+ '_i4',
+ '_i5',
+ '_ih',
+ '_ii',
+ '_iii',
+ '_oh',
+ 'exit',
+ 'get_ipython',
+ 'quit']
+>>>
+>>> sorted(dir()) == sorted(locals())
+True
+>>> len(dir()), len(locals())
+(34, 34)
+>>>
+```
+
+* `dir(object)`, `dir(type)` or `dir(module)` return the attributes (methods and variables) of the object/type:
+
+```python
+>>> s = "spam"
+>>> dir(s)
+['__add__',
+ '__class__',
+ '__contains__',
+ '__delattr__',
+ '__dir__',
+ '__doc__',
+ '__eq__',
+ '__format__',
+ '__ge__',
+ '__getattribute__',
+ '__getitem__',
+ '__getnewargs__',
+ '__gt__',
+ '__hash__',
+ '__init__',
+ '__init_subclass__',
+ '__iter__',
+ '__le__',
+ '__len__',
+ '__lt__',
+ '__mod__',
+ '__mul__',
+ '__ne__',
+ '__new__',
+ '__reduce__',
+ '__reduce_ex__',
+ '__repr__',
+ '__rmod__',
+ '__rmul__',
+ '__setattr__',
+ '__sizeof__',
+ '__str__',
+ '__subclasshook__',
+ 'capitalize',
+ 'casefold',
+ 'center',
+ 'count',
+ 'encode',
+ 'endswith',
+ 'expandtabs',
+ 'find',
+ 'format',
+ 'format_map',
+ 'index',
+ 'isalnum',
+ 'isalpha',
+ 'isdecimal',
+ 'isdigit',
+ 'isidentifier',
+ 'islower',
+ 'isnumeric',
+ 'isprintable',
+ 'isspace',
+ 'istitle',
+ 'isupper',
+ 'join',
+ 'ljust',
+ 'lower',
+ 'lstrip',
+ 'maketrans',
+ 'partition',
+ 'replace',
+ 'rfind',
+ 'rindex',
+ 'rjust',
+ 'rpartition',
+ 'rsplit',
+ 'rstrip',
+ 'split',
+ 'splitlines',
+ 'startswith',
+ 'strip',
+ 'swapcase',
+ 'title',
+ 'translate',
+ 'upper',
+ 'zfill']
+>>>
+>>>
+>>> dir(float)
+['__abs__',
+ '__add__',
+ '__bool__',
+ '__class__',
+ '__delattr__',
+ '__dir__',
+ '__divmod__',
+ '__doc__',
+ '__eq__',
+ '__float__',
+ '__floordiv__',
+ '__format__',
+ '__ge__',
+ '__getattribute__',
+ '__getformat__',
+ '__getnewargs__',
+ '__gt__',
+ '__hash__',
+ '__init__',
+ '__init_subclass__',
+ '__int__',
+ '__le__',
+ '__lt__',
+ '__mod__',
+ '__mul__',
+ '__ne__',
+ '__neg__',
+ '__new__',
+ '__pos__',
+ '__pow__',
+ '__radd__',
+ '__rdivmod__',
+ '__reduce__',
+ '__reduce_ex__',
+ '__repr__',
+ '__rfloordiv__',
+ '__rmod__',
+ '__rmul__',
+ '__round__',
+ '__rpow__',
+ '__rsub__',
+ '__rtruediv__',
+ '__setattr__',
+ '__setformat__',
+ '__sizeof__',
+ '__str__',
+ '__sub__',
+ '__subclasshook__',
+ '__truediv__',
+ '__trunc__',
+ 'as_integer_ratio',
+ 'conjugate',
+ 'fromhex',
+ 'hex',
+ 'imag',
+ 'is_integer',
+ 'real']
+>>>
+>>>
+>>> import random
+>>> dir(random)
+['BPF',
+ 'LOG4',
+ 'NV_MAGICCONST',
+ 'RECIP_BPF',
+ 'Random',
+ 'SG_MAGICCONST',
+ 'SystemRandom',
+ 'TWOPI',
+ '_BuiltinMethodType',
+ '_MethodType',
+ '_Sequence',
+ '_Set',
+ '__all__',
+ '__builtins__',
+ '__cached__',
+ '__doc__',
+ '__file__',
+ '__loader__',
+ '__name__',
+ '__package__',
+ '__spec__',
+ '_acos',
+ '_bisect',
+ '_ceil',
+ '_cos',
+ '_e',
+ '_exp',
+ '_inst',
+ '_itertools',
+ '_log',
+ '_pi',
+ '_random',
+ '_sha512',
+ '_sin',
+ '_sqrt',
+ '_test',
+ '_test_generator',
+ '_urandom',
+ '_warn',
+ 'betavariate',
+ 'choice',
+ 'choices',
+ 'expovariate',
+ 'gammavariate',
+ 'gauss',
+ 'getrandbits',
+ 'getstate',
+ 'lognormvariate',
+ 'normalvariate',
+ 'paretovariate',
+ 'randint',
+ 'random',
+ 'randrange',
+ 'sample',
+ 'seed',
+ 'setstate',
+ 'shuffle',
+ 'triangular',
+ 'uniform',
+ 'vonmisesvariate',
+ 'weibullvariate']
+>>>
+```
+
+* `docstrings` are documentation multiline strings declared in the begin of modules, classes and functions, before
+any executing code. These strings are read by the python interpreter and saved as the `.__doc__` attribute of these objects.
+
+Example: `sample_module.py`:
+
+```python
+"""
+Module documentation...
+"""
+
+def my_function(a, b):
+    """
+    My_function documentation
+    """
+    pass
+
+class Klass:
+    """
+    Klass documentation...
+    """
+
+    def __init__(self, attr1, attr2):
+        """
+        Constructor method
+        """
+        pass
+
+# if running as "python sample_module.py"
+if __name__ == "__main__":
+    print(__doc__) # sample_module.__doc__
+    print(my_function.__doc__)
+    print(Klass.__doc__)
+    print(Klass.__init__.__doc__)
+
+```
+
+Output:
+
+```bash
+
+Module documentation...
+
+
+    My_function documentation
+
+
+    Klass documentation...
+
+
+        Constructor method
+```
+
+Almost all objects present in the Python language and in the standard library have docstrings:
+
+```python
+>>> print( random.__doc__ )
+Random variable generators.
+
+    integers
+    --------
+           uniform within range
+
+    sequences
+    ---------
+           pick random element
+           pick random sample
+           pick weighted random sample
+           generate random permutation
+
+    distributions on the real line:
+    ------------------------------
+           uniform
+           triangular
+           normal (Gaussian)
+           lognormal
+           negative exponential
+           gamma
+           beta
+           pareto
+           Weibull
+
+    distributions on the circle (angles 0 to 2pi)
+    ---------------------------------------------
+           circular uniform
+           von Mises
+
+General notes on the underlying Mersenne Twister core generator:
+
+* The period is 2**19937-1.
+* It is one of the most extensively tested generators in existence.
+* The random() method is implemented in C, executes in a single Python step,
+  and is, therefore, threadsafe.
+
+
+>>>
+```
+
+The `types` also have docstrings:
+
+```python
+>>> print( int.__doc__ )
+int(x=0) -> integer
+int(x, base=10) -> integer
+
+Convert a number or string to an integer, or return 0 if no arguments
+are given.  If x is a number, return x.__int__().  For floating point
+numbers, this truncates towards zero.
+
+If x is not a number or if base is given, then x must be a string,
+bytes, or bytearray instance representing an integer literal in the
+given base.  The literal can be preceded by '+' or '-' and be surrounded
+by whitespace.  The base defaults to 10.  Valid bases are 0 and 2-36.
+Base 0 means to interpret the base from the string as an integer literal.
+>>> int('0b100', base=0)
+4
+>>>
+```
+
+* The `help(ojb)` inspects and prints the docstrings of an object and its attributes in a nice, formatted way:
+
+```python
+>>> help(str)
+>>>
+Help on class str in module builtins:
+
+class str(object)
+ |  str(object='') -> str
+ |  str(bytes_or_buffer[, encoding[, errors]]) -> str
+ |
+ |  Create a new string object from the given object. If encoding or
+ |  errors is specified, then the object must expose a data buffer
+ |  that will be decoded using the given encoding and error handler.
+ |  Otherwise, returns the result of object.__str__() (if defined)
+ |  or repr(object).
+ |  encoding defaults to sys.getdefaultencoding().
+ |  errors defaults to 'strict'.
+ |
+ |  Methods defined here:
+ |
+ |  __add__(self, value, /)
+ |      Return self+value.
+ |
+ |  __contains__(self, key, /)
+:
+```
+
+`help()` mixes object structure, throught introspection, and docstrings.
+
+## Functions
+
+* `def` is excutable code. the function does not exists until `def` is executed.
+
+* `functions` are `objects` that respond to `function()` (`__call__`) method.
+
+* `def` creates a new `function object` and assigns it to the specified name.
+This name is a variable/reference as any other. Can be used in lists, dicts, everywhere a variable/reference can be placed.
+
+* `lambda` creates an anonymous functions (that does not have a reference/variable pointing to it) in an one-line statement and returns the function object as result.
+
+* `return` sends an object back to the caller. When no `return` is specified or an empty `result` is used, the caller gets back a `None` value.
+
+* `yield` sends an object back to the caller, but remember where it left off. The next time the function is called, it returns from there.
+
+* `global`: variables defined inside a function are visible only inside the function block.
+To change a variable defined in the `module`, the function needs to it in its block with the `global` prefix.
+
+* `nonlocal`: allows the current function scope to change a variable from an outer function scope that wraps the current one.
+You need list the variable in the block with a `nonlocal` prefix.
+
+* Objects are passed by assignment (reference). The reference is duplicated. **No object copy is made**.
+
+* arguments are passed by position, unless otherwise defined.
+by default, arguments should match the function-defined parameters.
+you can pass arguments as keywords: `arg=value` and change the default order.
+
+you can use `*pargs` to allow multiple-flexible positional arguments in the parameters definition,
+or `**kwargs` for multiple-flexible keyword arguments.
+
+*
+
