@@ -8504,5 +8504,61 @@ you can pass arguments as keywords: `arg=value` and change the default order.
 you can use `*pargs` to allow multiple-flexible positional arguments in the parameters definition,
 or `**kwargs` for multiple-flexible keyword arguments.
 
-*
+* `def` is a regular python statement. so it can be used anywhere other statements are used: inside other functions, in `if` blocks, etc:
+
+```python
+>>> operation = "+"
+>>>
+>>> if operation == "+":
+...     def step(a, b):
+...         return a + b
+... elif operation == "*":
+...     def step(a, b):
+...         return a * b
+...
+>>>
+>>> step(10, 3)
+13
+>>>
+```
+
+* `def` block code is evaluated only when the function is called `()`.
+
+* Remember, function are just objects and their names are normal references.
+
+You can make a copy of the reference and use the function:
+
+```python
+>>> def s(a, b):
+...     return a + b
+...
+>>>
+>>> plus = s
+>>>
+>>> plus(10, 20)
+30
+>>>
+```
+
+Being objects, you can even define attributes in it:
+
+```python
+>>> def inc(val):
+...     return val + getattr(inc, "step", 1)
+...
+>>>
+>>> inc(10)
+11
+>>> inc.step = 100
+>>>
+>>> inc(10)
+110
+>>>
+```
+
+* Functions parameters and assignments in its block are `local variables`, visible only in the block scope while running.
+They are born when code starts executing and die when the block ends, they arent accessible from outside the block.
+
+
+## Scopes
 
