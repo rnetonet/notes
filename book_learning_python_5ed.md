@@ -8562,3 +8562,864 @@ They are born when code starts executing and die when the block ends, they arent
 
 ## Scopes
 
+* Python looks for names/variables in namespaces. Where you declare a name/variable defines its scope (where it can be found, the namespace its is inserted).
+
+* `functions` have their own namespace to avoid collisions. all names declared inside a function block are part of the function namespace and dont affect the outside. In other words, the variables defined inside a function block are isolated from the outside and only exist during the block execution.
+
+* Python has three different scopes:
+
+1. inside a `def`, creating a `local` variable to that function.
+2. in an enclosing `def`, thus being `local` to this function but `nonlocal` to all inner functions.
+3. in the module context, thus being a `global`.
+
+```python
+>>> x = 10 # global
+>>> def outer():
+...     y = 20 # nonlocal
+...     def inner():
+...         z = 30 # local
+...         print(z, y, x)
+...     return inner
+...
+>>>
+>>> fx = outer() # returns inner
+>>> fx() # calls inner
+30 20 10
+>>>
+```
+
+You can even user the same name:
+
+```python
+>>> x = 10 # global
+>>> def outer():
+...     x = 20 # nonlocal
+...     def inner():
+...         x = 30 # local
+...         print("local", x)
+...     print("nonlocal", x)
+...     return inner
+...
+...
+>>> fx = outer()
+nonlocal 20
+>>> fx()
+local 30
+>>>
+>>> print("global", x)
+global 10
+>>>
+```
+
+* Each `module` (file) is a global scope.
+When imported the variables become attributes of the module object, but are simple variables inside the module code.
+
+* Each file is a global scope and they dont communicate, unless `import` is used.
+
+* All assigments (`=`, `import`, `def`) inside functions are `local` unless declare `nonlocal` or `global`.
+
+* Everytime a function is called, a new `local` scope is created and destructed after the function ends.
+
+* Builtins are always the last namespace looked, as they are avaiable in all modules.
+
+* Scope resolution order: local -> nonlocal -> global
+
+Examples:
+
+function -> module
+
+```python
+>>> x = 30
+>>> def fx():
+...     y = 10
+...     print(x, y)
+...
+>>>
+>>> fx()
+30 10
+>>>
+```
+
+
+inner_function -> outer_function -> module
+
+```python
+>>> a = 10
+>>>
+>>> def outer():
+...     b = 20
+...     def inner():
+...         c = 30
+...         print(a, b, c)
+...     return inner
+...
+>>>
+>>> fx = outer()
+>>> fx()
+10 20 30
+>>>
+```
+
+* The LEGB rule:
+
+1. Inside `def` all assignment creates local variables.
+
+2. Name lookup follows the sequence: Local, Enclosing, Global and Builtin (LEGB)
+
+3. Inside functions, you can declare variables with `global` or `nonlocal` to exceptionally point to outer scopes.
+This is required to **change** them. To just read, Python automatically looks up outer scopes (see **2**).
+
+During the lookup, the first match wins.
+
+* The `builtins` module is automatically the last scope searched.
+But, to inspect it you need to import it...go figure:
+
+```python
+>>> import builtins
+>>> dir(builtins)
+['ArithmeticError',
+ 'AssertionError',
+ 'AttributeError',
+ 'BaseException',
+ 'BlockingIOError',
+ 'BrokenPipeError',
+ 'BufferError',
+ 'BytesWarning',
+ 'ChildProcessError',
+ 'ConnectionAbortedError',
+ 'ConnectionError',
+ 'ConnectionRefusedError',
+ 'ConnectionResetError',
+ 'DeprecationWarning',
+ 'EOFError',
+ 'Ellipsis',
+ 'EnvironmentError',
+ 'Exception',
+ 'False',
+ 'FileExistsError',
+ 'FileNotFoundError',
+ 'FloatingPointError',
+ 'FutureWarning',
+ 'GeneratorExit',
+ 'IOError',
+ 'ImportError',
+ 'ImportWarning',
+ 'IndentationError',
+ 'IndexError',
+ 'InterruptedError',
+ 'IsADirectoryError',
+ 'KeyError',
+ 'KeyboardInterrupt',
+ 'LookupError',
+ 'MemoryError',
+ 'ModuleNotFoundError',
+ 'NameError',
+ 'None',
+ 'NotADirectoryError',
+ 'NotImplemented',
+ 'NotImplementedError',
+ 'OSError',
+ 'OverflowError',
+ 'PendingDeprecationWarning',
+ 'PermissionError',
+ 'ProcessLookupError',
+ 'RecursionError',
+ 'ReferenceError',
+ 'ResourceWarning',
+ 'RuntimeError',
+ 'RuntimeWarning',
+ 'StopAsyncIteration',
+ 'StopIteration',
+ 'SyntaxError',
+ 'SyntaxWarning',
+ 'SystemError',
+ 'SystemExit',
+ 'TabError',
+ 'TimeoutError',
+ 'True',
+ 'TypeError',
+ 'UnboundLocalError',
+ 'UnicodeDecodeError',
+ 'UnicodeEncodeError',
+ 'UnicodeError',
+ 'UnicodeTranslateError',
+ 'UnicodeWarning',
+ 'UserWarning',
+ 'ValueError',
+ 'Warning',
+ 'ZeroDivisionError',
+ '__IPYTHON__',
+ '__build_class__',
+ '__debug__',
+ '__doc__',
+ '__import__',
+ '__loader__',
+ '__name__',
+ '__package__',
+ '__spec__',
+ 'abs',
+ 'all',
+ 'any',
+ 'ascii',
+ 'bin',
+ 'bool',
+ 'bytearray',
+ 'bytes',
+ 'callable',
+ 'chr',
+ 'classmethod',
+ 'compile',
+ 'complex',
+ 'copyright',
+ 'credits',
+ 'delattr',
+ 'dict',
+ 'dir',
+ 'display',
+ 'divmod',
+ 'enumerate',
+ 'eval',
+ 'exec',
+ 'filter',
+ 'float',
+ 'format',
+ 'frozenset',
+ 'get_ipython',
+ 'getattr',
+ 'globals',
+ 'hasattr',
+ 'hash',
+ 'help',
+ 'hex',
+ 'id',
+ 'input',
+ 'int',
+ 'isinstance',
+ 'issubclass',
+ 'iter',
+ 'len',
+ 'license',
+ 'list',
+ 'locals',
+ 'map',
+ 'max',
+ 'memoryview',
+ 'min',
+ 'next',
+ 'object',
+ 'oct',
+ 'open',
+ 'ord',
+ 'pow',
+ 'print',
+ 'property',
+ 'range',
+ 'repr',
+ 'reversed',
+ 'round',
+ 'set',
+ 'setattr',
+ 'slice',
+ 'sorted',
+ 'staticmethod',
+ 'str',
+ 'sum',
+ 'super',
+ 'tuple',
+ 'type',
+ 'vars',
+ 'zip']
+>>>
+```
+
+* The `builtins` module is always imported by Python and the last step in name resolution, so you can reference it implictly or explictly:
+
+```python
+>>> zip
+zip
+>>>
+>>> import builtins
+>>> builtins.zip
+zip
+>>>
+>>> zip is builtins.zip
+True
+>>>
+```
+
+* Names defined in inner scopes in the LEGB lookup path overrides the outer definitions in the scope they are declared:
+
+```python
+>>> X = 99
+>>>
+>>> def fx():
+...     X = 109 # local X = 100
+...     X += 1 # local X = local X + 1
+...     print(X)
+...
+...
+>>> fx()
+110
+>>>
+>>> X
+99
+>>>
+```
+
+* From inside a function you can reference `nonlocal` and `global` variables.
+But, to change them you need to explictly declare them as `nonlocal` or `global`:
+
+1. Reading a global
+
+```python
+>>> CONSTANT = 3.14
+>>>
+>>> def fx():
+...     print(CONSTANT)
+...
+>>> fx()
+3.14
+>>>
+```
+
+2. Overriding a global
+
+```python
+>>> CONSTANT = 3.14
+>>>
+>>> def fx():
+...     CONSTANT = 1.618
+...     print(CONSTANT)
+...
+>>>
+>>> fx()
+1.618
+>>>
+>>> print(CONSTANT)
+3.14
+>>>
+```
+
+3. Changing a global
+
+```python
+>>> CONSTANT = 3.14
+>>>
+>>> def fx():
+...     global CONSTANT
+...     CONSTANT = 1.618
+...     print(CONSTANT)
+...
+>>>
+>>> fx()
+1.618
+>>>
+>>> print(CONSTANT)
+1.618
+>>>
+```
+
+4. Creating a variable in the `global` scope:
+
+```python
+>>> def fx():
+...     global Y
+...     Y = 100
+...     print(Y)
+...
+...
+>>> fx()
+100
+>>>
+>>> print(Y)
+100
+>>>
+```
+
+* Closures are factory functions, functions that create and return other functions.
+The returned function have access to the scope of the creating function even after it was executed.
+The inner-created-returned function mantains the outer function scope. This is called state retention:
+
+```python
+>>> def fouter():
+...     x = 10
+...     def finner():
+...         print(x)
+...     return finner
+...
+>>> fx = fouter()
+>>> fx()
+10
+>>>
+```
+
+* But caution, each inner function return has its own `state`:
+
+```python
+>>> def fouter():
+...     x = 10
+...     def finner():
+...         nonlocal x
+...         x += 1
+...         print(x)
+...     return finner
+...
+>>>
+>>> fx1 = fouter()
+>>>
+>>> fx2 = fouter()
+>>>
+>>> fx1()
+11
+>>> fx1()
+12
+>>> fx1()
+13
+>>>
+>>> fx2()
+11
+>>> fx2()
+12
+>>> fx2()
+13
+>>>
+```
+
+Even for mutable types:
+
+```python
+>>> def fouter():
+...     lst = []
+...     def finner():
+...         nonlocal lst
+...         lst.append("spam")
+...         print(lst)
+...     return finner
+...
+>>>
+>>> f1 = fouter()
+>>> f2 = fouter()
+>>>
+>>> f1()
+['spam']
+>>> f1()
+['spam', 'spam']
+>>> f1()
+['spam', 'spam', 'spam']
+>>>
+>>>
+>>> f2()
+['spam']
+>>> f2()
+['spam', 'spam']
+>>> f2()
+['spam', 'spam', 'spam']
+>>>
+```
+
+This state replaces the notion of "classes" in some cases.
+
+* `State retention` is true to classes returned from functions also.
+
+* Retainging enclosing scope state with defaults:
+
+* In Python 2, state retention was made passing default arguments to the inner function:
+
+```python
+>>> def fouter():
+...     lst = []
+...     def finner(lst=lst): # assigns a local, finner, lst to the outer fouter-lst
+...         lst.append("spam")
+...         print(lst)
+...     return finner
+...
+>>>
+>>> f1 = fouter()
+>>> f2 = fouter()
+>>>
+>>> f1()
+['spam']
+>>> f1()
+['spam', 'spam']
+>>> f1()
+['spam', 'spam', 'spam']
+>>>
+>>> f2()
+['spam']
+>>> f2()
+['spam', 'spam']
+>>> f2()
+['spam', 'spam', 'spam']
+>>>
+```
+
+* You define function that calls function which are not defined yet, because function blocks are interpreted only when the function is called.
+So you just need to declare the called function before calling the caller function.
+
+```python
+>>> def a():
+...     b()
+...
+>>> a()
+---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+<ipython-input-2-8d7b4527e81d> in <module>
+----> 1 a()
+
+<ipython-input-1-bddf4de40dfd> in a()
+      1 def a():
+----> 2     b()
+      3
+
+NameError: name 'b' is not defined
+>>>
+>>> def b():
+...     print("b!")
+...
+>>> a()
+b!
+>>>
+```
+
+* `lambda`s also have access to enclosing function scope:
+
+```python
+>>> def fouter(incrementer):
+...     return lambda value: value + incrementer
+...
+>>>
+>>> finc = fouter(10)
+>>>
+>>> finc(3)
+13
+>>>
+```
+
+* Caution: if you return multiple functions created through in a loop, they might end up referencing the same value, because there is only one state retained:
+
+```python
+>>> def make_incrementers(n):
+...     incrementers = []
+...     for i in range(1, n + 1):
+...         incrementers.append(lambda x: x + i) # the lambda body references i from the enclosing function, but i will be n + 1 when the function is called
+...     return incrementers
+...
+>>> incs = make_incrementers(3)
+>>> incs
+[<function __main__.make_incrementers.<locals>.<lambda>(x)>,
+ <function __main__.make_incrementers.<locals>.<lambda>(x)>,
+ <function __main__.make_incrementers.<locals>.<lambda>(x)>]
+>>>
+>>> incs[0](10)
+13
+>>> incs[1](10)
+13
+>>> incs[2](10)
+13
+>>>
+```
+
+To avoid it, you need to make a copy through default arguments:
+
+```python
+>>> def make_incrementers(n):
+...     incrementers = []
+...     for i in range(1, n + 1):
+...         incrementers.append(lambda x, i=i: x + i) # i=i makes a local-lambda-scope copy of i
+...     return incrementers
+...
+...
+>>>
+>>> incs = make_incrementers(3)
+>>> incs[0](10)
+11
+>>> incs[1](10)
+12
+>>> incs[2](10)
+13
+>>>
+```
+
+* Python looks all enclosing functions scopes (`nonlocal`) before going to the `global` scope:
+
+```python
+>>> def f1():
+...     x = 10
+...     def f2():
+...         def f3():
+...           print(x)
+...         return f3
+...     return f2
+...
+>>> f2 = f1()
+>>> f3 = f2()
+>>> f3()
+10
+>>>
+>>>
+```
+
+* Remember that the state retention (`enclosing scopes`) variables can be made writable if declared using `nonlocal`:
+
+```python
+>>> def fouter():
+...     x = 10
+...     def finner():
+...         nonlocal x
+...         x += 1
+...         print(x)
+...     return finner
+...
+>>> fx = fouter()
+>>> fx()
+11
+>>> fx()
+12
+>>> fx()
+13
+>>> fx()
+14
+>>> fx()
+15
+>>>
+```
+
+But, unlike `global` scope, you cant create a new variable in the enclosing scope:
+
+```python
+>>> def fouter():
+...     def finner():
+...         nonlocal x
+...         x = 10
+...         print(x)
+...     return finner
+...
+  File "<ipython-input-35-1432c16bf945>", line 3
+    nonlocal x
+    ^
+SyntaxError: no binding for nonlocal 'x' found
+
+>>>
+```
+
+`nonlocal` statements require the variable to already be defined when they are read by the interpreter:
+
+```python
+>>> x = 10
+...
+... def fouter():
+...     def finner():
+...         nonlocal x
+...         print(x)
+...     return finner
+...
+  File "<ipython-input-37-f179fe6492c2>", line 5
+    nonlocal x
+    ^
+SyntaxError: no binding for nonlocal 'x' found
+
+>>>
+```
+
+while `global` check when the function is called, because the global scope can change between declaration and calling:
+
+```python
+>>> def fouter():
+...     z = 30
+...     def finner():
+...         global z
+...         print(z)
+...     return finner
+...
+>>>
+>>> fx = fouter()
+>>> fx()
+---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+<ipython-input-40-2d1b3bb81149> in <module>
+----> 1 fx()
+
+<ipython-input-38-c62e113b35d2> in finner()
+      3     def finner():
+      4         global z
+----> 5         print(z)
+      6     return finner
+      7
+
+NameError: name 'z' is not defined
+>>>
+```
+
+* An example of state using `nonlocal`:
+
+```python
+>>> def outer():
+...     counter = 0
+...     def inner():
+...         nonlocal counter
+...         counter += 1
+...         print(counter)
+...     return inner
+...
+>>>
+>>> fx = outer()
+>>> fx()
+1
+>>> fx()
+2
+>>> fx()
+3
+>>>
+>>>
+>>> fx2 = outer()
+>>> fx2()
+1
+>>> fx2()
+2
+>>>
+```
+
+* When you instatiate an object, it gets a copy of the declared class state:
+
+```python
+>>> class Test:
+...     state = []
+...
+>>>
+>>> t = Test()
+>>> t.state.append("spam")
+>>>
+>>> t.state
+['spam']
+>>> Test.state
+['spam']
+>>>
+```
+
+its the same as:
+
+```python
+>>> class Test:
+...     state = []
+...
+>>>
+>>> t = Test()
+>>> #
+>>> # As function parameters, class attributes are passed by assignment to the objects
+>>> #
+>>> t.state = Test.state
+>>>
+>>> t.state
+['spam']
+>>> Test.state
+['spam']
+>>>
+```
+
+but if you change the instance reference, you dont affect the class:
+
+```python
+>>> t.state = [] # new object, t.state and Test.state point to different objects now
+>>> t.state.append("eggs")
+>>> t.state
+['eggs']
+>>>
+>>> Test.state
+['spam']
+>>>
+```
+
+but caution: instance or classmethods dont look in the class or instance scope, they still follow LEGB rule:
+
+```python
+>>> class Test:
+...     x = 10
+...     def example(self):
+...         print(x)
+...
+>>>
+>>> t = Test()
+>>> t.example()
+---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+<ipython-input-78-4c06bfe216ad> in <module>
+----> 1 t.example()
+
+<ipython-input-76-b936780132d6> in example(self)
+      2     x = 10
+      3     def example(self):
+----> 4         print(x)
+      5
+
+NameError: name 'x' is not defined
+>>>
+```
+
+to access the instance attribute use the `self` reference and the class, use the class name:
+
+```python
+>>> class Test:
+...     x = 10
+...     def example(self):
+...         print(self.x)
+...         print(Test.x)
+...
+>>> t = Test()
+>>> t.example()
+10
+10
+>>>
+```
+
+Being different references, you can make them point to different objects:
+
+```python
+>>> class Test:
+...     x = 10
+...     def example(self):
+...         print(self.x)
+...         print(Test.x)
+...     def change(self):
+...         self.x = 99
+...         Test.x = 11
+...
+>>>
+>>> t = Test()
+>>> t.example()
+10
+10
+>>> t.change()
+>>> t.example()
+99
+11
+>>>
+```
+
+* Again, if both point to the same mutable object, side-effects apply:
+
+```python
+>>> class Test:
+...     state = []
+...
+>>>
+>>> t = Test()
+>>>
+>>> t.state.append("spam")
+>>> t.state
+['spam']
+>>>
+>>> Test.state
+['spam']
+>>>
+>>> # Diverging them
+>>> t.state = []
+>>> Test.state = []
+>>>
+>>> t.state.append("eggs")
+>>>
+>>> t.state
+['eggs']
+>>> Test.state
+[]
+>>>
+```
