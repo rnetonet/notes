@@ -9423,3 +9423,46 @@ Being different references, you can make them point to different objects:
 []
 >>>
 ```
+
+* State retention using function attributes:
+
+```python
+>>> def maker(increment):
+...     def inc(value):
+...         return value + inc.increment
+...     inc.increment = increment
+...     return inc
+...
+>>>
+>>> inc3 = maker(3)
+>>> inc3(10)
+13
+>>>
+>>> inc4 = maker(4)
+>>> inc4(10)
+14
+>>>
+```
+
+* function attributes are better than `nonlocal` state.
+
+* You can change mutable objects in enclosing scope without `nonlocal`:
+
+```python
+>>> def outer():
+...     state = {}
+...     def inner(k, v):
+...         state[k] = v
+...         return state
+...     return inner
+...
+>>>
+>>> fx = outer()
+>>> fx("a", 10)
+{'a': 10}
+>>> fx("b", 20)
+{'a': 10, 'b': 20}
+>>> fx("c", 30)
+{'a': 10, 'b': 20, 'c': 30}
+>>>
+```
