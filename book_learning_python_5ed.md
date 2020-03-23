@@ -9466,3 +9466,926 @@ Being different references, you can make them point to different objects:
 {'a': 10, 'b': 20, 'c': 30}
 >>>
 ```
+
+## Arguments
+
+* Function arguments are passed by assignment:
+
+```python
+>>> def hello(name):
+...     print("Hello, ", name)
+...
+>>>
+>>> var = "John"
+>>> # Python implictly performs: name=var in the function code block
+>>> # remember that whenever we use a variable in Python expressions, it is replaced by the object itself (automatic dereference)
+>>> hello(var)
+Hello,  John
+>>>
+```
+
+* Changing the reference inside the block does not affect the passed reference (argument). It is not an aliasing:
+
+```python
+>>> def hello(name):
+...     name = name.upper() # upper() creates a new object, name starts pointing this new object
+...     print("Hello, ", name)
+...
+>>> var = "John"
+>>> hello(var)
+Hello,  JOHN
+>>>
+>>> var # remains unchanged!
+'John'
+>>>
+```
+
+* But, as always, references to mutable objects are suscetible to side-effects:
+
+```python
+>>> def spam_appender(lst):
+...     lst.append("spam")
+...     print(lst)
+...
+>>>
+>>> orig_lst = []
+>>> spam_appender(orig_lst)
+['spam']
+>>>
+>>> orig_lst
+['spam']
+>>>
+```
+
+* Function can return multiple values as tuples, lists, sets...
+
+```python
+>>> def antecessor_and_sucessor(num):
+...     return num-1, num+1
+...
+>>>
+>>> antecessor_and_sucessor(10)
+(9, 11)
+>>>
+```
+
+* The function call assignment creates a copy of the reference passed as argument, thus it is not possible to change the caller reference
+from inside the function. To do that, you have to explictly overwrite them with the result of the function:
+
+```python
+>>> def square(num):
+...     return num * num
+...
+>>>
+>>> val = 10
+>>>
+>>> val = square(val)
+>>> val
+100
+>>>
+```
+
+* Python has many tools to flexibilize the function calls:
+
+1. Positional, classic, method.
+
+Passed arguments match in position the declared parameters in the function header:
+
+```python
+>>> def s(a, b):
+...     return a + b
+...
+>>> s(10, 20) # 10 -> a, 20 -> b
+30
+>>>
+```
+
+In this method, you should respect the order and quantity:
+
+```python
+>>> def s(a, b):
+...     return a + b
+...
+>>>
+>>> s(20, 10) # inverting the order you also invert the assignment order: a=20, b=10 now
+30
+>>>
+```
+
+2. You can use the parameters name as keywords to ignore the order:
+
+```python
+>>> def upper_lower(a, b):
+...     print(a.upper())
+...     print(b.lower())
+...
+>>> upper_lower("Spam", "eGGs")
+SPAM
+eggs
+>>>
+>>> upper_lower(b="Spam", a="eGGs") # subvert the order
+EGGS
+spam
+>>>
+```
+
+Caution, once you use a keyword argument, you can use a positional argument anymore:
+
+```python
+>>> def upper_lower(a, b):
+...     print(a.upper())
+...     print(b.lower())
+...
+>>>
+>>> upper_lower(a="Spam", "eGGs")
+  File "<ipython-input-30-6e4279792f71>", line 1
+    upper_lower(a="Spam", "eGGs")
+                         ^
+SyntaxError: positional argument follows keyword argument
+
+>>>
+```
+
+3. Default values, turning some parameters optional as they assum a default value if not passed:
+
+```python
+>>> def pow(num, pot=2):
+...     return num ** pot
+...
+>>>
+>>> pow(10)
+100
+>>>
+>>> pow(10, 3)
+1000
+>>>
+>>> pow(pot=4, num=2)
+16
+>>>
+```
+
+4. Varargs: you can collect multiple positional arguments (`*args`) or multiple keyword arguments (`**kwargs`):
+
+```python
+>>> def multiple_pos(a, b, *c):
+...     print(a, b, c)
+...
+>>>
+>>> multiple_pos(10, 20, 30, 40, 50)
+10 20 (30, 40, 50)
+>>>
+```
+
+The remainder positional arguments `*c` are aglutinated in a single `tuple`.
+
+You can vararg keyword arguments also into a dictionarie:
+
+```python
+>>> def varargs_keywords(a, b, **c):
+...     print(a, b, c)
+...
+>>>
+>>> varargs_keywords(10, 20, name="john", age=30)
+10 20 {'name': 'john', 'age': 30}
+>>>
+```
+
+Caution: you cant pass a keyword argument to a positional remaind collector or a position into a keywords collector:
+
+```python
+>>> def varargs_positional(a, b, *c):
+...     print(a, b, c)
+...
+>>>
+>>> varargs_positional(10, 20, name="john")
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-40-a5812c406e6d> in <module>
+----> 1 varargs_positional(10, 20, name="john")
+
+TypeError: varargs_positional() got an unexpected keyword argument 'name'
+>>>
+```
+
+```python
+>>> def varargs_keywords(a, b, **c):
+...     print(a, b, c)
+...
+>>>
+>>> varargs_keywords(10, 20, 30)
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-42-e195f875fab9> in <module>
+----> 1 varargs_keywords(10, 20, 30)
+
+TypeError: varargs_keywords() takes 2 positional arguments but 3 were given
+>>>
+```
+
+But you can use both collectors together, being the `keywords` always the last:
+
+```python
+>>> def varargs_positional_and_keywords(a, b, *c, **d):
+...     print(a, b, c, d)
+...
+>>> varargs_positional_and_keywords(10, 20, 30, 40, 50, name="john", age=30)
+10 20 (30, 40, 50) {'name': 'john', 'age': 30}
+>>>
+>>>
+```
+
+You can omit collector parameters `*args` and `**kwargs`, which will be then empty tuples and dicts:
+
+```python
+>>> def varargs_positional(a, b, *c):
+...     print(a, b, c)
+...
+>>>
+>>> varargs_positional(10, 20)
+10 20 ()
+>>>
+```
+
+```python
+>>> def varargs_keywords(a, b, **c):
+...     print(a, b, c)
+...
+>>>
+>>> varargs_keywords(10, 20)
+10 20 {}
+>>>
+```
+
+* You can unpack sequences or dictionaries in the call as, respectively, positional arguments or keywords arguments:
+
+```python
+>>> numbers = [1, 3]
+>>>
+>>> def add(a, b):
+...     return a + b
+...
+>>> add(*numbers) # numbers[0] becomes a, and numbers[1] becomes b
+4
+>>>
+```
+
+* Function **calls** should follow the order:
+
+1. positional args;
+2. keyword args;
+3. *positional_collection;
+4. **keywords_collection;
+
+
+* Function `headers` shoud follow the order:
+
+1. positional args;
+2. default keywords args;
+3. *positional_collection;
+4. keyword only arguments;
+5. **keywords_collection;
+
+* You cant pass an argument multiple times:
+
+```python
+>>> def u_and_l(a, b):
+...     print(a.upper())
+...     print(b.lower())
+...
+>>>
+>>> u_and_l(a="a", b="b", a="c")
+  File "<ipython-input-53-24792643517d>", line 1
+    u_and_l(a="a", b="b", a="c")
+                         ^
+SyntaxError: keyword argument repeated
+
+>>>
+```
+
+* Function parameters and the function header can have annotations, which are save in the function object:
+
+```python
+>>> def add(a:int, b:int) -> int:
+...     return a + b
+...
+>>>help(add)
+
+Help on function add in module __main__:
+
+add(a:int, b:int) -> int
+(END)
+```
+
+these annotation are not inforce during runtime:
+
+```python
+>>> add("spam", "eggs")
+'spameggs'
+>>>
+```
+
+We will talk about them later.
+
+* Lets see some examples to consolidate the learning:
+
+1. positional
+
+```python
+>>> def f(a, b, c):
+...     print(a, b, c)
+...
+>>> f(1, 3.14, "spam")
+1 3.14 spam
+>>>
+```
+
+> If you define three positional args, you need to call the function with three positional in the specified order.
+
+2. keywords. you can bypass the order of the header definition using keywords arguments:
+
+```python
+>>> def f(a, b, c):
+...     print(a, b, c)
+...
+>>>
+>>> f(c=1, b=2, a=3)
+3 2 1
+>>>
+```
+
+3. You can mix positional and keywords, but after the first keywords, all other arguments must be keywords:
+
+```python
+>>> def f(a, b, c):
+...     print(a, b, c)
+...
+>>>
+>>> f(1, c=2, b=3)
+1 3 2
+>>>
+```
+
+4. defaults.
+
+Make some arguments optional, giving them default values if not specified during the call.
+
+```python
+>>> def f(a, b=2, c=3):
+...     print(a, b, c)
+...
+>>>
+>>> f(10)
+10 2 3
+>>> f(10, 20)
+10 20 3
+>>> f(10, 20, 30)
+10 20 30
+>>>
+```
+
+You can provide only some keyword arguments, without caring for order:
+
+```python
+>>> def f(a, b=2, c=3):
+...     print(a, b, c)
+...
+>>>
+>>> f(1, c=30)
+1 2 30
+>>>
+>>> f(10, b=95)
+10 95 3
+>>>
+>>> f(33, c=42, b=12)
+33 12 42
+>>>
+```
+
+In the examples, `a`, for being positional, is still required.
+
+* The assignment-like expression mean different things in a function call and in a function header definition.
+
+1. In the function header definition, it means an argument with a default, thus optional:
+
+```python
+>>> def pow(num, value=2):
+...     return num ** value
+...
+>>> pow(2)
+4
+>>>
+>>>
+```
+
+2. In a function call, it means a name resolution approach, which makes the ordering optional:
+
+```python
+>>> def add(a, b):
+...     return a + b
+...
+>>> add(b=10, a=30)
+40
+>>>
+```
+
+**Important:** One common mistake is to use a mutable object as a default value for an argument.
+
+The function definition is executed only once, meaning that only a single default object is created, therefore
+it is reused in every function call:
+
+```python
+>>> def append(value, lst=[]): # a single list is created in memory. if not passed as argument, the same object will be used in every call
+...     lst.append(value)
+...     return lst
+...
+>>>
+>>> append("spam")
+['spam']
+>>> append("eggs")
+['spam', 'eggs']
+>>>
+>>> new_lst = []
+>>> append("bacon", new_lst)
+['bacon']
+>>>
+```
+
+To avoid that, move the default value assignment to the function body:
+
+```python
+>>> def append(value, lst=None):
+...     if lst is None:
+...         lst = []
+...
+...     lst.append(value)
+...     return lst
+...
+>>>
+>>> append("spam")
+['spam']
+>>> append("eggs")
+['eggs']
+>>>
+>>> l = []
+>>> append("spam", l)
+['spam']
+>>> append("eggs", l)
+['spam', 'eggs']
+>>>
+```
+
+* Varargs in function header definition:
+
+1. Collecting unmatched positional arguments `*args`:
+
+```python
+>>> def f(*args):
+...     print(type(args))
+...     print(args)
+...
+>>>
+>>> f(1, 2, 3)
+<class 'tuple'>
+(1, 2, 3)
+>>>
+```
+
+2. Collecting keywords argument in a `dict()`:
+
+```python
+>>> def f(**kwargs):
+...     print(type(kwargs))
+...     print(kwargs)
+...
+>>> f(a=1, b=2, c=3)
+<class 'dict'>
+{'a': 1, 'b': 2, 'c': 3}
+>>>
+```
+
+3. You can combine positional arguments, `*args` and `**kwargs` to create really flexible function calls:
+
+```python
+>>> def f(a, *args, **kwargs):
+...     print(a, args, kwargs)
+...
+>>>
+>>> f(1, 2, 3, 4, x="spam", y="eggs")
+1 (2, 3, 4) {'x': 'spam', 'y': 'eggs'}
+>>>
+```
+
+* You can use `*sequence` and `**dict` in function calls:
+
+1. `*sequence` unpacks the sequence into positional arguments:
+
+```python
+>>> def f(a, b, c):
+...     print(a)
+...     print(b)
+...     print(c)
+...
+>>>
+>>> lst = [1, 2, 3]
+>>>
+>>> f(*lst) # same as f(1, 2, 3)
+1
+2
+3
+>>>
+```
+
+The quantity still needs to match:
+
+```python
+>>> lst1 = [1, 2]
+>>> lst2 = [1, 2, 3, 4]
+>>>
+>>> def f(a, b, c):
+...     print(a)
+...     print(b)
+...     print(c)
+...
+>>>
+>>> f(*lst1)
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-14-e0a7996d1e7c> in <module>
+----> 1 f(*lst1)
+
+TypeError: f() missing 1 required positional argument: 'c'
+>>>
+>>> f(*lst2)
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-15-001413d28f47> in <module>
+----> 1 f(*lst2)
+
+TypeError: f() takes 3 positional arguments but 4 were given
+>>>
+```
+
+2. `**dictionary` unpacks the dict into a list of keyword arguments `key=value`:
+
+```python
+>>> def f(a, b, c):
+...     print(a)
+...     print(b)
+...     print(c)
+...
+>>>
+>>> d = {
+...     "a": 1,
+...     "b": 2,
+...     "c": 3
+... }
+>>>
+>>> f(**d) # same as f(a=1, b=2, c=3)
+1
+2
+3
+>>>
+```
+
+3. You can mix positional, `*args` and `*kwargs`:
+
+```python
+>>> def f(a, b, c, d, e):
+...     print(a)
+...     print(b)
+...     print(c)
+...     print(d)
+...     print(e)
+...
+>>>
+>>> args = (2, 3)
+>>> kwargs = {"d": 4, "e": 5}
+>>>
+>>> f(1, *args, **kwargs)
+1
+2
+3
+4
+5
+>>>
+```
+
+The unpacking `*args` syntax in function calls accepts any `iterable`.
+
+* The `*args` and the `**kwargs` syntax is useful for wrapper functions:
+
+```python
+>>> def debug(fx, *args, **kwargs):
+...     print("Calling", fx, "with arguments", args, "and keyword arguments", kwargs)
+...     fx(*args, **kwargs)
+...
+>>>
+>>> def f(a, b, c, d, e, f):
+...     print(a, b, c, d, e, f)
+...
+>>> t = 1, 2, 3
+>>> d = {"d": 4, "e": 5, "f": 6}
+>>>
+>>> debug(f, *t, **d)
+Calling <function f at 0x7ff9c1906e18> with arguments (1, 2, 3) and keyword arguments {'d': 4, 'e': 5, 'f': 6}
+1 2 3 4 5 6
+>>>
+```
+
+* Keyword only arguments are named arguments declared after the `*args` in the function header:
+
+```python
+>>> def f(a, *b, c):
+...     print(a, b, c)
+...
+>>>
+>>> f(10, 1, 2, 3, c=99)
+10 (1, 2, 3) 99
+>>>
+>>> # you need to pass c as a keyword argument
+>>> f(10, 1, 2, 3, 99)
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-45-c020b26c9cb0> in <module>
+----> 1 f(10, 1, 2, 3, 99)
+
+TypeError: f() missing 1 required keyword-only argument: 'c'
+>>>
+```
+
+* You can use a single `*` instead of `*args` to create a keyword only function:
+
+```python
+>>> def f(*, a, b, c):
+...     print(a, b, c)
+...
+>>>
+>>> f(1, 2, 3) # all arguments should be keywords
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-47-a36a0be0faac> in <module>
+----> 1 f(1, 2, 3) # all arguments should be keywords
+
+TypeError: f() takes 0 positional arguments but 3 were given
+>>>
+>>> f(a=1, b=2, c=3) # all arguments should be keywords
+1 2 3
+>>>
+```
+
+Or a function that accept some positional arguments, but other should be passed as keywords:
+
+```python
+>>> def f(a, b, *, c):
+...     print(a)
+...     print(b)
+...     print(c)
+...
+>>>
+>>> f(1, 2, c=3)
+1
+2
+3
+>>>
+```
+
+Another example:
+
+```python
+>>> def knownly(a, *, b, c):
+...     print(a, b, c)
+...
+>>>
+>>> knownly(1, c=3, b=2)
+1 2 3
+>>>
+>>> knownly(c=3, b=2, a=1)
+1 2 3
+>>>
+>>> knownly(1, 2, 3) # ops! b and c must be keywords
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-56-88c29389ade0> in <module>
+----> 1 knownly(1, 2, 3) # ops! b and c must be keywords
+
+TypeError: knownly() takes 1 positional argument but 3 were given
+>>>
+>>> knownly(1, 2, b=3, c=4) # only one positional allowed
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-57-42c2a13692fd> in <module>
+----> 1 knownly(1, 2, b=3, c=4) # only one positional allowed
+
+TypeError: knownly() takes 1 positional argument but 2 positional arguments (and 2 keyword-only arguments) were given
+>>>
+>>> knownly(1) # you need to pass b and c as keyword
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-58-43e8c596fb62> in <module>
+----> 1 knownly(1) # you need to pass b and c as keyword
+
+TypeError: knownly() missing 2 required keyword-only arguments: 'b' and 'c'
+>>>
+```
+
+* The `*` alone indicates that the function does not accept variable positional arguments, but that after it `*` all arguments should be keywords.
+
+* Mandatory keyword arguments can have defaults too:
+
+```python
+>>> def f(a, *, b=2, c=3):
+...     print(a, b, c)
+...
+>>>
+>>> f(1)
+1 2 3
+>>>
+>>> f(1, 2, 3) # no! b and c still must be keyword args
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-61-9d43a16a342c> in <module>
+----> 1 f(1, 2, 3) # no! b and c still must be keyword args
+
+TypeError: f() takes 1 positional argument but 3 were given
+>>>
+>>> f(1, b=20, c=30)
+1 20 30
+>>>
+>>> f(1, b=20)
+1 20 3
+>>> f(1, c=30)
+1 2 30
+>>> f(1, c=30, b=20) # you can subvert the order
+1 20 30
+>>>
+```
+
+* Mandatory keyword-only arguments should come after the `*args` or `*` positional collector.
+Before, they are positional arguments with default values:
+
+```python
+>>> def f(a, b=2, *, c):
+...     print(a, b, c)
+...
+>>>
+>>> f(1, c=3)
+1 2 3
+>>> f(1, 2, 3)
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-69-1c2a18ab906a> in <module>
+----> 1 f(1, 2, 3)
+
+TypeError: f() takes from 1 to 2 positional arguments but 3 were given
+>>> f(1, 2, c=3)
+1 2 3
+>>>
+```
+
+## More on function
+
+* Python supports recursion:
+
+```python
+# summation
+>>> def summation(*args):
+...     if not args: return 0
+...     return args[0] + summation(*args[1:])
+...
+>>>
+>>> summation(1, 2, 3)
+6
+>>> summation(1, 2, 3, 4, 5)
+15
+>>>
+```
+
+Each call has its own state (its own `args`), see:
+
+```python
+>>> def summation(*args):
+...     print(args)
+...     if not args: return 0
+...     return args[0] + summation(*args[1:])
+...
+>>>
+>>> summation(1, 2, 3)
+(1, 2, 3)
+(2, 3)
+(3,)
+()
+6
+>>> summation(1, 2, 3, 4, 5)
+(1, 2, 3, 4, 5)
+(2, 3, 4, 5)
+(3, 4, 5)
+(4, 5)
+(5,)
+()
+15
+>>>
+```
+
+Another, more elegant implementation:
+
+```python
+>>> def summation(first, *rest):
+...     print(first, rest)
+...     if not rest: return 0
+...     return first if not rest else first + summation(*rest)
+...
+>>>
+>>> summation(1, 2, 3, 4, 5)
+1 (2, 3, 4, 5)
+2 (3, 4, 5)
+3 (4, 5)
+4 (5,)
+5 ()
+15
+>>>
+```
+
+* Recursion can be direct, as the above example, or indirect (when one function calls another that calls the caller back):
+
+```python
+>>> def summation(l):
+...     if not l: return 0
+...     return summation_step(l)
+...
+>>>
+>>> def summation_step(l):
+...     return l[0] + summation(l[1:])
+...
+>>>
+>>> summation([1, 2, 3, 4, 5])
+15
+>>>
+```
+
+* In Python recursion is not the best way to do things. Simpler loops are recommended.
+
+* But recursion is perfect ofr handling arbitrary strucutres. Example: summation of a list of lists `[1, [2, [3, 4], 5], 6, [7, 8]]`:
+
+```python
+>>> def summation(lst):
+...     tot = 0
+...     for item in lst:
+...         if isinstance(item, list):
+...             tot += summation(item)
+...         else:
+...             tot += item
+...     return tot
+...
+>>>
+>>> summation([1, [2, [3, [4, [5]]]]])
+15
+>>> summation([[[[[1], 2], 3], 4], 5])
+15
+>>>
+```
+
+* Internally, recursion is implemented as a stack. So you can achieve the same results with your own stack or queue:
+
+```python
+>>> # queue, first in, first out - breadth first
+>>> def summation(lst):
+...     total = 0
+...     items = list(lst)
+...     while items:
+...         item = items.pop(0)
+...         if isinstance(item, list):
+...             items.extend(item)
+...         else:
+...             total += item
+...     return total
+...
+>>>
+>>> summation([1, [2, [3, [4, [5]]]]])
+15
+>>> summation([[[[[1], 2], 3], 4], 5])
+15
+>>>
+```
+
+Or, more accurately, as a stack last-in first-out:
+
+```python
+>>> # stack, last-in, first-out, depth first
+>>> def summation(lst):
+...     total = 0
+...     items = list(lst)
+...     while items:
+...         item = items.pop()
+...         if isinstance(item, list):
+...             items[:0] = item
+...         else:
+...             total += item
+...     return total
+...
+>>> summation([1, [2, [3, [4, [5]]]]])
+15
+>>> summation([[[[[1], 2], 3], 4], 5])
+15
+>>>
+```
+
