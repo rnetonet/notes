@@ -10389,3 +10389,187 @@ Or, more accurately, as a stack last-in first-out:
 >>>
 ```
 
+* Python limits the number of recursive call (1000 calls) to avoid infinite loops, to increase this limit:
+
+```python
+>>> sys.getrecursionlimit()         # 1000 calls deep default
+1000
+>>> sys.setrecursionlimit(10000)    # Allow deeper nesting
+```
+
+* Python function are full-featured objects, supporting attributes assignment and annotations.
+
+* Function name are just references to function objects, thus they can be reassigned, returned, etc. Just like any other reference:
+
+```python
+>>> def echo(msg):
+...     print(msg)
+...
+>>>
+>>> output = echo
+>>> output("name")
+name
+>>>
+```
+
+* You can pass function as arguments:
+
+```python
+>>> def apply(fx, obj):
+...     return fx(obj)
+...
+>>>
+>>> apply(str.upper, "spam!")
+'SPAM!'
+>>>
+>>> apply(str.lower, "SPAM!")
+'spam!'
+>>>
+```
+
+* Function objects can be used in data strucutres:
+
+```python
+>>> actions = [str.upper, str.lower, str.title]
+>>>
+>>> message = "Hello world"
+>>>
+>>> for action in actions:
+...     print( action(message) )
+...
+HELLO WORLD
+hello world
+Hello World
+>>>
+```
+
+* The only thing special about a function object is that it respond to a function call expression: **refence()** trought a method named `__call__()`.
+
+* And, lastly, functions can be created from inside another function and return. This is named as a "closure".
+Remember that the returned function mantains the scope of the enclosing scope (state of the functions enclosing it):
+
+```python
+>>> def a(_a):
+...     def b(_b):
+...         def c():
+...             print(_a, _b)
+...         return c
+...     return b
+...
+>>>
+>>> b = a(10)
+>>> c = b(20)
+>>> c()
+10 20
+>>>
+>>> b2 = a(100)
+>>> c2 = b2(200)
+>>> c2()
+100 200
+>>>
+```
+
+* Function are object and these objecs contain some interesting attributes:
+
+`__code__` attribute
+
+```python
+>>> def fx(a, b=10, *args, c=30, **kwargs):
+...     print(a, b, args, c, kwargs)
+...
+>>>
+>>> fx.__code__ # function code object
+<code object fx at 0x7ff07f33d810, file "<ipython-input-27-f1c153566186>", line 1>
+>>>
+>>> fx.__code__.co_argcount
+2
+>>> fx.__code__.co_code
+b't\x00|\x00|\x01|\x03|\x02|\x04\x83\x05\x01\x00d\x00S\x00'
+>>> fx.__code__.co_consts
+(None,)
+>>> fx.__code__.co_filename
+'<ipython-input-27-f1c153566186>'
+>>> fx.__code__.co_firstlineno
+1
+>>> fx.__code__.co_consts
+(None,)
+>>> fx.__code__.co_freevars
+()
+>>> fx.__code__.co_nlocals
+5
+>>> fx.__code__.co_varnames
+('a', 'b', 'c', 'args', 'kwargs')
+>>> fx.__code__.co_name
+'fx'
+>>>
+```
+
+* Function attributes: you can attach attributes to function objects, just like any other object:
+
+```python
+>>> def fx():
+...     print(fx.counter)
+...
+...
+>>>
+>>> fx.counter = 0
+>>> fx()
+0
+>>>
+>>> fx.counter += 1
+>>> fx()
+1
+>>>
+```
+
+Its a way to mantain state between function calls, but to do this properly, you need to use a factory function, so a new function object is created each time.
+
+* You can annotate function signatures in Python 3. But this information is not used by the interpreter, that only attachs it to an `__annotations__` attribute, usually used by other tools:
+
+```python
+>>> def add(a:int=0, b:int=0) -> int:
+...     return a + b
+...
+>>> add()
+0
+>>>
+>>> add(10)
+10
+>>> add(10, 20)
+30
+>>>
+>>> add.__annotations__
+{'a': int, 'b': int, 'return': int}
+>>>
+```
+
+Annotations can be any valid Python expression:
+
+```python
+>>> def fx(a:"spam", b:2+2, c:3/3) -> "spam".upper():
+...     pass
+...
+>>>
+>>> fx.__annotations__
+{'a': 'spam', 'b': 4, 'c': 1.0, 'return': 'SPAM'}
+>>>
+```
+
+* You can annotate and use defaults:
+
+```python
+>>> def fx(a:"first parameter"=0, b:"second param"=10) -> "spam".upper():
+...     print(a, b)
+...     return "SPAM"
+...
+...
+>>>
+>>> fx.__annotations__
+{'a': 'first parameter', 'b': 'second param', 'return': 'SPAM'}
+>>> fx()
+0 10
+'SPAM'
+>>>
+```
+
+> Annotations cant be used in lambda expressions.
