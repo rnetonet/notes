@@ -10573,3 +10573,196 @@ Annotations can be any valid Python expression:
 ```
 
 > Annotations cant be used in lambda expressions.
+
+* **lambdas** create anonymous functions and return this object. Are expressions and can be used pretty much everywhere in Python code.
+
+* `lambda` general form:
+
+`lambda arg1, arg2, ...: expression_which_result_is_returned`
+
+The expression can make use of the passed arguments. Remember that the LEGB rule for name scope resolution still applies.
+
+* `lambda` are expressions, thus can appear in places where the `def` statement cannot: inside lists declarations, etc.
+
+* `lambda` should be a single expression, not a block.
+
+* `lambda` can have defaults too:
+
+```python
+>>> f = lambda a=1, b=2: print(a, b)
+>>>
+>>> f()
+1 2
+>>>
+>>> f(10, 20)
+10 20
+>>>
+```
+
+* `lambda` follow the LEGB rule also:
+
+```python
+>>> global_var = "spam"
+>>>
+>>> def enclosing(enclosing_var):
+...     inner = lambda local_var: print(global_var, enclosing_var, local_var)
+...     return inner
+...
+>>>
+>>> inner = enclosing("eggs")
+>>> inner("bacon")
+spam eggs bacon
+>>>
+```
+
+* `lambda` accept all the parameters definition techniques and arguments passing:
+
+```python
+>>> f = lambda a, *b, **c: print(a, b, c)
+>>>
+>>> f(1, 2, 3, x=10, y=20)
+1 (2, 3) {'x': 10, 'y': 20}
+>>>
+>>> f(1, *[2, 3], **{"x":10, "y":20})
+1 (2, 3) {'x': 10, 'y': 20}
+>>>
+```
+
+* `lambda` are useful for multiway branche switches:
+
+```python
+>>> incrementer_table = {
+...     "two": lambda x: x + 2,
+...     "three": lambda x: x + 3,
+...     "four": lambda x: x + 4,
+...     "five": lambda x: x + 5
+... }
+>>>
+>>> two_incrementer = incrementer_table["two"] # the index could be given by the user, dinamically
+>>>
+>>> two_incrementer(10)
+12
+>>>
+```
+
+* You can implement selection logic using the `if` ternary operator inside lambdas:
+
+```python
+>>> lower = lambda a, b: a if a < b else b
+>>>
+>>> lower(3, 5)
+3
+>>> lower(30, 5)
+5
+>>>
+```
+
+* `lambda` can have loops using functional tools like `map()`, `filter()` or list comprehensions:
+
+```python
+>>> upper_all = lambda lst: map(str.upper, lst)
+>>> list( upper_all(["spam", "eggs", "bacon"]) )
+['SPAM', 'EGGS', 'BACON']
+>>>
+```
+
+* Remember: `lambdas`, when created inside other function, follow the LEGB rule, thus having access to the enclosing state:
+
+```python
+>>> def greeter_maker(greet):
+...     return lambda name: print(greet, name)
+...
+>>>
+>>> bazinga_greeter = greeter_maker("Bazinga!")
+>>> bazinga_greeter("John")
+Bazinga! John
+>>>
+```
+
+* `lambda` are very common in Gui toolkits api usage. An example with `tkinter`:
+
+```python
+>>> import tkinter
+>>>
+>>> # When the button is pressed, a message is print
+>>> x = tkinter.Button(text="Press me", command=lambda: print("Pressed!"))
+>>> x.pack()
+>>>
+>>> tkinter.mainloop()
+Pressed!
+Pressed!
+>>>
+```
+
+* Functional tools:
+
+1. `map()` applies a function to each item of the sequence and collect the results in a list:
+
+```python
+>>> lst = [1, 2, 3]
+>>>
+>>> incremented_lst = list( map(lambda x: x + 10, lst) )
+>>> incremented_lst
+[11, 12, 13]
+>>>
+```
+
+2. `map()`, if given multiple sequences and the function supports multiple arguments, it takes one from each sequence:
+
+```python
+>>> list( map(lambda a, b, c: print(a, b, c), [1, 2, 3], [4, 5, 6], [7, 8, 9]) )
+1 4 7
+2 5 8
+3 6 9
+[None, None, None]
+>>>
+```
+
+The sequence with the smaller size determines the end of the iteration:
+
+```python
+>>> list( map(lambda a, b, c: print(a, b, c), [1, 2, 3], [4, 5, 6], [7, 8]) )
+1 4 7
+2 5 8
+[None, None]
+>>>
+```
+
+3. `filter()` applies a function to a list and collects the values for which the function returns `True`:
+
+```python
+>>> list( filter(str.isdigit, ["10", "30", "40", "spam", "55", "3.14"]) )
+['10', '30', '40', '55']
+>>>
+```
+
+4. `functools.reduce(fx, seq)` takes the first and second argument from a sequence and executes an expression.
+The result is applied in the same expression with the third argument, and so on, result with fourth, until the seq is exhausted:
+
+```python
+>>> from functools import reduce
+>>>
+>>> reduce(lambda x, y: x + y, [1, 2, 3, 4]) # 1 + 2 = 3 / 3 + 3 = 6 / 6 + 4 = 10
+10
+>>>
+```
+
+5. Lastly, you should check the `operator` module. It brings functions that correspond to some expressions in Python:
+
+```python
+>>> import operator
+>>>
+>>> operator.add(2, 3)
+5
+>>> operator.mul(2, 3)
+6
+>>> index_2 = operator.itemgetter(2)
+>>>
+>>> index_2(["a", "b", "c"])
+'c'
+>>>
+>>> name_getter = operator.itemgetter("name")
+>>> name_getter({"age": 10, "name": "John"})
+'John'
+>>>
+```
