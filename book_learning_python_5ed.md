@@ -10747,7 +10747,7 @@ The result is applied in the same expression with the third argument, and so on,
 >>>
 ```
 
-5. Lastly, you should check the `operator` module. It brings functions that correspond to some expressions in Python:
+5. Lastly, you should check the `operator` module. It brings functions that correspond to some expressions in Python and are useful for functional programming techniques:
 
 ```python
 >>> import operator
