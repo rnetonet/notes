@@ -10864,3 +10864,314 @@ Is the same as:
 >>>
 
 ```
+
+* Generator example:
+
+```python
+>>> def gensquares(n):
+...     for i in range(n):
+...         yield i ** 2
+...
+>>>
+>>> iterator = gensquares(3)
+>>>
+>>> iterator
+<generator object gensquares at 0x7f54f0a02728>
+>>>
+>>> next(iterator)
+0
+>>> next(iterator)
+1
+>>> next(iterator)
+4
+>>> next(iterator)
+---------------------------------------------------------------------------
+StopIteration                             Traceback (most recent call last)
+<ipython-input-14-4ce711c44abc> in <module>
+----> 1 next(iterator)
+
+StopIteration:
+>>>
+>>>
+```
+
+
+* To end the generation of values generator functions should use an empty `return` or let control reach the end of the function body:
+
+```python
+>>> def gensquares2(n):
+...     for i in range(n):
+...         if i > 5: return # end generation
+...         yield i ** 2
+...
+>>>
+>>> for sq in gensquares2(10):
+...     print(sq)
+...
+0
+1
+4
+9
+16
+25 # Stops at 5 square
+>>>
+```
+
+* `iter()` calls on `generators` are unecessary, as generators are their own iterators, supporting `next()` themselves:
+
+```python
+>>> def gensquares(n):
+...     for i in range(n):
+...         yield i ** 2
+...
+>>>
+>>> g = gensquares(10)
+>>>
+>>> g is iter(g) # The same object ?
+True
+>>>
+>>> next(g) # call next directly on g
+0
+>>> next(g)
+1
+>>> next(g)
+4
+>>> next(g)
+9
+>>> next(g)
+16
+>>> next(g)
+25
+>>> next(g)
+36
+>>> next(g)
+49
+>>> next(g)
+64
+>>> next(g)
+81
+>>> next(g)
+---------------------------------------------------------------------------
+StopIteration                             Traceback (most recent call last)
+<ipython-input-32-e734f8aca5ac> in <module>
+----> 1 next(g)
+
+StopIteration:
+>>>
+```
+
+* Being iterables, generator functions can be used wherever iterators can be used:
+
+```python
+>>> def upper(s):
+...     for letter in s:
+...         yield letter.upper()
+...
+>>>
+>>> list( upper("spam") )
+['S', 'P', 'A', 'M']
+>>>
+>>> a, b, c, d = upper("spam")
+>>> a, b, c, d
+('S', 'P', 'A', 'M')
+>>>
+>>>
+>>> for i, l in enumerate(upper("spam")):
+...     print(i, l)
+...
+0 S
+1 P
+2 A
+3 M
+>>>
+```
+
+* Communicating with a `generator` using the `send` protocol:
+
+Since Python 2.5 the `yield` is both an statement as an expression, meaning you can use:
+
+`yield val...` or `sent_value = yield val...`
+
+But how we pass `sent_value` ? Calling the `generator.send(value)` method, which acts like a `next()` call, but allows argument passing:
+
+```python
+>>> def gen():
+...     while True:
+...         message = yield
+...         print(message)
+...
+>>>
+>>> g = gen() # Creates the generator
+>>>
+>>> # The generator has not executed yet, so a next() call is necessary
+>>> next(g)
+>>>
+>>> # Now we can send informations
+>>> g.send("Hello")
+Hello
+>>>
+>>> g.send("World")
+World
+>>>
+```
+
+* **Generator Expressions**
+
+Just like list comprehensions but surrounded by parenthesis, given origin to generator objects:
+
+```python
+>>> lst_squares = [x ** 2 for x in range(10)]
+>>> lst_squares
+[0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
+>>>
+>>> gen_squares = (x ** 2 for x in range(10))
+>>> gen_squares
+<generator object <genexpr> at 0x7f54f096e728>
+>>>
+>>> for s in gen_squares: print(s)
+0
+1
+4
+9
+16
+25
+36
+49
+64
+81
+>>>
+```
+
+Generator expressions give birth to generator objects that support the iterator protocol:
+
+```python
+>>> gen_squares = (x ** 2 for x in range(10))
+>>>
+>>> iter_g = iter(gen_squares) # unecessary, remember the generator itself is the iterator
+>>>
+>>> iter_g is gen_squares
+True
+>>>
+>>> next(iter_g)
+0
+>>> next(iter_g)
+1
+>>> next(iter_g)
+4
+>>> next(iter_g)
+9
+>>> next(iter_g)
+16
+>>> next(iter_g)
+25
+>>> next(iter_g)
+36
+>>> next(iter_g)
+49
+>>> next(iter_g)
+64
+>>> next(iter_g)
+81
+>>> next(iter_g)
+---------------------------------------------------------------------------
+StopIteration                             Traceback (most recent call last)
+<ipython-input-72-f4e87cccdfc6> in <module>
+----> 1 next(iter_g)
+
+StopIteration:
+>>>
+```
+
+Of course you rarely will need to use the iterator protocol directly, as the language constructs, such as `for` and `while`, do this automatically:
+
+```python
+>>> for s in  (x ** 2 for x in range(10)): print(s)
+0
+1
+4
+9
+16
+25
+36
+49
+64
+81
+>>>
+>>>
+```
+
+* If the generator expression is the only thing between a pair of parenthesis of a function call, another pair of parenthesis is dismised, otherwise, required:
+
+```python
+>>> # Not required
+>>> ', '.join(w.upper() for w in 'spam')
+'S, P, A, M'
+>>>
+>>> # Required
+>>> sorted((x * 2 for x in range(3)), reverse=True)
+[4, 2, 0]
+>>>
+```
+
+* Generators x Maps
+
+```python
+>>> list(map(abs, [-1, -3, 2]))
+[1, 3, 2]
+>>>
+>>> list(abs(num) for num in [-1, -3, 2])
+[1, 3, 2]
+>>>
+>>> list(map(lambda x: x * 2, [1, 2, 3]))
+[2, 4, 6]
+>>>
+>>> list(x * 2 for x in [1, 2, 3])
+[2, 4, 6]
+>>>
+```
+
+If the operation is not a simple function call, you should use a generator, it is usually simpler.
+
+With text processing operations generators shine too:
+
+```python
+>>> line = 'john, mary, peter'
+>>>
+>>> ' '.join(word * 2 for word in line.split(','))
+'johnjohn  mary mary  peter peter'
+>>>
+```
+
+* Generators comprehensions can be nested:
+
+```python
+>>> list(x * 2 for x in (abs(x) for x in [-1, -2, -3, 4]))
+[2, 4, 6, 8]
+>>>
+```
+
+* Generators can be mixed with `map()` calls:
+
+```python
+>>> import math
+>>> list( map(math.sqrt, (x ** 2 for x in range(4))) )
+[0.0, 1.0, 2.0, 3.0]
+>>>
+```
+
+* Generators versus `filter`
+
+Generators can act as the `filter` built-in using `if` clauses:
+
+```python
+>>> list( filter(lambda x: x > 10, [1, 3, 22, 41, 8, 19]) )
+[22, 41, 19]
+>>>
+>>> list( x for x in [1, 3, 22, 41, 8, 19] if x > 10 )
+[22, 41, 19]
+>>>
+```
+
+
+* Generator functions vs expressions
+
