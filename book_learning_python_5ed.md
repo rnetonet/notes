@@ -11173,5 +11173,242 @@ Generators can act as the `filter` built-in using `if` clauses:
 ```
 
 
-* Generator functions vs expressions
+* Remember that `generators` are `one-shot iterators`:
+
+```python
+>>> g = (c * 2 for c in 'spam')
+>>> list( g ) # uses
+['ss', 'pp', 'aa', 'mm']
+>>>
+>>> list( g ) # exhausted
+[]
+>>>
+>>> # To reuse, create another
+>>> g = (c * 2 for c in 'spam')
+>>> list( g )
+['ss', 'pp', 'aa', 'mm']
+>>>
+```
+
+* Generators are their own iterator, there is only one copy each time:
+
+```python
+>>> g = (char * 2 for char in 'spam')
+>>>
+>>> i1 = iter(g)
+>>> i2 = iter(g)
+>>>
+>>> next(i1)
+'ss'
+>>> next(i1)
+'pp'
+>>>
+>>> next(i2)
+'aa'
+>>> next(i2)
+'mm'
+>>>
+>>> next(i1) # exhausted
+---------------------------------------------------------------------------
+StopIteration                             Traceback (most recent call last)
+<ipython-input-8-982b006512c9> in <module>
+----> 1 next(i1) # exhausted
+
+StopIteration:
+>>>
+>>> next(i2) # exhausted also, same iterator
+---------------------------------------------------------------------------
+StopIteration                             Traceback (most recent call last)
+<ipython-input-9-deb51dae6b35> in <module>
+----> 1 next(i2) # exhausted also, same iterator
+
+StopIteration:
+>>>
+```
+
+* This exhaustion behavior also happens with function generators:
+
+```python
+>>> def repeat_letters(word):
+...     for letter in word:
+...         yield letter * 2
+...
+>>>
+>>> g = repeat_letters('spam')
+>>>
+>>> i1, i2 = iter(g), iter(g)
+>>>
+>>> next(i1)
+'ss'
+>>> next(i1)
+'pp'
+>>>
+>>> next(i2)
+'aa'
+>>> next(i2)
+'mm'
+>>> next(i2)
+---------------------------------------------------------------------------
+StopIteration                             Traceback (most recent call last)
+<ipython-input-17-c8d45a197b20> in <module>
+----> 1 next(i2)
+
+StopIteration:
+>>>
+>>> # Also exhausted
+>>> next(i1)
+---------------------------------------------------------------------------
+StopIteration                             Traceback (most recent call last)
+<ipython-input-19-cc9ef6da1ea7> in <module>
+----> 1 next(i1)
+
+StopIteration:
+>>>
+```
+
+* This behavior differs from some built-ins, which create a different iterator each time `iter()` is called:
+
+```python
+>>> l = [1, 2, 3, 4]
+>>>
+>>> i1 = iter(l)
+>>> i2 = iter(l)
+>>>
+>>> next(i1)
+1
+>>> next(i1)
+2
+>>>
+>>> next(i2) # different iterator
+1
+>>> next(i2)
+2
+>>> next(i2)
+3
+>>>
+>>> next(i1) # back to the first iterator
+3
+>>>
+```
+
+These built-in objects also reflect their changes in the existent iterators:
+
+```python
+>>> l = [1, 2]
+>>>
+>>> i = iter(l)
+>>>
+>>> next(i)
+1
+>>> next(i)
+2
+>>>
+>>> l.append(3)
+>>>
+>>> next(i) # Gets 3
+3
+>>>
+```
+
+* You can make a generator delegate to another generator with the `yield ... from ...` syntax:
+
+```python
+>>> def outer_fx(text):
+...     yield from (letter.upper() for letter in text)
+...
+>>>
+>>> g = outer_fx("spam")
+>>>
+>>> next(g)
+'S'
+>>> next(g)
+'P'
+>>> next(g)
+'A'
+>>> next(g)
+'M'
+>>> next(g)
+---------------------------------------------------------------------------
+StopIteration                             Traceback (most recent call last)
+<ipython-input-41-e734f8aca5ac> in <module>
+----> 1 next(g)
+
+StopIteration:
+>>>
+```
+
+* One example of generator in the Python library reference is the `os.walk` function,
+which returns the `current directory`, its `subdirectories` and its `files` for each tree level:
+
+```python
+>>> import os
+>>>
+>>> g = os.walk('.')
+>>> g
+<generator object walk at 0x7f197f76f0a0>
+>>>
+>>> next(g)
+('.',
+ ['tracker-extract-files.1000',
+  'systemd-private-219506a7a2404f89b3098037c69a3f9f-systemd-timesyncd.service-j6qFn5',
+  'systemd-private-219506a7a2404f89b3098037c69a3f9f-redis-server.service-rcP2Mq',
+  '.ICE-unix',
+  'tmppshv7_w2',
+  'upd',
+  'systemd-private-219506a7a2404f89b3098037c69a3f9f-systemd-resolved.service-1blPLE',
+  'ssh-loZCQ0C57dcS',
+  'VSCode Crashes',
+  'systemd-private-219506a7a2404f89b3098037c69a3f9f-rtkit-daemon.service-rnpfpv',
+  '.XIM-unix',
+  '.X11-unix',
+  '.wsdl',
+  '.Test-unix',
+  'tmpv1l0_2kr',
+  '.font-unix',
+  '.com.google.Chrome.AvTlWO',
+  'systemd-private-219506a7a2404f89b3098037c69a3f9f-ModemManager.service-VeHBvw'],
+ ['sddm-:0-DYaxeG',
+  'sddm-auth3f187f5a-c28a-4b59-a06b-50299ee02d92',
+  '.X1001-lock',
+  'xauth-1000-_0'])
+>>>
+>>> next(g)
+('./tracker-extract-files.1000', [], [])
+>>>
+>>> next(g)
+('./.ICE-unix', [], ['1916'])
+>>>
+```
+
+* A scramble creator as a generator function:
+
+```python
+>>> def scrambler(word):
+...     for i in range(len(word)):
+...         word = word[1:] + word[0]
+...         yield word
+...
+>>>
+>>> for option in scrambler("spam"):
+...     print(option)
+...
+pams
+amsp
+mspa
+spam
+>>>
+```
+
+* A permutation generator function:
+
+```python
+>>> def permute(seq):
+...     if not seq: yield seq
+...     for i in range(len(seq)):
+...         rest = seq[:i] + seq[i + 1:]
+...         for rest_perm in permute(rest):
+...             yield seq[i] + rest_perm
+...
+>>>
+```
 
