@@ -11677,3 +11677,146 @@ s,p,a,m,e,g,g,s
 0.6284703069999935
 >>>
 ```
+
+### `timeit` module
+
+* `timeit` module supports callables and code strings.
+
+To measure a cycle of tests (`number`) use the `timeit` function. It takes a `number` parameters that defines the number of times the `stmt` is run, then the time average is returned:
+
+```python
+>>> timeit.timeit(stmt="[x ** 2 for x in range(1000)]", number=1000)
+0.2875530249999656
+```
+
+If you want multiple time averages, use the `repeat()` method. It performs `repeat` cycles, and in each cycle averages the `stmt` execution time for `number` executions:
+
+```python
+>>> timeit.repeat(stmt="[x ** 2 for x in range(1000)]", number=1000, repeat=5)
+[0.28816614900006243,
+ 0.28122328899996774,
+ 0.27856260500004737,
+ 0.2780457700000625,
+ 0.2791460249999318]
+>>>
+```
+
+### Function gotchas
+
+* You cant use the same name for a local variable in a function and a global one. To have a local and still have access to the global variable, import the `__main__` (current module) and use it as prefix for access:
+
+```python
+>>> x = 99
+>>>
+>>> def example():
+...     import __main__
+...     x = 100
+...     __main__.x = 88
+...
+>>> print(x)
+99
+>>>
+>>> example()
+>>>
+>>> print(x)
+88
+>>>
+```
+
+* Remember that local variables in function are resolved statically:
+
+```python
+>>> def ex():
+...     print(z)
+...     z = 100 # after usage
+...
+>>>
+>>> ex()
+---------------------------------------------------------------------------
+UnboundLocalError                         Traceback (most recent call last)
+<ipython-input-14-70ab1ac0b8ad> in <module>
+----> 1 ex()
+
+<ipython-input-13-21440486dcf0> in ex()
+      1 def ex():
+----> 2     print(z)
+      3     z = 100 # after usage
+      4
+
+UnboundLocalError: local variable 'z' referenced before assignment
+>>>
+>>>
+```
+
+* Avoid mutable objects as defaults, as they save state and are created only during definition, thus being uniques:
+
+```python
+>>> def example(lst=[]):
+...     lst.append(1)
+...     return lst
+...
+>>>
+>>> example()
+[1]
+>>> example()
+[1, 1]
+>>> example()
+[1, 1, 1]
+>>>
+>>> # Avoid it passing a new list explictly
+>>> example([])
+[1]
+>>> example([])
+[1]
+>>> example([])
+[1]
+>>> # If any is defined, the list created during 'def' is used
+>>> example()
+[1, 1, 1, 1]
+>>> example()
+[1, 1, 1, 1, 1]
+>>> example()
+[1, 1, 1, 1, 1, 1]
+>>>
+```
+
+To avoid this shared state behavior, move the default initialization to the function body:
+
+```python
+>>> def example(lst=None):
+...     if lst is None:
+...         lst = []
+...     lst.append(1)
+...     return lst
+...
+>>>
+>>> example()
+[1]
+>>> example()
+[1]
+>>> example()
+[1]
+>>>
+```
+
+* Today, the best way to preserve state between function executions is using its attributes:
+
+```python
+>>> def example():
+...     if not hasattr(example, 'lst'):
+...         example.lst = []
+...     example.lst.append(1)
+...     return example.lst
+...
+...
+>>>
+>>> example()
+[1]
+>>> example()
+[1, 1]
+>>> example()
+[1, 1, 1]
+>>>
+```
+
+## Modules and packages
