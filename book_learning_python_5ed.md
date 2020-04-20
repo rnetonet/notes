@@ -11618,3 +11618,62 @@ s,p,a,m,e,g,g,s
 >>>
 ```
 
+## Benchmarking interlude
+
+* You can do your own benchmark using the `time.clock()` function:
+
+```python
+>>> import time
+>>>
+>>> def benchmark(fx, *args, **kwargs):
+...     start = time.clock()
+...     fx(*args, **kwargs)
+...     elapsed = time.clock() - start
+...     print(fx, " run in ", elapsed, " seconds")
+...
+>>>
+>>> def add(a, b):
+...     return a + b
+...
+>>>
+>>> benchmark(add, 10, 20)
+<function add at 0x7f60e0035268>  run in  2.9999999995311555e-06  seconds
+>>>
+>>> benchmark(str.upper, 'spam')
+<method 'upper' of 'str' objects>  run in  4.0000000041118255e-06  seconds
+>>>
+>>> benchmark(str.upper, 'spam eggs spam eggs')
+<method 'upper' of 'str' objects>  run in  5.999999999062311e-06  seconds
+>>>
+```
+
+* From Python 3.3 beyond newtime tracking function are avaiable:
+
+`time.perf_counter()` return a tick in seconds that takes into consideration the time the process was sleeping and so it is system-wide:
+
+```python
+>>> import time
+>>>
+>>> start = time.perf_counter()
+>>> fx()
+s,p,a,m,e,g,g,s
+>>> elapsed = time.perf_counter() - start
+>>> elapsed
+13.342552814001465
+>>>
+```
+
+While `time.process_time()` returns a tick in seconds (float) that takes into account only the time the process was actually running:
+
+```python
+>>> import time
+>>>
+>>> start = time.process_time()
+>>> fx()
+s,p,a,m,e,g,g,s
+>>> elapsed = time.process_time() - start
+>>>
+>>> elapsed
+0.6284703069999935
+>>>
+```
