@@ -11412,3 +11412,209 @@ spam
 >>>
 ```
 
+* Both `zip()` and `map()` are appliable to multiple iterators at the same time:
+
+```python
+>>> a = 'spam'
+>>> b = 'bacon'
+>>>
+>>> list( zip(a, b) )
+[('s', 'b'), ('p', 'a'), ('a', 'c'), ('m', 'o')]
+>>>
+>>> # if you apply zip to a single sequence
+>>> list( zip([1, 2, 3, 4, 5]) )
+[(1,), (2,), (3,), (4,), (5,)]
+>>>
+>>> # if you apply to n sequences, you get a list of tuples with n elements each
+>>> a
+'spam'
+>>> b
+'bacon'
+>>>
+>>> list( zip(a, b) )
+[('s', 'b'), ('p', 'a'), ('a', 'c'), ('m', 'o')]
+>>>
+>>> # with map(), an element from each sequence is used as an argument
+>>> list( map(pow, [1, 2, 3], [4, 5, 6]) ) # pow(1, 4), pow(2, 5), pow(3, 6)
+[1, 32, 729]
+>>>
+>>>
+```
+
+* `all(seq)` returns `True` if all elements from `seq` have a `True` value. While `any(seq)` returns `True` if some element from `seq` is `True`:
+
+```python
+>>> all([ "spam", [1, 2, 3], ('a', 'b') ])
+True
+>>>
+>>> any([ (), "", 0 ])
+False
+>>>
+```
+
+* Custom `zip()`:
+
+```python
+>>> def myzip(*seqs):
+...     while all(seqs):
+...         yield tuple(seq.pop(0) for seq in seqs)
+...
+>>>
+>>> list( myzip([1, 2, 3], [10, 20, 30], [100, 200, 300]) )
+[(1, 10, 100), (2, 20, 200), (3, 30, 300)]
+>>>
+```
+
+* Custom `map()`:
+
+```python
+>>> def mymap(fx, *seqs):
+...     while all(seqs):
+...         yield fx(*tuple(seq.pop(0) for seq in seqs))
+...
+>>>
+>>> list( mymap(print, [1, 2, 3], [4, 5, 6], [7, 8, 9]) )
+1 4 7
+2 5 8
+3 6 9
+[None, None, None]
+>>>
+```
+
+* Caution. Always remember that some built-in iterators in Python are exhausted after used:
+
+```python
+>>> def myzip(*seqs, debug=False):
+...     iters = map(iter, seqs)
+...     if debug: print( iters )
+...     while iters:
+...         res = [next(i) for i in iters]
+...         if debug: print( res )
+...         yield tuple(res)
+...         input()
+...
+>>>
+>>> list( myzip(['a', 'b', 'c'], ['d', 'e', 'f'], debug=True) )
+<map object at 0x7f60dbe4a668>
+['a', 'd']
+
+[]
+
+[]
+```
+
+`iters` returns a `map()` object which has an always `True` value, but becomes exhausted.
+After this exhaustion the loop keeps running and `res` always generates an empty list.
+
+* Comprehensions localize the local variables, creating an unshared scope:
+
+```python
+>>> (x for x in range(5))
+<generator object <genexpr> at 0x7f60dbeb56d0>
+>>>
+>>> print( x ) # ?
+---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+<ipython-input-47-5047d901a4e9> in <module>
+----> 1 print( x ) # ?
+
+NameError: name 'x' is not defined
+>>>
+>>> # list comprehensions (in fact, all comprehensions) have the same behavior
+>>> [y for y in range(5)]
+[0, 1, 2, 3, 4]
+>>> y
+---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+<ipython-input-50-9063a9f0e032> in <module>
+----> 1 y
+
+NameError: name 'y' is not defined
+>>>
+>>> # but for loops share the scope where they are included
+>>> for z in range(5): pass
+>>> print(z) # defined in the local scope
+4
+>>>
+>>>
+```
+
+* Comprehensions are an exception for the LEGB rule, as they create an specific namespace. But the remainding lookup follows the LEGB (Local, Enclosing, Global and Built-in) rule:
+
+```python
+>>> global_var = 'spam'
+>>>
+>>> def fx():
+...     enclosing_var = 'eggs'
+...     print( ','.join(local_var for local_var in global_var + enclosing_var) )
+...
+>>>
+>>> fx()
+s,p,a,m,e,g,g,s
+>>>
+```
+
+* So, Python 3 has an special scope (non-sharing) for comprehensions expressions, besides the LEGB rule.
+
+* Set and dict comprehensions are syntatic sugar for passing a generator for the type names:
+
+```python
+>>> {x * x for x in range(5)}
+{0, 1, 4, 9, 16}
+>>>
+>>> # the same as
+>>> set(x * x for x in range(5))
+{0, 1, 4, 9, 16}
+>>>
+>>> {x: x * x for x in range(5)}
+{0: 0, 1: 1, 2: 4, 3: 9, 4: 16}
+>>>
+>>> dict(( (x, x * x) for x in range(5) )) # dict( (0, 0), (1, 1), (2, 4)... )
+{0: 0, 1: 1, 2: 4, 3: 9, 4: 16}
+>>>
+```
+
+> Remember that `set` and `dict` comprehensions produce all the values at once, if you need lazy generation, a generator is still your best option.
+
+* As any comprehensions, `set` and `dict` comprehensions also support `if` clauses and nested `for` loops:
+
+```python
+>>> {x for x in range(10) if x % 2 == 0}
+{0, 2, 4, 6, 8}
+>>>
+>>> {x: x * x for x in range(10) if x % 2 == 0}
+{0: 0, 2: 4, 4: 16, 6: 36, 8: 64}
+>>>
+>>> # nested for loops and if clauses
+>>> {x + y for x in range(10) for y in range(10) if x % 2 == 0 and y % 2 == 0}
+{0, 2, 4, 6, 8, 10, 12, 14, 16}
+>>>
+>>> {(x, y): x + y for x in range(10) for y in range(10) if x % 2 == 0 and y % 2 == 0}
+{(0, 0): 0,
+ (0, 2): 2,
+ (0, 4): 4,
+ (0, 6): 6,
+ (0, 8): 8,
+ (2, 0): 2,
+ (2, 2): 4,
+ (2, 4): 6,
+ (2, 6): 8,
+ (2, 8): 10,
+ (4, 0): 4,
+ (4, 2): 6,
+ (4, 4): 8,
+ (4, 6): 10,
+ (4, 8): 12,
+ (6, 0): 6,
+ (6, 2): 8,
+ (6, 4): 10,
+ (6, 6): 12,
+ (6, 8): 14,
+ (8, 0): 8,
+ (8, 2): 10,
+ (8, 4): 12,
+ (8, 6): 14,
+ (8, 8): 16}
+>>>
+```
+
