@@ -11821,3 +11821,178 @@ To avoid this shared state behavior, move the default initialization to the func
 
 ## Modules and packages
 
+* A Python program is composed, at least, by a top level file and auxiliary module files.
+
+* `import` and `from ... import ...` execute and load modules to provide access to its attributes.
+
+* `import` are only established when the interpreter runs them. Their net effect is to assign a variable, usually the module name,
+to the loaded module object.
+
+* `import` and `from ... import ...` really executes the statements from the module to create the module object and its attributes.
+
+* A module import is a three step process:
+
+1. find it
+2. compile to bytecode (if needed)
+3. run the module code to create the module object attributes
+
+* Modules are imported only once per process and are registered in the `sys.modules` dict.
+Subsequent imports ignore the three steps and directly fetch the module object from this dict.
+
+* Python uses a module search path during import operations, instead of specifying the absolute path.
+
+* Compilation happens only during `import` operations, so the top-level module/file of your program will leave no `.pyc` file behind.
+
+* If your module has a `print` statement, for example, it will be execute when the module is imported. Again, it will be execute only once and, then, cached in `sys.modules`.
+
+* The default module search path is composed of:
+
+1. Directory containing the top level script being executed or the dir where the Python shell was open;
+2. `PYTHONPATH` dirs, if defined;
+3. Standard library;
+4. `.pth` files, if present;
+5. `site-packages`, home of third party extensions.
+
+These five sources become the `sys.path` list of paths in the Python process.
+
+`sys.path` is mutable, so you can change it and look for modules in other, arbitrary, folders.
+
+* Some Python setups also include the current working dir as the first item of the `sys.path` list.
+Mind that the working dir can be **different** from the top-level script dir.
+
+* Given a module named `module1.py`:
+
+```python
+# module1.py
+def printer(x):
+    print(x)
+```
+
+You can use this module in two ways:
+
+1. `import`
+
+```python
+import module1
+
+module1.printer('spam')
+```
+
+You have access through the `module1` variable/object.
+
+2. `from ... import ...`
+
+```python
+from module1 import printer
+printer('spam')
+```
+
+You create a local reference `printer` that actually links to `module1.printer`.
+
+> The `from` statement is just an extension. A syntatic sugar. It executes the three `import` steps as usual.
+
+3. `from ... import *`
+
+Import all top level names defined in the module:
+
+```python
+from module1 import *
+
+printer('spam')
+```
+
+> Caution: this can lead to name shadowing.
+
+> This form cant be used inside a function. But, anyway, you should list your imports in the top, start, of the script.
+
+* Remember: modules are loaded once per process, so they can act as singletons:
+
+```python
+>>> import sys
+>>>
+>>> # append /tmp to sys.path
+>>> sys.path.append('/tmp')
+>>> sys.path
+['/home/rnetonet/.local/bin',
+ '/usr/lib/python36.zip',
+ '/usr/lib/python3.6',
+ '/usr/lib/python3.6/lib-dynload',
+ '',
+ '/home/rnetonet/.local/lib/python3.6/site-packages',
+ '/usr/local/lib/python3.6/dist-packages',
+ '/usr/lib/python3/dist-packages',
+ '/home/rnetonet/.local/lib/python3.6/site-packages/IPython/extensions',
+ '/home/rnetonet/.ipython',
+ '/tmp']
+>>>
+>>> # execute another import, but the cached version is used
+>>> import sys
+>>>
+>>> # the module attribute is changed still, the module was not executed again
+>>> sys.path
+['/home/rnetonet/.local/bin',
+ '/usr/lib/python36.zip',
+ '/usr/lib/python3.6',
+ '/usr/lib/python3.6/lib-dynload',
+ '',
+ '/home/rnetonet/.local/lib/python3.6/site-packages',
+ '/usr/local/lib/python3.6/dist-packages',
+ '/usr/lib/python3/dist-packages',
+ '/home/rnetonet/.local/lib/python3.6/site-packages/IPython/extensions',
+ '/home/rnetonet/.ipython',
+ '/tmp']
+>>>
+```
+
+* If you `from ... import ...` a mutable object, it will be subject to side effects:
+
+```python
+>>> from sys import path
+>>> path.append('/tmp')
+>>>
+>>> # load the module object
+>>> import sys
+>>> sys.path # the object was altered before
+['/home/rnetonet/.local/bin',
+ '/usr/lib/python36.zip',
+ '/usr/lib/python3.6',
+ '/usr/lib/python3.6/lib-dynload',
+ '',
+ '/home/rnetonet/.local/lib/python3.6/site-packages',
+ '/usr/local/lib/python3.6/dist-packages',
+ '/usr/lib/python3/dist-packages',
+ '/home/rnetonet/.local/lib/python3.6/site-packages/IPython/extensions',
+ '/home/rnetonet/.ipython',
+ '/tmp']
+>>>
+```
+
+Remember that `from ...` in fact imports the module and creates the module object in `sys.modules`, it just dont create the local reference for the module.
+
+* But references created with `from ... import` syntax to non-mutable objects dont affect the module when reassigned:
+
+```python
+>>> from sys import platform
+>>> platform
+'linux'
+>>>
+>>> platform = 'ubuntu'
+>>>
+>>> import sys
+>>> sys.platform # unchanged
+'linux'
+>>>
+>>>
+```
+
+To change you have to use the module object name explictly:
+
+```python
+>>> import sys
+>>>
+>>> sys.platform = 'unix'
+>>>
+>>> sys.platform
+'unix'
+>>>
+```
