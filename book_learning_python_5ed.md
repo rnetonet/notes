@@ -11976,7 +11976,7 @@ Remember that `from ...` in fact imports the module and creates the module objec
 >>> platform
 'linux'
 >>>
->>> platform = 'ubuntu'
+>>som> platform = 'ubuntu'
 >>>
 >>> import sys
 >>> sys.platform # unchanged
@@ -11996,3 +11996,290 @@ To change you have to use the module object name explictly:
 'unix'
 >>>
 ```
+
+* You can import attributes from modules using an alias:
+
+ `from module import var as alias`
+
+It also works with the `import` statement:
+
+```python
+import module as alias
+```
+
+* Some notes about module scopes and loading:
+
+1. Module code is executed on the first import;
+2. During this execution, Python intercepts top-level assignments (remember that `def` and `class` definitions perform implicit assignments), which originate the module attributes.
+3. Modules attributes (namespace) can be accessed through `.__dict__` attr or using `dir(module)`.
+4. Module becomes the global scope for all non-top-level code it contains. Unlike functions, which namespace live only during execution, module scopes live while the module is loaded in memory (it becomes the `__dict__` attribute).
+
+* Python creates some attributes automatically for modules:
+
+`__name__`, the original module name:
+
+```python
+>>> import sys
+>>>
+>>> sys.__name__
+'sys'
+>>>
+>>> import os as super_os_lib
+>>> super_os_lib.__name__
+'os'
+>>>
+```
+
+`__file__`, the module path:
+
+```python
+>>> from ldap_backend import ifbaiano_ldap_manager
+>>> ifbaiano_ldap_manager.__file__
+'/home/rnetonet/Workspace/suap/ldap_backend/ifbaiano_ldap_manager.py'
+>>>
+```
+
+* The `__dict__` attribute is present in `modules` and `objects`. In both, it intermediates the attribute access:
+
+```python
+>>> import sys
+>>>
+>>> sys.platform
+'linux'
+>>>
+>>> sys.__dict__['platform']
+'linux'
+>>>
+```
+
+* Qualification: `object.attribute` provides an unified way to acess objects attributes through Python.
+
+* The LEGB rule **does not** applies to qualification operations, only to bare name lookups:
+
+1. Bare, unqualified, name lookup. Follows the LEGB rule:
+
+```python
+print(x)
+```
+
+2. Qualification: Looks for `x` using the LEGB rule, then look for `y` in the `x` object `__dict__`.
+
+```python
+print(x.y)
+```
+
+> Qualification works on all objects with attributes: modules, classes, C extension types, etc.
+
+* The global scope is always of the surrounding file:
+
+```python
+# mod_a.py
+X = 99
+
+def change():
+    global X
+    X = 100
+```
+
+```python
+# mod_b.py
+X = 'a'
+
+import mod_a
+mod_a.change()
+
+print(mod_a.X)
+
+print(X)
+```
+
+Executing `mod_b.py`:
+
+```python
+➜ python mod_b.py
+100 # the 'global' clause refers to 'mod_a' scope
+a   # mod_b scope is not changed
+```
+
+> Remember: a module can only access attributes from another module explicitly, using one of the `import` forms.
+
+> Remember 2: Python scope is determined by the position where the code is. **Lexical scoping.**.
+
+* Modules can nest downwards:
+
+```python
+# c.py
+
+X = 'x in c'
+```
+
+```python
+# b.py
+
+X = 'x in b'
+
+import c
+```
+
+```python
+# a.py
+
+X = 'x in a'
+
+
+import __main__
+print("a.X (__main__.X)", __main__.X)
+
+import b
+print("b.X", b.X)
+print("b.c.X", b.c.X)
+```
+
+Executing `a.py`:
+
+```bash
+➜ python a.py
+('a.X (__main__.X)', 'x in a')
+('b.X', 'x in b')
+('b.c.X', 'x in c')
+```
+
+* To reload a module, use `imp.reload(module_object)` function.
+
+It reloads (reruns and recreates the object) in place:
+
+```python
+# b.py
+value = 'initial'
+```
+
+```python
+import b
+
+# b 'initial' value
+print(b.value)
+
+# changes b object value
+b.value = 'altered'
+print(b.value) # altered...
+
+# reloads, back to initial value
+import imp
+imp.reload(b)
+
+# initial
+print(b.value)
+```
+
+```bash
+rnetonet on T440s in /tmp/sample via 🐍 v2.7.17
+➜ python a.py
+initial
+altered
+initial
+```
+
+* `reload` reruns the module code. It dosent deletes the previous object and recreates, instead, it morphs:
+
+```python
+# b.py
+value = 'initial'
+```
+
+```python
+# a.py
+import b
+
+# creates a new attr in the module object
+b.new_value = 'new_value'
+print(b.new_value)
+
+# reloads, morphing
+import imp
+imp.reload(b)
+
+print(b.new_value) # still there
+```
+
+```bash
+➜ python /tmp/sample/a.py
+new_value
+new_value
+```
+
+* Reloads affect all `import` uses. But only future `from ... import` uses.
+
+## Module packages
+
+* A package import converts a directory into a module object, which attributes are other modules it contains and subdirectories.
+Both also handled as module objects.
+
+* Instead of a module name, you can import a path:
+
+```python
+import dir1.subdir.module
+```
+
+or
+
+```python
+from di1.subdir.module import attr
+```
+
+Both statements indicate that there is a 'dir1' folder in your PYTHONPATH, which includes a 'subdir' folder with a `module.py` file.
+
+* Until Python 3.3, each dir in a package must contain a `__init__.py` file, even if its empty.
+
+In the prior example, tree would show something like:
+
+```bash
+project_folder/
+  main.py # which contains the import
+  dir1/
+    __init__.py
+    subdir/
+      __init__.py
+      module.py
+```
+
+`__init__.py` files are executed when their package path is imported:
+
+given the structure below:
+
+```bash
+➜ tree sample/
+sample/
+├── a
+│   ├── b
+│   │   ├── __init__.py
+│   ├── __init__.py
+└── main.py
+
+4 directories, 5 files
+```
+
+And the following codes:
+
+```python
+# a / __init__.py
+print('a imported')
+```
+
+```python
+# a / b / __init__.py
+print('b imported')
+```
+
+```python
+# main.py
+import a.b
+```
+
+Running `main.py`:
+
+```bash
+> python /tmp/sample/main.py
+a imported
+b imported
+```
+
