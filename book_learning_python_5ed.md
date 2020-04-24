@@ -12283,3 +12283,178 @@ a imported
 b imported
 ```
 
+* When you do a package import as:
+
+```python
+import dir_a.dir_b.module
+```
+
+Python creates three module objects in memory, but make only the left-most avaiable. To access the inner modules, you need to qualify.
+
+The `dir_a.__init__.py` file will be interpreted and originate the `dir_a` module.
+
+The same happens with `dir_b.__init__.py` file, which is run and originates the `dir_b` module object.
+
+Back to our example:
+
+```bash
+├── a
+│   ├── b
+│   │   ├── __init__.py
+│   ├── __init__.py
+└── main.py
+```
+
+If we change the `__init__.py` files to:
+
+```python
+# a / __init__.py
+print('a imported')
+var = 'a var!'
+```
+
+```python
+# b / __init__.py
+print('b imported')
+var = 'b var!'
+```
+
+And import in the shell:
+
+only `a`
+
+```python
+>>> import a # a module is executed
+a imported
+>>> a.var    # and is accessible
+'a var!'
+>>>
+>>>
+```
+
+`b` from inside `a`:
+
+```python
+# Creates each module
+>>> import a.b
+a imported
+b imported
+>>>
+# The top is accessible
+>>> a.var
+'a var!'
+>>>
+# To access nested modules, you need to qualify the top level
+>>> a.b.var
+'b var!'
+>>>
+>>> # you cant go directly to b
+>>> b.var
+---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+<ipython-input-5-a8930fce5e02> in <module>
+----> 1 b.var
+
+NameError: name 'b' is not defined
+>>>
+```
+
+Another example, importing the `os.path` package:
+
+```python
+>>> import os.path
+>>>
+>>> os # module imported
+<module 'os' from '/usr/lib/python3.6/os.py'>
+>>>
+>>> os.path # to access the nested module, you need to qualify
+<module 'posixpath' from '/usr/lib/python3.6/posixpath.py'>
+>>>
+```
+
+But if you use `from ...` only the specified names become avaiable:
+
+```python
+>>> from os.path import sep
+>>>
+>>> os
+---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+<ipython-input-2-15f5e96fdb7b> in <module>
+----> 1 os
+
+NameError: name 'os' is not defined
+>>>
+>>> path
+---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+<ipython-input-3-012ab3a6b187> in <module>
+----> 1 path
+
+NameError: name 'path' is not defined
+>>>
+>>> # but sep is accessible
+>>> sep
+'/'
+>>>
+```
+
+Remember that `from` also executes each directory `__init__.py` file:
+
+```python
+>>> from a.b import var
+a imported
+b imported
+>>>
+>>> var
+'b var!'
+>>>
+```
+
+* Relative imports work for packages structures.
+
+* import in packages in Python 3:
+
+1. module import search ignore the package own directory. it looks only in `sys.path`. these are the absolute imports.
+
+2. added the relative syntax to `from ...` to import from the package directory structure explicitly, using dots to specify the level.
+these are the new `relative` imports.
+
+So in Python 3 you have two major kinds of imports:
+
+`absolute`, which look in the `sys.path` only.
+
+and
+
+`relative`, using `from ...` and dots to import from the module current package structure.
+
+* Examples:
+
+```python
+from . import mod
+```
+
+Imports a module named `mod` in the current importer dir.
+
+```python
+from .spam import spamassassin
+```
+
+Imports an object or module named `spamassassin` from the subfolder `spam` inside the current importer dir.
+
+To achieve this behavior in Python 2, which performs a `relative-then-absolute` import, even without the dots:
+
+```python
+from __future__ import  absolute_import
+```
+
+Remember: relative imports work only with the `from ...` syntax.
+In Python 3 `import ....` are always absolute imports.
+
+Some other relative examples:
+
+```python
+from .spam import name1, name2 # import name1 and name2 from a module spam in the current importer dir
+from . import string # imports a string.py module from the current importer dir
+from .. import string # from the folder above the current importer dir, import a module named string
+```
