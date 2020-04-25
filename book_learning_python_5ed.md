@@ -12674,3 +12674,209 @@ sys.path= ['/tmp/sample', '/usr/lib/python38.zip', '/usr/lib/python3.8', '/usr/l
 
 * Caution. If your CWD (dir of the running script) has some module name as a built-in module, `string.py` for example, absolute imports will use it. Remember: the running script home folder is always the first dir in `sys.path`.
 
+
+* In both Python 2 and 3, using relative imports binds the file to the package and precludes it from being used in other ways.
+
+* In Python 3, modules that use relative imports cant be used as top level running scripts.
+
+* In a nutshell, Python 3 modules that use relative import cant be executed as top-level scripts.
+To create modules that can act as package modules or top-level scripts, you need to use full package path imports and assume the package container folder is in the `sys.path`:
+
+```python
+from pkg.audio.syntetizer import Syntetizer
+```
+
+* An example of this issue:
+
+```bash
+pkg/
+├── main.py
+├── midway.py
+├── mod.py
+```
+
+```python
+# main.py
+import midway
+```
+
+```python
+# midway.py
+import mod
+```
+
+```python
+# mod.py
+print('module!')
+```
+
+Running as script works, as all files are in the `sys.path`:
+
+```bash
+➜ python3 main.py
+module!
+```
+
+But you cant import it as a package, as it is an absolute import:
+
+```python
+>>> import pkg.midway
+---------------------------------------------------------------------------
+ModuleNotFoundError                       Traceback (most recent call last)
+<ipython-input-1-24126b11b284> in <module>
+----> 1 import pkg.midway
+
+/tmp/sample/pkg/midway.py in <module>
+----> 1 import mod
+
+ModuleNotFoundError: No module named 'mod'
+>>>
+```
+
+Another example. Now using the same structure but relative imports:
+
+```python
+# main.py
+import midway
+```
+
+```python
+# midway.py
+from . import mod
+```
+
+```python
+# mod.py
+print('module!')
+```
+
+You cant execute as top-level scripts. Remembem that relative imports can be used by running scripts:
+
+```bash
+➜ python pkg/main.py
+Traceback (most recent call last):
+  File "pkg/main.py", line 1, in <module>
+    import midway
+  File "/tmp/sample/pkg/midway.py", line 1, in <module>
+    from . import mod
+ValueError: Attempted relative import in non-package
+
+➜ python pkg/midway.py
+Traceback (most recent call last):
+  File "pkg/midway.py", line 1, in <module>
+    from . import mod
+ValueError: Attempted relative import in non-package
+```
+
+But package imports work:
+
+```python
+>>> import pkg.midway
+module!
+```
+
+* Fix 1: put all the acessory packages modules into a subdirectory and the main, running files, in parent folder:
+
+```bash
+sample/
+├── main.py
+└── pkg
+    ├── __init__.py
+    ├── midway.py
+    ├── mod.py
+```
+
+```python
+# main.py
+import pkg.midway
+```
+
+```python
+# pkg/midway.py
+from . import mod
+```
+
+```python
+# pkg/mod.py
+print('module!')
+```
+
+Now running as script works:
+
+```bash
+➜ python3 main.py
+module!
+```
+
+And package import also works:
+
+```python
+>>> %pwd
+'/tmp/sample'
+>>>
+>>> import pkg.midway
+module!
+>>>
+```
+
+* Fix 2: use full package import paths
+
+```bash
+sample/
+└── pkg
+    ├── __init__.py
+    ├── main.py
+    ├── midway.py
+    ├── mod.py
+```
+
+```python
+# main.py
+import pkg.midway
+```
+
+```python
+# pkg/midway.py
+import pkg.mod
+```
+
+```python
+# pkg/mod.py
+print('module!')
+```
+
+If you put the `pkg` parent folder in the `sys.path`, running and package imports will work:
+
+```bash
+rnetonet on ThinkPad-T440s in /tmp/sample
+➜ export PYTHONPATH=/tmp/sample/
+rnetonet on ThinkPad-T440s in /tmp/sample
+➜
+rnetonet on ThinkPad-T440s in /tmp/sample
+➜ python3 pkg/main.py
+['/tmp/sample/pkg', '/tmp/sample', '/usr/lib/python38.zip', '/usr/lib/python3.8', '/usr/lib/python3.8/lib-dynload', '/home/rnetonet/.local/lib/python3.8/site-packages', '/usr/local/lib/python3.8/dist-packages', '/usr/lib/python3/dist-packages']
+module!
+rnetonet on ThinkPad-T440s in /tmp/sample
+➜
+rnetonet on ThinkPad-T440s in /tmp/sample
+➜ ipython
+Python 3.8.2 (default, Mar 13 2020, 10:14:16)
+Type 'copyright', 'credits' or 'license' for more information
+IPython 7.13.0 -- An enhanced Interactive Python. Type '?' for help.
+>>> import pkg.midway
+module!
+>>>
+```
+
+Using full package imports, modules can be tested being run directly:
+
+```bash
+rnetonet on ThinkPad-T440s in /tmp/sample
+➜ export PYTHONPATH=/tmp/sample/
+
+rnetonet on ThinkPad-T440s in /tmp/sample took 1m19s
+➜ python3 pkg/midway.py
+module!
+```
+
+### Python namespaces packages
