@@ -12458,3 +12458,219 @@ from .spam import name1, name2 # import name1 and name2 from a module spam in th
 from . import string # imports a string.py module from the current importer dir
 from .. import string # from the folder above the current importer dir, import a module named string
 ```
+
+* `import` are always absolute in Python 3. `relative` imports are only possible using `from ..path import ...` . **The dots before the `.path` are required for relative imports**.
+
+* `from something import otherthing` without dots are absolute also, looking in `sys.path`
+
+* To make a relative `import` to the current package, use:
+
+```python
+from . import module # import module from the current dir
+```
+
+* You can import specific names from in a relative import:
+
+```python
+from .module import a, b
+```
+
+* The dots reference work like most Linux shells:
+
+1. Current dir:
+
+```python
+from . import module
+```
+
+```python
+from .module import a, b
+```
+
+2. Parent dir
+
+```python
+from .. import module
+```
+
+```python
+from ..module import a, b
+```
+
+3. Grandparent dir
+
+
+```python
+from ... import module
+```
+
+```python
+from ...module import a, b
+```
+
+* Absolut imports from packages:
+
+If your package folder is in `sys.path`, you can name it explictly and perform an absolute import using the package:
+
+```python
+from mypkg.subpkg import string
+```
+
+Mind that `mypkg` should be present in some of the `sys.path` directories.
+
+* Module lookup rules summary:
+
+1.`import module` or `from module import a, b` where `module` has no dot as prefix are absolute import and traverse `sys.path` searching the module file. This also applies for package imports without leading dots: `import mypkg.module` or `from mypkg.module import a, b`.
+
+2. Python packages are directories with `__init__.py` files. When you import a package like:
+
+```python
+import a.b.c
+```
+
+Python executes `a.__init__.py`, `b.__init__.py` and `c.__init__.py` files.
+
+Then, it creates the `a` module object. The `b` module becomes an attribute in the `a` module object. And the `c` module object becomes an attribute in the `b` object.
+
+The module object of each dir corresponds to its `__init__.py` file execution.
+
+To import a module inside some of the packages, you need to be explicit. You can, for example, import an `utils.py` module that resides inside the `c` folder:
+
+```python
+import a.b.c.utils
+print( a.b.c.utils.some_var )
+```
+
+or
+
+```python
+form a.b.c import utils
+print( utils.some_var )
+```
+
+3. By default, Python 3 always performs `absolute` imports, which traverse the `sys.path` folders.
+To perform `relative` import, you need to use the `from .dir import module` where the `dir` has one or more leading dots.
+
+* Let's see some examples to clear up possible doubts:
+
+1. Sometimes the `import` seems to perform relative imports.
+
+Remember that relative imports are executed only when the dir is prefixed with leading dots.
+
+But, also remember, that the first item in `sys.path` is always the folder where the top-level/executing script is.
+
+So, if you have in your folder two modules: `main.py` and `string.py` and in `main.py` you `import` a `string` module:
+
+```python
+import string
+```
+
+The folder `string.py` module will be loaded, as it is the first match in `sys.path`.
+
+2. I cant `from . import module` from my running script.
+
+Your running script is not considerated a `package` code, so you can perform relative imports:
+
+Given the structure:
+
+```bash
+├── main.py
+└── utils.py
+```
+
+```python
+# utils.py
+def uprint(msg):
+    print(msg.upper())
+```
+
+```python
+# main.py
+from . import utils
+
+utils.uprint("Hello World")
+```
+
+if you run `main.py`:
+
+```bash
+➜ python main.py
+Traceback (most recent call last):
+  File "main.py", line 1, in <module>
+    from . import utils
+ValueError: Attempted relative import in non-package
+```
+
+* **Remember:** the home directory of the running Python module is always set as the first folder in `sys.path`.
+
+* `Relative imports` search only the package!
+
+```bash
+sample/
+├── main.py
+└── pkg
+    ├── example.py
+    ├── __init__.py
+    ├── string.py
+```
+
+```python
+# pkg/example.py
+from . import string # tries to do a relative import, but there is no string.py file. no absolute import is tried automatically.
+```
+
+```python
+# sample/main.py
+import sys
+print("sys.path=", sys.path)
+
+import pkg.example
+```
+
+Running `main.py`:
+
+```python
+sys.path= ['/tmp/sample', '/usr/lib/python38.zip', '/usr/lib/python3.8', '/usr/lib/python3.8/lib-dynload', '/home/rnetonet/.local/lib/python3.8/site-packages', '/usr/local/lib/python3.8/dist-packages', '/usr/lib/python3/dist-packages']
+Traceback (most recent call last):
+  File "main.py", line 4, in <module>
+    import pkg.example
+  File "/tmp/sample/pkg/example.py", line 1, in <module>
+    from . import string
+ImportError: cannot import name 'string' from 'pkg' (/tmp/sample/pkg/__init__.py)
+```
+
+* **Remember** the folder where the running script is, is always the first item in `sys.path`.
+
+Dir structure:
+
+```bash
+sample/
+└── main.py
+```
+
+```python
+# main.py
+import sys
+print("sys.path=", sys.path)
+```
+
+Running from the `sample` folder:
+
+```bash
+rnetonet on ThinkPad-T440s in /tmp/sample via 🐍 v2.7.18rc1
+➜ pwd
+/tmp/sample
+rnetonet on ThinkPad-T440s in /tmp/sample via 🐍 v2.7.18rc1
+➜ python3 main.py
+sys.path= ['/tmp/sample', '/usr/lib/python38.zip', '/usr/lib/python3.8', '/usr/lib/python3.8/lib-dynload', '/home/rnetonet/.local/lib/python3.8/site-packages', '/usr/local/lib/python3.8/dist-packages', '/usr/lib/python3/dist-packages']
+```
+
+From outside the folder:
+
+```python
+➜ python3 sample/main.py
+sys.path= ['/tmp/sample', '/usr/lib/python38.zip', '/usr/lib/python3.8', '/usr/lib/python3.8/lib-dynload', '/home/rnetonet/.local/lib/python3.8/site-packages', '/usr/local/lib/python3.8/dist-packages', '/usr/lib/python3/dist-packages']
+```
+
+* Caution. If your CWD (dir of the running script) has some module name as a built-in module, `string.py` for example, absolute imports will use it. Remember: the running script home folder is always the first dir in `sys.path`.
+
