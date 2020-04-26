@@ -12879,4 +12879,9 @@ rnetonet on ThinkPad-T440s in /tmp/sample took 1m19s
 module!
 ```
 
+> **Important!** To a folder to be considerated as a package, it needs to have an `__init__.py` file.
+
+`__init__.py` files are still necessary!!!
+
 ### Python namespaces packages
+
