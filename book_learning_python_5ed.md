@@ -12883,5 +12883,37 @@ module!
 
 `__init__.py` files are still necessary!!!
 
-### Python namespaces packages
+* You can make instances of any of the classes in the hierarchy. Remember that lookups will start from this class, then.
+
+* Names assigned in the main body of a classe become attributes of the class object and are shared among all instances.
+
+* Functions declared in the body of classes become methods and receive, when called, the instance where it was called as the first argument.
+This first argument is usually defined as `self`:
+
+```python
+>>> class Example:
+...     message_prefix = '-> '
+...     data = 'default' # will be overriden by set_data() in the instances
+...
+...     def set_data(self, value):
+...         self.data = value
+...
+...     def get_data(self):
+...         return self.data
+...
+...     def display(self):
+...         print(f'{self.message_prefix} {self.get_data()}') # self.message_prefix can be replaced by Example.message_p
+... refix
+...
+>>>
+>>> e1 = Example()
+>>> # use the default (class) data
+>>> e1.display()
+->  default
+>>>
+>>> e1.set_data('spam') # create a data attribute in the instance
+>>> e1.display() # the object data will be used instead
+->  spam
+>>>
+```
 
