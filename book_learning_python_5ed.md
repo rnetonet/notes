@@ -12917,3 +12917,421 @@ This first argument is usually defined as `self`:
 >>>
 ```
 
+* Objects namespace are implemented as a `__dict__` attribute:
+
+```python
+>>> class Test:
+...     x = 1
+...     y = 2
+...
+>>>
+>>> Test.__dict__
+mappingproxy({'__module__': '__main__',
+              'x': 1,
+              'y': 2,
+              '__dict__': <attribute '__dict__' of 'Test' objects>,
+              '__weakref__': <attribute '__weakref__' of 'Test' objects>,
+              '__doc__': None})
+>>>
+>>> t1 = Test()
+>>> t1.x = 10
+>>>
+>>> t2 = Test() # wont have any object attribute
+>>>
+>>> t1.__dict__
+{'x': 10}
+>>>
+>>> t2.__dict__
+{}
+>>>
+```
+
+* The `vars(object)` built-in returns the `object.__dict__`:
+
+```python
+>>> vars(Test)
+mappingproxy({'__module__': '__main__',
+              'x': 1,
+              'y': 2,
+              '__dict__': <attribute '__dict__' of 'Test' objects>,
+              '__weakref__': <attribute '__weakref__' of 'Test' objects>,
+              '__doc__': None})
+>>> vars(t1)
+{'x': 10}
+>>> vars(t2)
+{}
+>>>
+```
+
+* Caution: qualification triggers an inheritance search, but `__dict__` access dosent:
+
+```python
+>>> class Example:
+...     var = 42
+...
+>>>
+>>> t1 = Example()
+>>>
+>>> # Acessing Example object
+>>> Example.var
+42
+>>> Example.__dict__['var']
+42
+>>>
+>>> # Accessing t1 object
+>>> t1.var # does inheritance lookup
+42
+>>> t1.__dict__['var'] # does not trigger inheritance name lookup
+---------------------------------------------------------------------------
+KeyError                                  Traceback (most recent call last)
+<ipython-input-23-b2326f61e87c> in <module>
+----> 1 t1.__dict__['var'] # does not trigger inheritance name lookup
+
+KeyError: 'var'
+>>>
+```
+
+* Instance objects keep a link to its class object in the `__class__` attribute:
+
+```python
+>>> class Dog:
+...     says = 'bark!'
+...
+>>> class Cat:
+...     says = 'Meow!'
+...
+>>>
+>>> animal = Dog()
+>>> animal.__class__
+__main__.Dog
+>>>
+>>> animal.says
+'bark!'
+>>>
+>>> # You can, but should not, change the __class__ in runtime
+>>> animal.__class__ = Cat
+>>> animal
+<__main__.Cat at 0x7f49f2a00588>
+>>>
+>>> animal.says
+'Meow!'
+>>>
+```
+
+* Class object have a `__bases__` attribute linking their superclasses:
+
+```python
+>>> class Father:
+...     hair = 'brown'
+...
+>>> class Mother:
+...     eyes_color = 'blue'
+...
+>>> class Baby(Father, Mother): pass
+>>>
+>>> Baby.__bases__
+(__main__.Father, __main__.Mother)
+>>>
+>>> b = Baby()
+>>> b.hair
+'brown'
+>>> b.eyes_color
+'blue'
+>>>
+```
+
+* Classes and instances are just namespace objects, thus attributes can be created on the fly. Even methods:
+
+```python
+>>> class Calculator:
+...     pass
+...
+>>>
+>>> # Sets default values
+>>> Calculator.a = 1
+>>> Calculator.b = 2
+>>>
+>>> # Create a method outside
+>>> def add(self):
+...     return self.a + self.b
+...
+>>>
+>>> Calculator.add = add
+>>>
+>>> # Use the attributes defined in an instance object
+>>> c1 = Calculator()
+>>> c1.add()
+3
+>>>
+>>> c1.a = 10
+>>> c1.b = 30
+>>> c1.add()
+40
+>>>
+```
+
+* You can even add methods dinamically to pre-existent instances:
+
+```python
+>>> class Dog:
+...     def bark(self):
+...         print(f'bark {self}')
+...
+>>>
+>>> def jump(self):
+...     print(f'jump {self}')
+...
+>>>
+>>> d1 = Dog()
+>>> d1.bark()
+bark <__main__.Dog object at 0x7f49f249d898>
+>>> d1.jump() # ops!
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-74-ba2a952f416d> in <module>
+----> 1 d1.jump() # ops!
+
+AttributeError: 'Dog' object has no attribute 'jump'
+>>>
+>>> Dog.jump = jump
+>>>
+>>> d1.jump()
+jump <__main__.Dog object at 0x7f49f249d898>
+>>>
+```
+
+* Python has two methods responsible for displaying an object: `__str__` and `__repr__`.
+
+`__str__` is prefered by `print()` and `str()`.
+
+if `__str__` is not present, `__repr__` is used instead.
+
+Python provides a default `__repr__` for all objects.
+
+But have in mind why both exist:
+
+`__str__` provides a more friendly, user focused, string representation.
+
+`__repr__` provides a more technical, developer focused, representation.
+
+* In Python 3 built-ins lookups, like `__repr__` skip the instance and go directly to the class. So you are forced to overload it to change its behavior:
+
+```python
+>>> class Father:
+...     def __repr__(self):
+...         return f'Fathers'
+...
+...
+>>> class Son(Father):
+...     def __getattribute__(self, attr):
+...         print(attr)
+...
+>>>
+>>> s = Son()
+__class__
+__class__
+__class__
+__class__
+>>> s.x = 10
+>>> s.x
+x
+>>>
+>>> repr(s)
+'Fathers'
+>>>
+
+>>> class Daughter(Father):
+...     def __getattribute__(self, attr):
+...         print(attr)
+...     def __repr__(self):
+...         return 'daughter'
+...
+>>>
+>>> d = Daughter()
+>>> d.x = 10
+>>> d.x
+x
+>>> repr(d)
+'daughter'
+>>>
+```
+
+---
+
+Instances have a `__class__` attribute that points to the class it was originated.
+
+Classes have a `__name__` attribute and a `__bases__` (superclasses).
+
+Objects commonly also have a `__dict__` object, representing their namespace.
+
+```python
+>>> class Person: pass
+>>>
+>>> bob = Person()
+>>> bob.__class__
+__main__.Person
+>>> bob.__class__.__name__
+'Person'
+>>> bob.__class__.__bases__
+(object,)
+>>>
+>>> bob.name = 'Bob'
+>>> bob.__dict__
+{'name': 'Bob'}
+>>>
+```
+
+---
+
+To create a "mixin" to display all attributes from a class:
+
+```python
+class RichDisplay:
+    def __attrs(self):
+        attrs = []
+        for attr in sorted(self.__dict__):
+            attrs.append(f'{attr}={getattr(self, attr)}')
+        return ', '.join(attrs)
+
+    def __repr__(self):
+        return f'{self.__class__.__name__} | {self.__attrs()}'
+
+class Person(RichDisplay):
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+if __name__ == "__main__":
+    bob = Person('Bob', 32)
+    print(bob)
+```
+
+output:
+
+```bash
+$ python /tmp/demo.py
+Person | age=32, name=Bob
+```
+
+---
+
+If you want to list all attributes, including the inherited by the instance from its classes, use `dir`:
+
+```python
+>>> class Person:
+...     person_attr = 1
+...
+>>> class Manager(Person):
+...     def __init__(self):
+...         self.manager = True
+...
+>>>
+>>> m = Manager()
+>>> dir(m)
+['__class__',
+ '__delattr__',
+ '__dict__',
+ '__dir__',
+ '__doc__',
+ '__eq__',
+ '__format__',
+ '__ge__',
+ '__getattribute__',
+ '__gt__',
+ '__hash__',
+ '__init__',
+ '__init_subclass__',
+ '__le__',
+ '__lt__',
+ '__module__',
+ '__ne__',
+ '__new__',
+ '__reduce__',
+ '__reduce_ex__',
+ '__repr__',
+ '__setattr__',
+ '__sizeof__',
+ '__str__',
+ '__subclasshook__',
+ '__weakref__',
+ 'manager',
+ 'person_attr']
+>>>
+>>>
+```
+
+While `vars(object)` has the same effect as `object.__dict__`:
+
+```python
+>>> vars(m)
+{'manager': True}
+>>> m.__dict__
+{'manager': True}
+>>>
+```
+
+---
+
+To avoid name collisions in classes, prefix methods or attributes not meant to be overloaded with an underscore:
+
+```python
+class RichDisplay:
+    def _get_attrs(self):
+        attrs = []
+        for attr in sorted(self.__dict__):
+            attrs.append(f'{attr}={getattr(self, attr)}')
+        return ', '.join(attrs)
+
+    def __repr__(self):
+        return f'{self.__class__.__name__} | {self._get_attrs()}'
+
+class Person(RichDisplay):
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+if __name__ == "__main__":
+    bob = Person('Bob', 32)
+    print(bob)
+```
+
+---
+
+You can use `shelve` to persist Python objects leveraging the `pickle` and `dbm` modules:
+
+```python
+import shelve
+
+
+class Person:
+    def __init__(self, name, age, job):
+        self.name = name
+        self.age = age
+        self.job = job
+
+    def __repr__(self):
+        return f'{self.__class__.__name__} - {self.name}, {self.age}, {self.job}'
+
+if __name__ == "__main__":
+    bob = Person("Bob", 32, "dev")
+    paul = Person("Paul", 44, "mgr")
+
+    # persist. shelve are like dicts.
+    db = shelve.open('db')
+    db['bob'] = bob
+    db['paul'] = paul
+    db.close()
+
+    # retrieve
+    db = shelve.open('db')
+    for reg_key in db: # just like a dict.keys()
+        print(db[reg_key])
+    db.close()
+```
+
+The `pickle` module, use by `shelve`, can persist any kind of Python object. Even the one we create. Their classes are automatically imported when the *pickled objects* are loaded, thus they should be *importable* from `sys.path` in this moment.
+
+> pickleable classes must be coded at the top level of a module file accessible from a directory listed on the sys.path module search path
+
+---
+
