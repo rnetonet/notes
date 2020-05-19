@@ -13335,3 +13335,651 @@ The `pickle` module, use by `shelve`, can persist any kind of Python object. Eve
 
 ---
 
+To modify class attributes, you need to use the class name.
+
+```python
+>>> # You can access class attributes through instances or classes
+>>> a.x, a.y
+(11, 99)
+>>> b.x, b.y
+(11, 99)
+>>> SharedData.x, SharedData.y
+(11, 99)
+>>>
+>>> # But, to change you need to use the class name
+>>> SharedData.x = 'x'
+>>> SharedData.y = 'y'
+>>>
+>>> a.x, a.y
+('x', 'y')
+>>> b.x, b.y
+('x', 'y')
+>>> SharedData.x, SharedData.y
+('x', 'y')
+>>>
+>>>
+>>> # If you change in an instance, you create a new attribute _in the instance_ only:
+>>> a.x = 'xxx'
+>>>
+>>> a.x, a.y
+('xxx', 'y')
+>>> b.x, b.y
+('x', 'y')
+>>> SharedData.x, SharedData.y
+('x', 'y')
+>>>
+>>>
+```
+
+Example:
+
+```python
+>>> class MixedData:
+...     data = 'a'
+...     def __init__(self, value):
+...         self.data = value
+...     def __repr__(self):
+...         return "self.data={}, MixedData.data={}".format(self.data, MixedData.data)
+...
+>>>
+>>> m = MixedData(10)
+>>> m
+self.data=10, MixedData.data=a
+>>>
+```
+
+---
+
+Calling superclass constructors
+
+When an object is created Python calls only one `__init__` method.
+If this method is found in one of the subclasses, just this version is called.
+
+If the superclass `__init__` method needs to be called, the method needs to call it explictly using the class name:
+
+```python
+>>> class Super:
+...     def __init__(self, x):
+...         print('super __init__')
+...
+>>>
+>>> class Sub(Super):
+...     def __init__(self, x, y):
+...         Super.__init__(self, x)
+...         print('sub __init__')
+...
+>>>
+>>> s = Sub(10, 20)
+super __init__
+sub __init__
+>>>
+```
+
+You can also call perform this action using `super()`. In this case `self` is passed automatically:
+
+```python
+>>> class Super:
+...     def __init__(self, x):
+...         print('super __init__')
+...
+>>> class Sub(Super):
+...     def __init__(self, x, y):
+...         super().__init__(x)
+...         print('sub __init__')
+...
+>>>
+>>> s = Sub(10, 20)
+super __init__
+sub __init__
+>>>
+```
+
+---
+
+Methods are created in the class scope and shared, through inheritance search, with all instances.
+
+These methods can be called through the `instance`:
+
+```python
+>>> class AnotherExample:
+...     def printer(self, text):
+...         self.message = text
+...         print(self.message)
+...
+>>>
+>>> ae = AnotherExample()
+>>> ae.printer('Hello World')
+Hello World
+>>> ae.message
+'Hello World'
+>>>
+>>>
+```
+
+You can call directly from the class:
+
+```python
+>>> AnotherExample.printer(ae, 'Bye!') # you need to pass the 'self' parameter, as Python dosent pass it implictly when
+... the method is called from a class
+Bye!
+>>>
+```
+
+---
+
+The four usages of superclasses:
+
+1. Super class - The super class:
+
+```python
+>>> class Super:
+...     def method(self):
+...         print('in Super.method')
+...     def delegate(self):
+...         self.action() # expects the subclass to implement it
+...
+>>>
+>>>
+```
+
+2. A simple Inheritor, that is just an alias to the superclass:
+
+```python
+>>> class Inheritor(Super):
+...     pass
+...
+>>> i = Inheritor()
+>>> i.method()
+in Super.method
+>>>
+```
+
+3. `Replacer`: overrides one of the superclass methods:
+
+```python
+>>> class Replacer(Super):
+...     # overrides
+...     def method(self):
+...         print('in Replacer method =)')
+...
+>>>
+>>> r = Replacer()
+>>> r.method()
+in Replacer method =)
+>>>
+```
+
+4. `Extender`: overrides superclass methods, but call them in the overriden methods
+
+```python
+>>> class Extender(Super):
+...     def method(self):
+...         print('before logic in Extender')
+...         Super.method(self) # call superclass method
+...         print('after login in Extender')
+...
+>>>
+>>> e = Extender()
+>>> e.method()
+before logic in Extender
+in Super.method
+after login in Extender
+>>>
+```
+
+5. `Provider` implements the delegated methods from the superclass:
+
+```python
+>>> class Super:
+...     def method(self):
+...         print('in Super.method')
+...     def delegate(self):
+...         self.action() # expects the subclass to implement it
+...
+>>>
+>>> class Provider(Super):
+...     def action(self):
+...         print('action implemented in Provider')
+...
+>>> p = Provider()
+>>> p.delegate()
+action implemented in Provider
+>>>
+>>>
+```
+
+---
+
+Abstract superclasses
+
+You can force a superclass method to be provided (implemented) by a superclass creating an abstract method (a method with no body) with the help of the `assert` statement:
+
+```python
+>>> class Super:
+...     def method(self):
+...         print('in Super.method')
+...     def action(self):
+...         assert False, 'action() should be implemented in a subclass'
+...     def delegate(self):
+...         self.action() # if subclass dosent override, will use Super.action() raising an AssertionError
+...
+...
+>>> class SubclassWithoutOverriding(Super): pass
+>>>
+>>> obj = SubclassWithoutOverriding()
+>>> obj.delegate() # ops!
+---------------------------------------------------------------------------
+AssertionError                            Traceback (most recent call last)
+<ipython-input-18-cf2b460b665c> in <module>
+----> 1 obj.delegate() # ops!
+
+<ipython-input-15-165b7544cdb3> in delegate(self)
+      5         assert False, 'action() should be implemented in a subclass'
+      6     def delegate(self):
+----> 7         self.action() # if subclass dosent override, will use Super.action() raising an AssertException
+      8
+      9
+
+<ipython-input-15-165b7544cdb3> in action(self)
+      3         print('in Super.method')
+      4     def action(self):
+----> 5         assert False, 'action() should be implemented in a subclass'
+      6     def delegate(self):
+      7         self.action() # if subclass dosent override, will use Super.action() raising an AssertException
+
+AssertionError: action() should be implemented in a subclass
+>>>
+```
+
+A more elegant way to achieve the same behavior is to `raise` the built-in `NotImplementedError`:
+
+```python
+>>> class Super:
+...     def method(self):
+...         print('in Super.method')
+...     def action(self):
+...         raise NotImplementedError('action() should be overriden by a subclass')
+...     def delegate(self):
+...         self.action() # if subclass dosent override, will use Super.action() raising a NotImplementedError
+...
+...
+...
+>>>
+>>> class SubclassWithoutOverriding(Super): pass
+>>>
+>>> obj = SubclassWithoutOverriding()
+>>> obj.delegate()
+---------------------------------------------------------------------------
+NotImplementedError                       Traceback (most recent call last)
+<ipython-input-25-86842646d907> in <module>
+----> 1 obj.delegate()
+
+<ipython-input-22-bb7757248df6> in delegate(self)
+      5         raise NotImplementedError('action() should be overriden by a subclass')
+      6     def delegate(self):
+----> 7         self.action() # if subclass dosent override, will use Super.action() raising a NotImplementedError
+      8
+      9
+
+<ipython-input-22-bb7757248df6> in action(self)
+      3         print('in Super.method')
+      4     def action(self):
+----> 5         raise NotImplementedError('action() should be overriden by a subclass')
+      6     def delegate(self):
+      7         self.action() # if subclass dosent override, will use Super.action() raising a NotImplementedError
+
+NotImplementedError: action() should be overriden by a subclass
+>>>
+```
+
+---
+
+> Abstract superclasses using the `abc` module
+
+The `abc` module and its mixins enforce a more strict policy. Subclasses can be created only if the implement all abstract methods:
+
+```python
+>>> from abc import ABCMeta, abstractmethod
+>>>
+>>> class Super(metaclass=ABCMeta): # you have to specify the metaclass
+...     def delegate(self):
+...         self.action()
+...     @abstractmethod
+...     def action(self): pass
+...
+>>>
+>>> class Subclass(Super): pass # action was not overriden
+>>> s = Subclass() # exception! action was not overriden
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-29-645f4b392e9e> in <module>
+----> 1 s = Subclass() # exception! action was not overriden
+
+TypeError: Can't instantiate abstract class Subclass with abstract methods action
+>>>
+```
+
+---
+
+> Namespaces: review
+
+- Unqualified (`variable`) and Qualified (`object.attribute`) are treated differently.
+
+- Unqualified (`variable`) lookups deal with scopes.
+
+- Qualified (`object.attribute`) deal with objects namespaces and inheritance search.
+
+- Some scopes initialize objects namespaces: `modules` and `classes`.
+
+- These concepts usually are mixed. Example:
+
+`object.variable` performs a scope lookup for `object` and a `namespaces search` for `variable.`
+
+> Simple names: LEGB
+
+- Assignemnts `var = value` create a local name, unless explicited using `global` or `nonlocal`.
+
+- References: `var` follow the LEGB lookup rule:
+
+1. Local (inside the current function)
+2. Enclosing (any enclosing FUNCTION)
+3. Global (module where the code is located globals)
+4. Built-ins
+
+**Enclosing classes are not checked in the LEGB lookup**.
+
+> Attributes: navigate object and classes namespaces
+
+- Assignemnts (`object.var = value`) creates the name in the object namespace.
+
+- References (`object.var`) perform an inheritance search:
+
+1. Instance
+2. Class
+3. Superclasses
+
+Modules dont have class or superclass, so the attribute is looked only in the Instance.
+
+An example summarizing these rules:
+
+```python
+# manynames.py
+X = 11
+
+
+def print_global_x():
+    print(X)
+
+
+def print_local_x():
+    X = 22  # LEGB. Shadows the global X.
+    print(X)
+
+
+class Example:
+    X = 33  # Class attribute: Example.X, shared with all instances through objects namespace search
+
+    def method(self):
+        X = 44  # local function scope X
+        self.X = 55  # changes X in the object (self) namespace
+        print(Example.X, X, self.X)  # 33, 44, 55
+
+
+if __name__ == "__main__":
+    print_global_x()
+
+    print_local_x()
+
+    e = Example()
+    e.method()
+```
+
+output:
+
+```bash
+11
+22
+33 44 55
+```
+
+If you import this module you can access some of the names defined:
+
+```python
+import manynames
+
+X = 99 # This X does not interfer with the manynames module lookups
+
+print(manynames.X) # 11: manynames global X
+
+manynames.print_global_x() # 11: the LEGB. Global is looked in the module where the function was defined.ArithmeticError
+
+manynames.print_local_x()  # 22: prints the Local X, declared inside the function body
+
+e = manynames.Example()
+e.method() # 33, 44, 55...
+```
+
+output:
+
+```bash
+11
+11
+22
+33 44 55
+```
+
+To change variables in the `global` or `nonlocal` from inside a fuction, you have to *declare* them using one of theses prefixs...
+
+---
+
+LEGB should be LEfGB: Local, Enclosing Functions, Global and Built-ins.
+
+Enclosing classes are not looked:
+
+```python
+>>> def factory(enclosing_fx_value):
+...     class Klass:
+...         klass_value = enclosing_fx_value * 2
+...         def method(self):
+...             print(enclosing_fx_value) # ok! LEfGB
+...             # print(klass_value) # Fails! Enclosing does not consided class
+...             # correct way:
+...             print(self.klass_value)
+...     return Klass
+...
+>>>
+>>> instance = factory(5)()
+>>> instance
+<__main__.factory.<locals>.Klass at 0x7f53ebba70f0>
+>>>
+>>> instance.method()
+5
+10
+>>>
+```
+
+Another example:
+
+```python
+>>> X = 99
+>>>
+>>> class Klass:
+...     X = 95 # local class scope
+...     def method(self):
+...         print(X) # global, dosent check the class namespace
+...         print(self.X) # through inheritance search we see the class value
+...
+>>>
+>>> k = Klass()
+>>> k.method()
+99
+95
+>>>
+```
+
+In order to access class attributes we have to qualify the class or use `self` (an instance):
+
+```python
+>>> class Klass:
+...     X = 95
+...     def method(self):
+...         print(Klass.X, self.X)
+...
+>>>
+>>> k = Klass()
+>>> k.method()
+95 95
+>>>
+```
+
+---
+
+Namespaces in objects, classes and modules are implemented as dicts in the objects `__dict__` attribute.
+
+Instances `__dict__` s have links to their classes, in the `__class__` attr, and classes have links to their superclasses in the `__bases__`.
+
+```python
+>>> class Super:
+...     def a(self):
+...         self.super = 'a'
+...
+>>> class Sub(Super):
+...     def b(self):
+...         self.sub = 'b'
+...
+>>>
+>>> sup = Super()
+>>> sup.__dict__
+{}
+>>> sup.a()
+>>> sup.__dict__
+{'super': 'a'}
+>>>
+>>> sup.__class__
+__main__.Super
+>>> sup.__class__.__dict__
+mappingproxy({'__module__': '__main__',
+              'a': <function __main__.Super.a(self)>,
+              '__dict__': <attribute '__dict__' of 'Super' objects>,
+              '__weakref__': <attribute '__weakref__' of 'Super' objects>,
+              '__doc__': None})
+>>>
+>>> sub = Sub()
+>>> sub.__dict__
+{}
+>>> sub.b()
+>>> sub.__dict__
+{'sub': 'b'}
+>>> sub.__class__
+__main__.Sub
+>>>
+>>> sub.__class__.__bases__
+(__main__.Super,)
+>>>
+```
+
+Namespaces being dictionaries, you can access/change their through qualification or indexing:
+
+```python
+>>> class Person:
+...     def __init__(self, name, age):
+...         self.name = name
+...         self.age = age
+...
+>>>
+>>> p = Person('john', 33)
+>>> p.name
+'john'
+>>> p.__dict__['name']
+'john'
+>>>
+>>> vars(p) # same as p.__dict__
+{'name': 'john', 'age': 33}
+>>> p.__dict__
+{'name': 'john', 'age': 33}
+>>>
+>>> p.__dict__['age'] = 100
+>>> p.age
+100
+>>>
+```
+
+**Inheritance search just works with qualification, though:**
+
+```python
+>>> class Dog:
+...     sound = 'raw'
+...     def bark(self):
+...         print(self.sound)
+...
+>>>
+>>> class SmallDog(Dog): pass
+>>>
+>>> s = SmallDog()
+>>> s.__dict__['sound'] # does not work
+---------------------------------------------------------------------------
+KeyError                                  Traceback (most recent call last)
+<ipython-input-77-6d5f52ab7191> in <module>
+----> 1 s.__dict__['sound'] # does not work
+
+KeyError: 'sound'
+>>>
+>>> s.sound
+'raw'
+>>>
+```
+
+---
+
+You can use `__class__` and `__bases__` attributes to print a class tree, for example:
+
+```python
+def class_tree(klass, indent=0):
+    print("." * indent, klass.__name__)
+    for superklass in getattr(klass, "__bases__", []):
+        class_tree(superklass, indent + 4)
+
+
+if __name__ == "__main__":
+
+    class A:
+        pass
+
+    class B(A):
+        pass
+
+    class C(A):
+        pass
+
+    class D(B, C):
+        pass
+
+    class E:
+        pass
+
+    class F(D, E):
+        pass
+
+    class_tree(F)
+
+```
+
+output:
+
+```bash
+ F
+.... D
+........ B
+............ A
+................ object
+........ C
+............ A
+................ object
+.... E
+........ object
+```
+
+---
+
+Operator Overloading
+
