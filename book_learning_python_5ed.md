@@ -13981,5 +13981,941 @@ output:
 
 ---
 
-Operator Overloading
+### Operator Overloading
+
+> Indexing and Slicing
+
+`__getitem__(self, key_or_index)` is the method called in indexing operations: `instance[key_or_index]`, where `self` is `instance`:
+
+```python
+>>> class DoubleIndex:
+...     def __getitem__(self, number):
+...         return number * 2
+...
+>>>
+>>> d = DoubleIndex()
+>>> d['spam']
+'spamspam'
+>>> d[10]
+20
+>>>
+```
+
+Slicing is also handled by `__getitem__`, receiving a `slice()` object:
+
+```python
+>>> class SliceHandler:
+...     def __getitem__(self, s):
+...         print('start: ', s.start, 'stop: ', s.stop, 'step: ', s.step)
+...
+...
+>>>
+>>> s = SliceHandler()
+>>> s[0:11:2]
+start:  0 stop:  11 step:  2
+>>>
+```
+
+`__getitem__` can check the type of the argument to perform the correct action:
+
+```python
+>>> class Indexer:
+...     def __getitem__(self, i):
+...         if isinstance(i, int):
+...             print('index[i]')
+...         elif isinstance(i, slice):
+...             print('slice[a:b:c]')
+...         else:
+...             print('cant index by other types')
+...
+>>>
+>>> ind = Indexer()
+>>> ind[0:11:2]
+slice[a:b:c]
+>>> ind[10]
+index[i]
+>>> ind['spam']
+cant index by other types
+>>>
+```
+
+The assignment variant is the `__setitem__(self, i, val)` method:
+
+```python
+>>> class Example:
+...     def __getitem__(self, ind):
+...         print('getitem->{}'.format(ind))
+...     def __setitem__(self, ind, val):
+...         print('setitem->{} = {}'.format(ind, val))
+...
+...
+>>> e = Example()
+>>> e['a']
+getitem->a
+>>> e['a'] = 10
+setitem->a = 10
+>>>
+```
+
+Caution! The `__index__` returns an integer representation when the object is used in an indexing operation.
+
+```python
+>>> class Example:
+...     def __index__(self):
+...         return 42
+...
+>>>
+>>> r = range(0, 101)
+>>> e = Example()
+>>> r[e] # e is converted to an int
+42
+>>>
+```
+
+It is kind obscure.
+
+`__getitem__` is also used in `for` loops when there is no iteration protocol methods implemented. It starts indexing the first, `0`, position and goes up until an `IndexError` is issued (which is handled by the `for`):
+
+```python
+>>> class Example:
+...     def __init__(self, text):
+...         self.text = text
+...     def __getitem__(self, index):
+...         return self.text[index]
+...
+>>>
+>>> e = Example('spam')
+>>> for letter in e: print(letter)
+s
+p
+a
+m
+>>>
+```
+
+You get more than the `for` loop. You also get support for the membership operator `in`, comprehensions, and so on:
+
+```python
+>>> class Example:
+...     def __init__(self, text):
+...         self.text = text
+...     def __getitem__(self, index):
+...         return self.text[index]
+...
+>>>
+>>> e = Example('bacon')
+>>> for l in e: print(l, )
+b
+a
+c
+o
+n
+>>> 'b' in e
+True
+>>> 'x' in e
+False
+>>>
+>>> [l.upper() for l in e]
+['B', 'A', 'C', 'O', 'N']
+>>>
+>>> list(e)
+['b', 'a', 'c', 'o', 'n']
+>>> tuple(e)
+('b', 'a', 'c', 'o', 'n')
+>>> map(str.upper, e)
+<map at 0x7fc518c01208>
+>>> list( map(str.upper, e) )
+['B', 'A', 'C', 'O', 'N']
+>>>
+```
+
+### Iterable objects: `__iter__` and `__next__`
+
+Today, the iterator protocol recommends the usage of `__iter__` and `__next__` methods instead of relying in the `__getitem__`:
+
+```python
+>>> class Squares:
+...     def __init__(self, start, stop):
+...         self.start = start
+...         self.stop = stop
+...         self.current = 0
+...     def __iter__(self):
+...         return self
+...     def __next__(self):
+...         if self.current >= self.stop:
+...             raise StopIteration
+...         item = self.current * 2
+...         self.current += 1
+...         return item
+...
+>>>
+>>> s = Squares(0, 10)
+>>> for i in s: print(i)
+0
+2
+4
+6
+8
+10
+12
+14
+16
+18
+>>>
+```
+
+Remember: `yield` is used only in functions, turning them into generators.
+
+The previous iterator example is a single shot iterator, as `__iter__` always return `self`:
+
+```python
+>>> class Squares:
+...     def __init__(self, start, stop):
+...         self.start = start
+...         self.stop = stop
+...         self.current = 0
+...     def __iter__(self):
+...         return self
+...     def __next__(self):
+...         if self.current >= self.stop:
+...             raise StopIteration
+...         item = self.current * 2
+...         self.current += 1
+...         return item
+...
+>>>
+>>> s = Squares(1, 3)
+>>> for i in s: print(i)
+0
+2
+4
+>>>
+>>> # Exhausted
+>>> for i in s: print(i)
+>>>
+```
+
+This last iterator could be created with generator functions or comprehensions:
+
+```python
+>>> def gsquares(start, end):
+...     current = start
+...     while current < end:
+...         yield current
+...         current += 1
+...
+>>>
+>>> gsquares(1, 3)
+<generator object gsquares at 0x7fc518efffc0>
+>>> list( gsquares(1, 3) )
+[1, 2]
+>>>
+>>> start = 1; end = 3; list( (current * 2 for current in range(start,end) ) )
+[2, 4]
+>>>
+```
+
+---
+
+Multiple iterators for the same object
+
+To allow multiple iterators for the same object, just return a stateful object from `__iter__`:
+
+```python
+>>> class Example:
+...     def __init__(self, text):
+...         self.text = text
+...     def __iter__(self):
+...         return ExampleIterator(self)
+...
+>>> class ExampleIterator:
+...     def __init__(self, instance):
+...         self.instance = instance
+...         self.current = 0
+...     def __next__(self):
+...         if self.current >= len(self.instance.text): raise StopIteration
+...
+...         response = self.instance.text[self.current]
+...         self.current += 1
+...
+...         return response
+...
+>>>
+>>> e1 = iter(e)
+>>> e2 = iter(e)
+>>>
+>>> next(e1)
+'s'
+>>> next(e1)
+'p'
+>>>
+>>> next(e2)
+'s'
+>>>
+>>> next(e1)
+'a'
+>>> next(e1)
+'m'
+>>> next(e1)
+---------------------------------------------------------------------------
+StopIteration                             Traceback (most recent call last)
+<ipython-input-27-6c9ada9e2824> in <module>
+----> 1 next(e1)
+
+<ipython-input-19-6a168ddea4e3> in __next__(self)
+      4         self.current = 0
+      5     def __next__(self):
+----> 6         if self.current >= len(self.instance.text): raise StopIteration
+      7
+      8         response = self.instance.text[self.current]
+
+StopIteration:
+>>>
+```
+
+Remember: your `__next__` method should raise `StopIteration` when exhausted. **Always.**
+
+---
+
+`__iter__` and `yield`
+
+Functions that return values with yield automatically become generators with an `__iter__` method that returns the automatically
+created generator and a `__next__` method that resumes the original function execution until the next `yield` or exhaustion:
+
+```python
+>>> class Example:
+...     def __init__(self, text):
+...         self.text = text
+...         self.current = 0
+...     def __iter__(self):
+...         while self.current < len(self.text):
+...             yield self.text[self.current]
+...             self.current += 1
+...
+>>> e = Example('spam')
+>>> for letter in e: print(letter)
+s
+p
+a
+m
+>>> iter(e)
+<generator object Example.__iter__ at 0x7f82e8dda6d0>
+>>>
+```
+
+This method allows multiple iterators for a same object at the same time:
+
+```python
+>>> class Squares:
+...     def __init__(self, start, stop):
+...         self.start = start
+...         self.stop = stop
+...     def __iter__(self):
+...         for i in range(self.start, self.stop):
+...             yield i ** 2
+...
+>>>
+>>> s = Squares(1, 11)
+>>>
+>>> i1 = iter(s)
+>>> i2 = iter(s)
+>>>
+>>> next(i1)
+1
+>>> next(i1)
+4
+>>> next(i1)
+9
+>>> next(i2)
+1
+>>> next(i1)
+16
+>>>
+```
+
+Methods using `yield` create a different generator each time they are called.
+
+But remember that generators are single scan iterators. They exhaust.
+
+This can be done using an additional class and the traditional `__iter__` `__next__` approach too:
+
+```python
+>>> class Squares:
+...     def __init__(self, start, stop):
+...         self.start = start
+...         self.stop = stop
+...
+...     def __iter__(self):
+...         return SquaresIterator(self)
+...
+...
+>>> class SquaresIterator:
+...     def __init__(self, instance):
+...         self.instance = instance
+...         self.range = list( range(self.instance.start, self.instance.stop) )
+...         self.current_position = 0
+...
+...     def __next__(self):
+...         if self.current_position == len(self.range): raise StopIteration
+...
+...         response = self.range[self.current_position] ** 2
+...         self.current_position += 1
+...
+...         return response
+...
+>>>
+>>> s = Squares(1, 11)
+>>> list(s)
+[1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
+>>> list(s)
+[1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
+>>>
+>>> i1 = iter(s)
+>>> next(i1)
+1
+>>> next(i1)
+4
+>>>
+>>> i2 = iter(s)
+>>> next(i2)
+1
+>>> next(i2)
+4
+>>> next(i2)
+9
+>>>
+```
+
+You can create a skipable iterator using the yield approach and save some lines of code:
+
+```python
+>>> class Skip:
+...     def __init__(self, wrapped):
+...         self.wrapped = wrapped
+...     def __iter__(self):
+...         current = 0
+...         while current < len(self.wrapped):
+...             yield self.wrapped[current]
+...             current += 2
+...
+...
+>>> s = Skip("spam")
+>>> for l in s: print(l)
+s
+a
+>>>
+```
+
+---
+
+Membership: `__contains__`, `__iter__` and `__getitem__`
+
+Some operations are performed in layers. That is, they can be handled by a generic or more specific methods.
+
+For example: the `in` membership operator is, in order, handled by (if present): `__contains__`, `__iter__` or `__getitem__`.
+Being `__contains__` the more specific and `__getitem__` the more generic.
+
+Examples:
+
+Using `__contains__`:
+
+```python
+>>> class Squares:
+...     def __init__(self, start, stop):
+...         self.start = start
+...         self.stop = stop
+...
+...     def __contains__(self, squared_value):
+...         current = self.start
+...         while current <= self.stop:
+...             if current ** 2 == squared_value: return True
+...             current += 1
+...         return False
+...
+...
+>>> s = Squares(1, 10)
+>>>
+>>> 100 in s
+True
+>>> 101 in s
+False
+>>>
+```
+
+---
+
+> Intercept **undefined** attributes qualification with `__getattr__(self, attrname)`
+
+Called only when the attribute is **not** found in the inheritance search.
+
+```python
+>>> class Example:
+...     class_attr = 'A'
+...
+...     def __init__(self, value):
+...         self.instance_attr = value
+...
+...     def __getattr__(self, name):
+...         print('you tried to access "{}" but i could not find it anywhere'.format(name))
+...
+>>>
+>>> e = Example('B')
+>>>
+>>> e.class_attr
+'A'
+>>> e.instance_attr
+'B'
+>>>
+>>> e.inexistent_attr
+you tried to access "inexistent_attr" but i could not find it anywhere
+>>>
+>>> e.another_inexistent
+you tried to access "another_inexistent" but i could not find it anywhere
+>>>
+```
+
+You can trigger an `AttributeError(name)` if you want too:
+
+```python
+>>> class Example:
+...     def __getattr__(self, name):
+...         if name in ('age', 'years', 'old'):
+...             return 42
+...         else:
+...             raise AttributeError(name)
+...
+>>> e = Example()
+>>> e.age
+42
+>>> e.years
+42
+>>> e.name
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-111-c517efffb09b> in <module>
+----> 1 e.name
+
+<ipython-input-107-0bb81d697dca> in __getattr__(self, name)
+      4             return 42
+      5         else:
+----> 6             raise AttributeError(name)
+      7
+
+AttributeError: name
+>>>
+```
+
+---
+
+> Intercept **all** attribute assignments with `__setattr__(sef, attrname, value)`
+
+Example:
+
+```python
+>>> class Example:
+...     def __setattr__(self, attrname, value):
+...         if attrname in ('name', 'age', 'job'):
+...             self.__dict__[attrname] = value
+...         else:
+...             raise AttributeError(attrname)
+...
+>>>
+>>> e = Example()
+>>> e.name = 'John'
+>>> e.age = 42
+>>> e.job = 'dev'
+>>>
+>>> vars(e)
+{'name': 'John', 'age': 42, 'job': 'dev'}
+>>>
+>>> e.nickname = 'Big John'
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-118-2ff33198739d> in <module>
+----> 1 e.nickname = 'Big John'
+
+<ipython-input-112-ccfad0c6ebc3> in __setattr__(self, attrname, value)
+      4             self.__dict__[attrname] = value
+      5         else:
+----> 6             raise AttributeError(attrname)
+      7
+
+AttributeError: nickname
+>>>
+```
+
+Caution! You cant perform a normal assignment inside a `__setattr__` method, it will cause an infinite loop.
+To avoid that, assign directly to the `__dict__` attribute.
+
+**The best way to avoid this loop is using `__dict__`.**.
+
+You can also use superclasses implementations of `__setattr__`, but its a little more obscure:
+
+```python
+>>> class Example:
+...     def __setattr__(self, attrname, value):
+...         if attrname in ('name', 'age', 'job'):
+...             object.__setattr__(self, attrname, value)
+...         else:
+...             raise AttributeError(attrname)
+...
+>>>
+>>> e = Example()
+>>> e.name = 'paul'
+>>> e.age = 33
+>>> e.job = 'mgr'
+>>>
+>>> vars(e)
+{'name': 'paul', 'age': 33, 'job': 'mgr'}
+>>>
+>>> e.nickname = 'mr paul'
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-125-748d9886b96b> in <module>
+----> 1 e.nickname = 'mr paul'
+
+<ipython-input-119-e143744b24cc> in __setattr__(self, attrname, value)
+      4             object.__setattr__(self, attrname, value)
+      5         else:
+----> 6             raise AttributeError(attrname)
+      7
+
+AttributeError: nickname
+>>>
+```
+
+Remember that `getattr(object, attr)` is the same as: `object.attr` and `setattr(object, attr, value)` is the same as `object.attr = value`.
+
+---
+
+> Intercept **all** attributes deletion implementing `__delattr__`
+
+Its called in all deletions: of existent and non-existent attributes:
+
+```python
+>>> class Example:
+...     def __init__(self, name, age):
+...         self.name = name
+...         self.age = age
+...     def __delattr__(self, attrname):
+...         if attrname in ('age'):
+...             del object.__delattr__(self, attrname)
+...         else:
+...             raise AttributeError(attrname)
+...
+>>>
+>>> e = Example('john', 33)
+>>> vars(e)
+{'name': 'john', 'age': 33}
+>>>
+>>> del e.age # ok
+>>> vars(e)
+{'name': 'john'}
+>>> del e.name
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-131-94fabb642c6c> in <module>
+----> 1 del e.name
+
+<ipython-input-126-5304c3ab627c> in __delattr__(self, attrname)
+      7             del self.__dict__[attrname] # you have to use __dict__ to avoid infinite loops or object.__delattr__
+      8         else:
+----> 9             raise AttributeError(attrname)
+     10
+
+AttributeError: name
+>>> del e.job # non-existent
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-132-802d15ff2081> in <module>
+----> 1 del e.job # non-existent
+
+<ipython-input-126-5304c3ab627c> in __delattr__(self, attrname)
+      7             del self.__dict__[attrname] # you have to use __dict__ to avoid infinite loops or object.__delattr__
+      8         else:
+----> 9             raise AttributeError(attrname)
+     10
+
+AttributeError: job
+>>>
+```
+
+As `__setattr__`, inside the `__delattr__` method you have to access `__dict__` directly or use a superclass implementation `object.__delattr__...`
+
+---
+
+> Supporting `__slots__` and properties:
+
+If you want to override `__setattr__` and `__delattr__` and support slots and propertis, leverage superclasses `__setattr__` and `__delattr__` in the overloads.
+
+---
+
+> Intercepting **all** (existent and non-existent) attribute access with `__getattribute__`
+
+```python
+>>> class Example:
+...     def __init__(self, x, y):
+...         self.x = x
+...         self.y = y
+...     def __getattribute__(self, attrname):
+...         if attrname in object.__getattribute__(self, '__dict__'):
+...             return object.__getattribute__(self, attrname)
+...         else:
+...             print('cound not find "{}"'.format(attrname))
+...
+>>>
+>>> e = Example(10, 20)
+>>> e.x
+10
+>>> e.y
+20
+>>> e.z
+cound not find "z"
+>>>
+```
+
+---
+
+# A correction: avoid __dict__, use the `object` superclass implementation when overloading `__getattr__`, `__setattr__`, `__delattr__` and `__getattribute__`.
+
+---
+
+If `__getattribute__` and `__getattr__` are both present in a class, `__getattr__` is called only when `__getattribute__` raises an `AttributeError` exception.
+
+```python
+>>> class Example:
+...     def __init__(self, x, y):
+...         self.x = x
+...         self.y = y
+...     def __getattribute__(self, attrname):
+...         if attrname not in object.__getattribute__(self, '__dict__'):
+...             print('getattribute: "{}" was not found'.format(attrname))
+...             raise AttributeError(attrname)
+...         else:
+...             print('getattribute: "{}" found:'.format(attrname))
+...             return object.__getattribute__(self, attrname)
+...     def __getattr__(self, attrname):
+...         print('getattr: "{}" was not found'.format(attrname))
+...
+>>>
+>>> e = Example(10, 20)
+>>> e.x
+getattribute: "x" found:
+10
+>>> e.y
+getattribute: "y" found:
+20
+>>> e.z
+getattribute: "z" was not found
+getattr: "z" was not found
+>>>
+```
+
+---
+
+
+Creating a `Private` mixin class:
+
+```python
+>>> class Private:
+...     def __getattribute__(self, attrname):
+...         if attrname in object.__getattribute__(self, '__privates__'):
+...             raise AttributeError('{} is private'.format(attrname))
+...         else:
+...             return object.__getattribute__(self, attrname)
+...
+>>>
+>>> class Person(Private):
+...     __privates__ = ['salary']
+...     def __init__(self, name, age):
+...         self.name = name
+...         self.age = age
+...         self.salary = age * 1_000
+...
+>>>
+>>> p = Person('john', 33)
+>>> p.name
+'john'
+>>> p.age
+33
+>>> p.salary
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-34-39e0cbaef282> in <module>
+----> 1 p.salary
+
+<ipython-input-29-04fec670b934> in __getattribute__(self, attrname)
+      2     def __getattribute__(self, attrname):
+      3         if attrname in object.__getattribute__(self, '__privates__'):
+----> 4             raise AttributeError('{} is private'.format(attrname))
+      5         else:
+      6             return object.__getattribute__(self, attrname)
+
+AttributeError: salary is private
+>>>
+```
+
+---
+
+> String representation: `__repr__` and `__str__`
+
+`print()` and `str()` look for the `__str__` method first. if not found, `__repr__` is used.
+
+`repr()` looks for `__repr__` first.
+
+`__str__` should return a human friendly representation.
+
+`__repr__` is meant for developers. it should return a code-like representation or a detailed one for devs.
+
+```python
+>>> class Person:
+...     def __init__(self, name, age, job):
+...         self.name = name
+...         self.age = age
+...         self.job = job
+...     def __str__(self):
+...         return '{}, {} years old, works as {}'.format(self.name, self.age, self.job)
+...     def __repr__(self):
+...         return 'Person("{}", {}, "{}")'.format(self.name, self.age, self.job)
+...
+>>>
+>>> p = Person("John", 33, "mgr")
+>>> repr(p)
+'Person("John", 33, "mgr")'
+>>> str(p)
+'John, 33 years old, works as mgr'
+>>>
+```
+
+But caution, objects nested inside other objects usually will have their `__repr__` called, not their `__str__`:
+
+```python
+>>> class Person:
+...     def __init__(self, name, age, job):
+...         self.name = name
+...         self.age = age
+...         self.job = job
+...     def __str__(self):
+...         return '{}, {} years old, works as {}'.format(self.name, self.age, self.job)
+...     def __repr__(self):
+...         return 'Person("{}", {}, "{}")'.format(self.name, self.age, self.job)
+...
+>>>
+>>> lst = [Person('john', 33, 'dev'), Person('paul', 22, 'mgr')]
+>>> lst
+[Person("john", 33, "dev"), Person("paul", 22, "mgr")]
+>>> print(lst)
+[Person("john", 33, "dev"), Person("paul", 22, "mgr")]
+>>>
+>>> print( lst[0], lst[1] )
+john, 33 years old, works as dev paul, 22 years old, works as mgr
+>>>
+```
+
+---
+
+> `__call__`
+
+Allows instances to answer to the "function call syntax":
+
+```python
+>>> class Example:
+...     def __call__(self, *args, **kwargs):
+...         print(args)
+...         print(kwargs)
+...
+>>>
+>>> e = Example()
+>>> e(1, 2, 3, a=10, b=20, c=30)
+(1, 2, 3)
+{'a': 10, 'b': 20, 'c': 30}
+>>>
+```
+
+```python
+>>> class Product:
+...     def __init__(self, factor):
+...         self.factor = factor
+...     def __call__(self, value):
+...         return value * self.factor
+...
+>>>
+>>> p3 = Product(3)
+>>> p3(10)
+30
+>>>
+>>> p2 = Product(2)
+>>> p2(10)
+20
+>>> p2(99)
+198
+>>>
+```
+
+---
+
+> Comparision operators: `__eq__`, `__lt__`, `__gt__`, `__ne__`
+
+* There is no implicit relation between these operators. You need to define `__eq__` and `__ne__`, for example. `__eq__` being `True` does not imply `__ne__` being `False`.
+
+---
+
+> Boolean tests: `__bool__` and `__len__`
+
+All objects have an inherent boolean value in Python.
+
+First Python checks for the `__bool__` method, which should return `True` or `False`.
+
+If `__bool__` is not present, it checks for `__len__` and infers the boolean value from the length of the object. Nonzero meaning `True`.
+
+If neither method is present, Python assumes the object is `True`.
+
+```python
+>>>  class Truth1:
+...     def __bool__(self):
+...        return False
+...
+>>> t1 = Truth1()
+>>> bool( t1 )
+False
+>>>
+>>> class Truth2:
+...     def __len__(self):
+...         return 42
+...
+>>> t2 = Truth2()
+>>> len(t2)
+42
+>>> bool(t2)
+True
+>>>
+>>> class Truth3: pass
+>>>
+>>> t3 = Truth3()
+>>> bool(t3)
+True
+>>>
+```
+
+---
+
+> Object destruction (garbage collection): `__del__`
+
+Called when the object is garbage collected:
+
+```python
+>>> class Person:
+...     def __init__(self, name):
+...         self.name = name
+...     def __del__(self):
+...         print('{} died'.format(self.name))
+...
+>>>
+>>> p = Person('john')
+>>> p = Person('paul') # john will be gc
+john died
+>>>
+```
+
+
 
