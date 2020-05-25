@@ -15080,5 +15080,339 @@ class Pipe:
 
 Composition, `has-a` `reader` and `has-a` `writer`.
 
+An example:
+
+```python
+class Pipe:
+    def __init__(self, reader, writer):
+        self.reader = reader
+        self.writer = writer
+
+    def process(self):
+        while True:
+            data = self.reader.readline()
+            if not data: break
+            data = self.convert(data)
+            self.writer.write(data)
+
+        self.writer.flush()
+
+        self.reader.close()
+        self.writer.close()
+
+    def convert(self, data):
+        raise NotImplementedError('You must overload the convert method')
+
+
+class UpperPipe(Pipe):
+    def convert(self, data):
+        return data.upper()
+
+
+if __name__ == '__main__':
+    reader = open('/etc/hosts', 'rt')
+    writer = open('/tmp/hosts_upper', 'wt')
+
+    pipe = UpperPipe(reader, writer)
+    pipe.process()
+```
+
+---
+
+Wrapppers / Proxy objects - Delegation
+
+Controllers composed by other objects, to which the received actions requests are delegated.
+
+The wrapper retains most of the wrapped object interface, but adds some functionality before or after the action is performed by the wrapped obj.
+
+A good example uses `__getattribute__`, creating a sort of tracer:
+
+```python
+class Tracer:
+    def __init__(self, wrapped):
+        self.wrapped = wrapped
+
+    def __getattribute__(self, name):
+        print(f"Trace: {name=}")
+        return getattr(object.__getattribute__(self, "wrapped"), name)
+
+
+class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+
+if __name__ == "__main__":
+    p = Person("john", 33)
+    traced_p = Tracer(p)
+
+    print(traced_p.name)
+    print(traced_p.age)
+
+    lst = [1, 2, 3]
+    traced_l = Tracer(lst)
+
+    traced_l.append(4)
+
+    traced_l += 5
+    print(f'{traced_l=})
+```
+
+output:
+
+```bash
+Trace: name='name'
+john
+Trace: name='age'
+33
+Trace: name='append'
+```
+
+But caution, since Python 3 operators dont trigger `__getattribute__` or `__getattr__` anymore:
+
+```python
+class TracedList(list):
+    def __getattribute__(self, name):
+        print(f'Trace: {name=}')
+        return super().__getattribute__(name)
+
+    def __iadd__(self, value):
+        print(f"__iadd__({value=})")
+        return super().__iadd__(value)
+
+
+if __name__ == "__main__":
+    t = TracedList()
+    t.append(10) # calls getattribute
+    t += [11]      # does not trigger getattribute
+    print(t)
+```
+
+```bash
+Trace: name='append'
+__iadd__(value=[11])
+[10, 11]
+```
+
+---
+
+Pseudoprivate classes attributes
+
+Class attributes prefixed with an underscore `_` are a convention, meaning they should not be changed.
+
+Name mangling happens inside the `class` statement (all of it, including the method bodies).
+
+Basically, it transforms every name/variable prefixed with two underscores, for example: `__name` into `_ClassName__name`.
+
+The following class:
+
+```python
+class Example:
+    __spam = 'spam'
+
+    def __method(self):
+        self.__eggs = 'eggs'
+        self.__spam = 'spam!'
+
+        return 'bacon'
+
+if __name__ == '__main__':
+    e = Example()
+
+    print()
+    print(f'{dir(e)=}')
+    print()
+
+    print(f'{e._Example__method()=}')
+
+```
+
+output:
+
+```bash
+dir(e)=['_Example__method', '_Example__spam', '__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__']
+
+e._Example__method()='bacon'
+```
+
+The mangled class is, internally, something like:
+
+```python
+class Example:
+    _Example__spam = 'spam'
+
+    def __method(self):
+        self._Example__eggs = 'eggs'
+        self._Example__spam = 'spam!'
+
+        return 'bacon'
+
+if __name__ == '__main__':
+    e = Example()
+
+    print()
+    print(f'{dir(e)=}')
+    print()
+
+    print(f'{e._Example__method()=}')
+```
+
+producing the same output:
+
+```bash
+dir(e)=['_Example__method', '_Example__spam', '__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__']
+
+e._Example__method()='bacon'
+```
+
+---
+
+Methods are objects: bound vs unbound
+
+Python has two ways to access class methods. Through classes (without a `self`) and through instances (with a defined `self`):
+
+* Unbound (class methods) no `self`: you must pass `self` yourself:
+
+```python
+In [8]: class Example:
+   ...:     def __init__(self, message):
+   ...:         self.message = message
+   ...:
+   ...:     def up(self):
+   ...:         print(self.message.upper())
+   ...:
+
+In [9]: e = Example("spam")
+
+In [10]: # Unbound method, needs to pass self
+
+In [11]: Example.up(self=e)
+SPAM
+
+In [12]:
+```
+
+* Bound method: `self` is passed automagically.
+
+```python
+In [12]: class Example:
+    ...:     def __init__(self, message):
+    ...:         self.message = message
+    ...:
+    ...:     def up(self):
+    ...:         print(self.message.upper())
+    ...:
+
+In [13]: e = Example("spam")
+
+In [14]:
+
+In [14]: # Bound method
+
+In [15]: e.up() # self is passed magically
+SPAM
+
+In [16]:
+```
+
+Both ways return full-fledged objects, which can be passed around.
+
+But **bound methods** have an advantage. They can replace common functions, as they already have the `self` pre-defined:
+
+```python
+In [29]: class Button:
+    ...:     def __init__(self, handler):
+    ...:         self.handler = handler
+    ...:     def clicked(self):
+    ...:         self.handler(self) # call the handler passing the button as argument
+    ...:
+
+In [30]: class ButtonHandler:
+    ...:     def click(self, btn):
+    ...:         print(f'{id(btn)=}')
+    ...:
+
+In [31]:
+
+In [31]: handler = ButtonHandler()
+
+In [32]: btn = Button(handler.click)
+
+In [33]: btn.clicked()
+id(btn)=139840076663728
+```
+
+Another bound method example:
+
+```python
+In [34]: class Person:
+    ...:     def __init__(self, name):
+    ...:         self.name = name
+    ...:     def greet(self):
+    ...:         print(f'{self.name} says hi!')
+    ...:
+
+In [35]: p = Person('John')
+
+In [36]:
+
+In [36]: john_greeting = p.greet
+
+In [37]: john_greeting()
+John says hi!
+
+In [38]: john_greeting()
+John says hi!
+
+In [39]:
+```
+
+The John example with an unbound method:
+
+```python
+In [39]: class Person:
+    ...:     def __init__(self, name):
+    ...:         self.name = name
+    ...:     def greet(self):
+    ...:         print(f'{self.name} says hi!')
+    ...:
+
+In [40]:
+
+In [40]: p = Person('John')
+
+In [41]: Person.greet(p) # we have to pass self
+John says hi!
+```
+
+Note that `self.method` are bounds methods. `self` is the instance and is passed automagically as `self` =):
+
+```python
+In [42]: class Banner:
+    ...:     def __init__(self, message):
+    ...:         self.message = message
+    ...:
+    ...:     def draw(self):
+    ...:         header = '-' * (len(self.message) + 2)
+    ...:         footer = header
+    ...:         return header + '\n' + self.message + '\n' + footer + '\n'
+    ...:
+    ...:     def output(self):
+    ...:         draw_fx = self.draw # self.draw is a bound method, self being self again =)
+    ...:         banner = draw_fx()
+    ...:         print(banner)
+    ...:
+
+In [43]: b = Banner('spam')
+
+In [44]: b.output()
+------
+spam
+------
+
+In [45]:
+```
+
 ---
 
