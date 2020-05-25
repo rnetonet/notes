@@ -15416,3 +15416,36 @@ In [45]:
 
 ---
 
+In Python 3 you can declare methods (actually, regular functions) inside classes witch dont expect the `self` parameter:
+
+```python
+In [45]: class Banner:
+    ...:     def b1(message):
+    ...:         print('*' * len(message))
+    ...:         print(message)
+    ...:         print('*' * len(message))
+    ...:
+
+In [46]: Banner.b1("Hello!")
+******
+Hello!
+******
+
+In [47]:
+```
+
+But caution. If you call it from an instance, Python still tries to pass the instance a `self`, what raises an exception:
+
+```python
+In [47]: b = Banner()
+
+In [48]: b.b1("Spam!")
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-48-03a170eeb5a4> in <module>
+----> 1 b.b1("Spam!")
+
+TypeError: b1() takes 1 positional argument but 2 were given
+
+In [49]:
+```
