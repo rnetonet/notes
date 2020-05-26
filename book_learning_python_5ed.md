@@ -15449,3 +15449,80 @@ TypeError: b1() takes 1 positional argument but 2 were given
 
 In [49]:
 ```
+
+Bound methods behave just like any other function as full-fledged objects:
+
+```python
+In [13]: class Number:
+    ...:     def __init__(self, n):
+    ...:         self.n = n
+    ...:     def double(self):
+    ...:         return self.n ** 2
+    ...:
+
+In [14]: lst = [n1.double, n2.double, n3.double] # list of bound methods
+
+In [15]: for method in lst:
+    ...:     print( method() )
+    ...:
+    ...:
+1
+4
+9
+```
+
+Bound methods have attributes, `__self__` indicating the instance and `__func__` referencing the class (unbound) method linked:
+
+```python
+In [19]: class Number:
+    ...:     def __init__(self, n):
+    ...:         self.n = n
+    ...:     def double(self):
+    ...:         return self.n ** 2
+    ...:
+
+In [20]: n = Number(10)
+
+In [21]: bound_method = n.double
+
+In [22]: bound_method.__self__
+Out[22]: <__main__.Number at 0x7f9d576269d0>
+
+In [23]: bound_method.__func__
+Out[23]: <function __main__.Number.double(self)>
+
+In [24]:
+```
+
+---
+
+Classes are objects: generic object factories
+
+The factory pattern is trivial to implement in Python. Remember that classes are first-class objects too:
+
+```python
+In [26]: class Person: pass
+
+In [27]: class Manager: pass
+
+In [28]: class Customer: pass
+
+In [29]:
+
+In [29]: def factory(klass_name):
+    ...:     mapping = {'Person': Person, 'Manager': Manager, 'Customr': Customer}
+    ...:     klass = mapping.get(klass_name)
+    ...:     if klass:
+    ...:         return klass()
+    ...:
+
+In [30]: person = factory('Person')
+
+In [31]: person
+Out[31]: <__main__.Person at 0x7f9d560f70d0>
+```
+
+---
+
+Multiple inheritance - Mix-in classes
+
