@@ -15526,3 +15526,62 @@ Out[31]: <__main__.Person at 0x7f9d560f70d0>
 
 Multiple inheritance - Mix-in classes
 
+Example 1: ListInstance
+
+```python
+In [1]: class ListInstance:
+   ...:     def __attrnames(self):
+   ...:         result = []
+   ...:         for attr in sorted(self.__dict__):
+   ...:             result.append("{}={}".format(attr, self.__dict__[attr]))
+   ...:         return " ".join(result)
+   ...:     def __str__(self):
+   ...:         return "<Instance of {}, memory address {}>[{}]".format(self.__class__.__name__, id(self), self.__attrnames())
+   ...:
+
+In [2]: class Person(ListInstance):
+   ...:     def __init__(self, name, age):
+   ...:         self.name = name
+   ...:         self.age = age
+   ...:
+
+In [3]: p = Person("John", 33)
+
+In [4]: p
+Out[4]: <__main__.Person at 0x7f1bc2ea09e8>
+
+In [5]: print(p)
+<Instance of Person, memory address 139757210962408>[age=33 name=John]
+
+In [6]:
+```
+
+An example listing the inherited attributes also (uses `dir()` instead of `__dict__`):
+
+```python
+In [10]: class ListInherited:
+    ...:     def __attrnames(self):
+    ...:         result = []
+    ...:         for attr in sorted(dir(self)):
+    ...:             result.append("{}={}".format(attr, getattr(self, attr)))
+    ...:         return " ".join(result)
+    ...:     def __str__(self):
+    ...:         return "<Instance of {}, memory address {}>[{}]".format(self.__class__.__name__, id(self), self.__attrnames())
+    ...:
+
+In [11]: class Person(ListInherited):
+    ...:     def __init__(self, name, age):
+    ...:         self.name = name
+    ...:         self.age = age
+    ...:
+
+In [12]: p = Person("John", 33)
+
+In [13]: print(p)
+<Instance of Person, memory address 139757215536296>[_ListInherited__attrnames=<bound method ListInherited.__attrnames of <__main__.Person object at 0x7f1bc32fd4a8>> __class__=<class '__main__.Person'> __delattr__=<method-wrapper '__delattr__' of Person object at 0x7f1bc32fd4a8> __dict__={'name': 'John', 'age': 33} __dir__=<built-in method __dir__ of Person object at 0x7f1bc32fd4a8> __doc__=None __eq__=<method-wrapper '__eq__' of Person object at 0x7f1bc32fd4a8> __format__=<built-in method __format__ of Person object at 0x7f1bc32fd4a8> __ge__=<method-wrapper '__ge__' of Person object at 0x7f1bc32fd4a8> __getattribute__=<method-wrapper '__getattribute__' of Person object at 0x7f1bc32fd4a8> __gt__=<method-wrapper '__gt__' of Person object at 0x7f1bc32fd4a8> __hash__=<method-wrapper '__hash__' of Person object at 0x7f1bc32fd4a8> __init__=<bound method Person.__init__ of <__main__.Person object at 0x7f1bc32fd4a8>> __init_subclass__=<built-in method __init_subclass__ of type object at 0x3334a98> __le__=<method-wrapper '__le__' of Person object at 0x7f1bc32fd4a8> __lt__=<method-wrapper '__lt__' of Person object at 0x7f1bc32fd4a8> __module__=__main__ __ne__=<method-wrapper '__ne__' of Person object at 0x7f1bc32fd4a8> __new__=<built-in method __new__ of type object at 0x9d17a0> __reduce__=<built-in method __reduce__ of Person object at 0x7f1bc32fd4a8> __reduce_ex__=<built-in method __reduce_ex__ of Person object at 0x7f1bc32fd4a8> __repr__=<method-wrapper '__repr__' of Person object at 0x7f1bc32fd4a8> __setattr__=<method-wrapper '__setattr__' of Person object at 0x7f1bc32fd4a8> __sizeof__=<built-in method __sizeof__ of Person object at 0x7f1bc32fd4a8> __str__=<bound method ListInherited.__str__ of <__main__.Person object at 0x7f1bc32fd4a8>> __subclasshook__=<built-in method __subclasshook__ of type object at 0x3334a98> __weakref__=None age=33 name=John]
+
+In [14]:
+```
+
+---
+
