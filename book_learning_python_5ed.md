@@ -15624,3 +15624,40 @@ Much of the functionality is achieved through delegation.
 ---
 
 Extending type throug subclassing
+
+You can extend any of the core types: `str`, `int`, etc, like any other class.
+
+An example: a LuaList, a list which indexing starts in 1.
+
+```python
+In [7]: class LuaList(list):
+   ...:     def __getitem__(self, offset):
+   ...:         return list.__getitem__(self, offset - 1)
+   ...:
+
+In [8]:
+
+In [8]: lst = LuaList(["a", "b", "c"])
+
+In [9]: lst[1]
+Out[9]: 'a'
+
+In [10]: lst[2]
+Out[10]: 'b'
+
+In [11]: lst[3]
+Out[11]: 'c'
+
+In [12]: lst
+Out[12]: ['a', 'b', 'c']
+
+In [13]: type(lst)
+Out[13]: __main__.LuaList
+
+In [14]:
+```
+
+---
+
+New Style Class Model
+
