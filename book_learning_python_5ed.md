@@ -15585,3 +15585,42 @@ In [14]:
 
 ---
 
+Extending types by composition
+
+A Set class that 'has-a' a list:
+
+```python
+class Set:
+    def __init__(self, data):
+        self.data = []
+        self.data.extend(data)
+
+    def __iter__(self):
+        for item in self.data:
+            yield item
+
+    def intersect(self, other):
+        result = []
+        for item in self.data:
+            if item in other:
+                result.append(item)
+
+        return Set(result)
+
+    def __repr__(self):
+        return repr(self.data)
+
+
+if __name__ == "__main__":
+    s1 = Set([1, 2, 3])
+    s2 = Set([3, 4, 5])
+
+    print(s1.intersect(s2))
+
+```
+
+Much of the functionality is achieved through delegation.
+
+---
+
+Extending type throug subclassing
