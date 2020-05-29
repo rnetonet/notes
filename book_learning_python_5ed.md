@@ -15661,3 +15661,111 @@ In [14]:
 
 New Style Class Model
 
+Differences:
+
+1. In Python 3, operators dont trigger `__getattr__` or `__getattribute__`:
+
+```python
+>>> class PlusOne:
+...     def __getattr__(self, attr):
+...         print("not found {}".format(attr))
+...
+...     def __add__(self, other):
+...         return other + 1
+...
+>>> p = PlusOne()
+>>> p.non_existent # non existent attribute, will trigger getattr
+not found non_existent
+>>> p + 1          # existent operator (__add__) called directly
+2
+>>> p - 1          # non existent operator (__sub__), but dosent trigger __getattr__
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-18-f3102d908cb7> in <module>
+----> 1 p - 1          # non existent operator (__sub__), but dosent trigger __getattr__
+
+TypeError: unsupported operand type(s) for -: 'PlusOne' and 'int'
+>>>
+```
+
+```python
+>>> class PlusOne:
+...     def __getattribute__(self, attr):
+...         print("accessing {}".format(attr))
+...
+...     def __add__(self, other):
+...         return other + 1
+...
+>>> p = PlusOne()
+>>> p.non_existent # non existent attribute, will trigger getattr
+accessing non_existent
+>>> p + 1          # existent operator (__add__) called directly
+2
+>>> p - 1
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-26-1f4b0c9221f8> in <module>
+----> 1 p - 1
+
+TypeError: unsupported operand type(s) for -: 'PlusOne' and 'int'
+>>>
+```
+
+This happens because the search beings in the class, not in the instance.
+
+Therefore, to delegate operator calls to wrapped objects you need to redefine those methods in the wrapper class, because
+you cant use `__getattr__` or `__getattribute__` tricks:
+
+```python
+>>> class WrappedNumber:
+...     def __init__(self, number):
+...         self.number = number
+...     def __getattr__(self, attr):
+...         return getattr(self.number, attr)
+...
+>>> w = WrappedNumber(10)
+>>> w + 3
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-33-f3f51bf85a2a> in <module>
+----> 1 w + 3
+
+TypeError: unsupported operand type(s) for +: 'WrappedNumber' and 'int'
+>>>
+```
+
+Correct way:
+
+```python
+>>> class WrappedNumber:
+...     def __init__(self, number):
+...         self.number = number
+...     def __add__(self, other):
+...         return self.number.__add__(other)
+...
+>>> w = WrappedNumber(10)
+>>> w + 3
+13
+>>>
+```
+
+This happens because operators search start in the class, skipping the instance.
+
+
+2. Types and classes are the same now:
+
+```python
+>>> num = 10
+>>> type( num )
+int
+>>> type( num ) is int
+True
+>>> type( num ) is num.__class__
+True
+>>>
+```
+
+3. All classes now implictly inherit from `object`, thus having some default methods as: `__repr__()`
+
+---
+
