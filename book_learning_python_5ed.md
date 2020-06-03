@@ -15769,3 +15769,756 @@ True
 
 ---
 
+Slots
+
+Limit the possible variables that can be assigned to an instance.
+
+```python
+>>> class Example:
+...     __slots__ = ["name", "age"]
+...
+>>> e = Example()
+>>> e.name # you still need to assign before
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-3-044cc9756e8a> in <module>
+----> 1 e.name # you still need to assign before
+
+AttributeError: name
+>>>
+>>> e.name = "John"
+>>> e.age = 23
+>>> e.job = "mgr" # not possible
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-6-f613016262a4> in <module>
+----> 1 e.job = "mgr" # not possible
+
+AttributeError: 'Example' object has no attribute 'job'
+>>>
+```
+
+Slots are a memory optimization and should be used only when strictly necessary.
+
+Instances of classes declared with `__slots__` do not have a `__dict__` as storage:
+
+```python
+>>> class Person:
+...     __slots__ = ("name", "age")
+...
+>>>
+>>> p = Person()
+>>> p.name = "John"
+>>> p.age = 32
+>>>
+>>> p.__dict__ # ops
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-5-223115104e02> in <module>
+----> 1 p.__dict__ # ops
+
+AttributeError: 'Person' object has no attribute '__dict__'
+>>> vars(p)
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-6-0c35495ab569> in <module>
+----> 1 vars(p)
+
+TypeError: vars() argument must have __dict__ attribute
+```
+
+* To access slots or dict attributes in instances in a neutral form, use `getattr()` and `setattr()`:
+
+```python
+>>> class Person:
+...     __slots__ = ("name", "age")
+...
+>>> p = Person()
+>>> p.name = "John"
+>>>
+>>> getattr(p, 'name')
+'John'
+>>>
+>>> setattr(p, 'age', 33)
+>>>
+>>> p.age
+33
+>>>
+```
+
+* To list attributes in a neutral way, that works for `__dict__` and `__slots__` based instances, use `dir(obj)`:
+
+```python
+>>> class Person:
+...     __slots__ = ("name", "age")
+...
+>>>
+>>> p = Person()
+>>> p.name = "John"
+>>> setattr(p, 'age', 33)
+>>>
+>>> dir(p)
+['__class__',
+ '__delattr__',
+ '__dir__',
+ '__doc__',
+ '__eq__',
+ '__format__',
+ '__ge__',
+ '__getattribute__',
+ '__gt__',
+ '__hash__',
+ '__init__',
+ '__init_subclass__',
+ '__le__',
+ '__lt__',
+ '__module__',
+ '__ne__',
+ '__new__',
+ '__reduce__',
+ '__reduce_ex__',
+ '__repr__',
+ '__setattr__',
+ '__sizeof__',
+ '__slots__',
+ '__str__',
+ '__subclasshook__',
+ 'age',
+ 'name']
+>>>
+```
+
+* Slots restrict the possible names in instances:
+
+```python
+>>> class Person:
+...     __slots__ = ("name", "age")
+...
+>>> p = Person()
+>>> p.name = 'john'
+>>> p.age = 33
+>>> p.job = 'mgr' # not possible, 'job' is not in __slots__
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-23-22b95480f42d> in <module>
+----> 1 p.job = 'mgr' # not possible, 'job' is not in __slots__
+
+AttributeError: 'Person' object has no attribute 'job'
+>>>
+```
+
+* You can mix both mechanisms including `__dict__` in `__slots__`:
+
+```python
+>>> class Person:
+...     __slots__ = ("name", "age", "__dict__")
+...
+>>> p = Person()
+>>> p.name = "john"
+>>> p.age = 33
+>>> p.job = "mgr"
+>>>
+>>> vars(p)
+{'job': 'mgr'}
+>>>
+>>> p.name, p.age, p.job
+('john', 33, 'mgr')
+>>>
+```
+
+* Caution: `__slots__` are subject to the inheritance search, so when you fetch it from an instance, you get the least defined.
+But Python automatically merges the `__slots__` of the class and its superclasses.
+
+```python
+>>> class Employee:
+...     __slots__ = ("name", "age", "job")
+...
+>>> class Developer(Employee):
+...     __slots__ = ("language", )
+...
+>>> class Manager(Developer):
+...     __slots__ = ("nice_or_annoying", )
+...
+>>> # You can use superclasse slots also
+>>> d = Developer()
+>>> d.name = 'John'
+>>> d.age = 33
+>>> d.language = 'Python'
+>>>
+>>> # You can use all attributes, but if you require '__slots__' you get only the least defined
+>>> d.__slots__
+('language',)
+>>>
+```
+
+* If you use `__slots__` in an inheritace, you should include it in every class.
+When ommited, the class generates a `__dict__`, thus negating the memory optimization benefit:
+
+```python
+>>> class A: pass # no slots
+>>> class B(A): __slots__ = ("x", "y") # will create dict because of A
+>>>
+>>> b = B()
+>>> b.x = 1
+>>> b.y = 2
+>>> b.z = 3
+>>>
+>>> b.__dict__
+{'z': 3}
+>>>
+>>> b.x, b.y, b.z
+(1, 2, 3)
+>>>
+```
+
+* `hasattr()` works with `__slots__` too:
+
+```python
+>>> class Point: __slots__ = ("x", "y")
+>>>
+>>> p = Point()
+>>> p.x = 10
+>>> hasattr(p, 'x')
+True
+>>> hasattr(p, 'z')
+False
+>>>
+```
+
+---
+
+Properties
+
+The magic is implemented throug the `property()` built-in.
+
+`help(property)`:
+
+```python
+Init signature: property(self, /, *args, **kwargs)
+Docstring:
+property(fget=None, fset=None, fdel=None, doc=None) -> property attribute
+
+fget is a function to be used for getting an attribute value, and likewise
+fset is a function for setting, and fdel a function for del'ing, an
+attribute.  Typical use is to define a managed attribute x:
+
+class C(object):
+    def getx(self): return self._x
+    def setx(self, value): self._x = value
+    def delx(self): del self._x
+    x = property(getx, setx, delx, "I'm the 'x' property.")
+
+Decorators make defining new properties or modifying existing ones easy:
+
+class C(object):
+    @property
+    def x(self):
+        "I am the 'x' property."
+        return self._x
+    @x.setter
+    def x(self, value):
+        self._x = value
+    @x.deleter
+    def x(self):
+        del self._x
+Type:           type
+Subclasses:     abstractproperty
+```
+
+If you skip any of the arguments, the operation will no be supported.
+
+An example:
+
+```python
+>>> class Person:
+...     def _get_age(self):
+...         print("_get_age()")
+...         return self._age
+...
+...     def _set_age(self, value):
+...         print("_set_age()")
+...         self._age = value
+...
+...     age = property(fget=_get_age, fset=_set_age, fdel=None)
+...
+>>>
+>>> p = Person()
+>>> p.age = 42
+_set_age()
+>>> p.age
+_get_age()
+42
+>>>
+```
+
+Properties can also be created using decorators:
+
+```python
+>>> class Person:
+...     # The getter must come first
+...     @property
+...     def age(self):
+...         print("age-getter")
+...         return self._age
+...
+...     @age.setter
+...     def age(self, value):
+...         print("age-setter")
+...         self._age = value
+...
+>>>
+>>> p = Person()
+>>> p.age = 42
+age-setter
+>>> p.age
+age-getter
+42
+>>>
+```
+
+---
+
+Descriptors: classes with `__get__` and `__set__` that behave as an attribute.
+
+```python
+>>> class SimpleAgeDescriptor:
+...     def __get__(self, instance, owner):
+...         print("__get__(self={}, instance={}, owner={})".format(self, instance, owner))
+...         if hasattr(instance, '_age'):
+...             return instance._age
+...         else:
+...             return 42
+...
+...     def __set__(self, instance, value):
+...         print("__set__(self={}, instance={}, value={})".format(self, instance, value))
+...         instance._age = value
+...
+...
+...
+>>> class Person:
+...     age = SimpleAgeDescriptor()
+...
+>>>
+>>> p = Person()
+>>> p.age
+__get__(self=<__main__.SimpleAgeDescriptor object at 0x7f1214f2d898>, instance=<__main__.Person object at 0x7f1214f050b8>, owner=<class '__main__.Person'>)
+42
+>>> p.age = 33
+__set__(self=<__main__.SimpleAgeDescriptor object at 0x7f1214f2d898>, instance=<__main__.Person object at 0x7f1214f050b8>, value=33)
+>>> p.age
+__get__(self=<__main__.SimpleAgeDescriptor object at 0x7f1214f2d898>, instance=<__main__.Person object at 0x7f1214f050b8>, owner=<class '__main__.Person'>)
+33
+>>>
+```
+
+---
+
+Static and class methods
+
+`@staticmethod`
+
+Define methods inside classes that do not require instances. So Python dosent passes the `self` argument.
+
+> In Python 3 you can create functions inside classes that do not receive any argument (class or self/instance).
+Simple functions, really. But mind that these methods will fail if you call them from an instance: Python will try to pass
+the `self` argument:
+
+```python
+>>> class InstanceCounter:
+...     counter = 0
+...
+...     def __init__(self):
+...         InstanceCounter.counter += 1
+...
+...     def print_counter(): # simple function defined in the class.
+...         print("InstanceCounter instances: {}".format(InstanceCounter.counter))
+...
+>>>
+>>> i1 = InstanceCounter()
+>>> i2 = InstanceCounter()
+>>>
+>>> InstanceCounter.print_counter() # from the class, works fine
+InstanceCounter instances: 2
+>>>
+>>> # But from the instances, fails, as Python tries to pass 'self'
+>>> i1.print_counter()
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-109-79f9b2f4a3d1> in <module>
+----> 1 i1.print_counter()
+
+TypeError: print_counter() takes 0 positional arguments but 1 was given
+>>>
+```
+
+To solve it, always use the `@staticmethod` built-in:
+
+```python
+>>> class InstanceCounter:
+...     counter = 0
+...
+...     def __init__(self):
+...         InstanceCounter.counter += 1
+...
+...     @staticmethod
+...     def print_counter():
+...         print("InstanceCounter instances: {}".format(InstanceCounter.counter))
+...
+>>>
+>>> i1 = InstanceCounter()
+>>> i2 = InstanceCounter()
+>>> i3 = InstanceCounter()
+>>>
+>>> # Class call works
+>>> InstanceCounter.print_counter()
+InstanceCounter instances: 3
+>>>
+>>> # Instance call also works
+>>> i3.print_counter()
+InstanceCounter instances: 3
+>>>
+```
+
+`@classmethod`
+
+Define methods inside classes that should receive the class (or the class of the instance) where it was called as first argument.
+
+The previous example could be coded as a class method too:
+
+```python
+>>> class InstanceCounter:
+...     counter = 0
+...
+...     def __init__(self):
+...         InstanceCounter.counter += 1
+...
+...     @classmethod
+...     def print_counter(cls):
+...         print("{} instances: {}".format(cls, getattr(cls, 'counter', 0)))
+...
+...
+>>> i1 = InstanceCounter()
+>>> i2 = InstanceCounter()
+>>> i3 = InstanceCounter()
+>>>
+>>> # Class call works
+>>> InstanceCounter.print_counter()
+<class '__main__.InstanceCounter'> instances: 3
+>>>
+>>> # Instance call works too
+>>> i3.print_counter()
+<class '__main__.InstanceCounter'> instances: 3
+>>>
+```
+
+But mind that class methods receive the most specific (lowest) class of the call subject.
+So caution with inheritance:
+
+```python
+>>> class InstanceCounter:
+...     counter = 0
+...
+...     def __init__(self):
+...         InstanceCounter.counter += 1
+...
+...     @classmethod
+...     def print_counter(cls): # simple function defined in the class.
+...         print("{} instances: {}".format(cls, getattr(cls, 'counter', 0)))
+...
+...
+>>>
+>>> class EnhancedInstanceCounter(InstanceCounter):
+...     @classmethod
+...     def print_counter(cls):
+...         print("*** Enhanced ***: {} has instances {} ***".format(cls, getattr(cls, 'counter', 0)))
+...
+>>>
+>>> i1 = InstanceCounter()
+>>> i2 = InstanceCounter()
+>>> i3 = InstanceCounter()
+>>>
+>>> InstanceCounter.print_counter()
+<class '__main__.InstanceCounter'> instances: 3
+>>> i3.print_counter()
+<class '__main__.InstanceCounter'> instances: 3
+>>>
+>>> e1 = EnhancedInstanceCounter()
+>>> e2 = EnhancedInstanceCounter()
+>>>
+>>> EnhancedInstanceCounter.print_counter()
+*** Enhanced ***: <class '__main__.EnhancedInstanceCounter'> has instances 5 ***
+>>> e2.print_counter()
+*** Enhanced ***: <class '__main__.EnhancedInstanceCounter'> has instances 5 ***
+>>>
+```
+
+Works because `getattr()` finds `counter` using inheritance search.
+
+But if the method assigns something to the generically passed class, issues can occour.
+
+Lets create an instance counter per class:
+
+```python
+>>> class GenericInstanceCounter:
+...     def __init__(self):
+...         if 'counter' in vars(self.__class__):
+...             self.__class__.counter += 1
+...         else:
+...             self.__class__.counter = 1
+...     @classmethod
+...     def get_counter(klass):
+...         if 'counter' in vars(klass):
+...             return klass.counter
+...         else:
+...             return 0
+...
+>>>
+>>> class A(GenericInstanceCounter): pass
+>>> class B(GenericInstanceCounter): pass
+>>>
+>>> a1 = A()
+>>> a2 = A()
+>>> a3 = A()
+>>>
+>>> A.get_counter()
+3
+>>> a1.get_counter()
+3
+>>>
+>>> # No instances
+>>> B.get_counter()
+0
+>>>
+>>> # Inheritance example
+>>> class C(A): pass
+>>>
+>>> # C has no instances, but A has three
+>>> C.get_counter()
+0
+>>>
+```
+
+---
+
+Function Decorators
+
+Example:
+
+```python
+@metafunction
+def func_or_method(...):
+    pass
+```
+
+Is the same as:
+
+```python
+def func_or_method(...):
+    pass
+
+# name rebiding
+func_or_method = metafunction(func_or_method)
+```
+
+A simple decorator that traces how many times a function was called:
+
+```python
+>>> class tracer:
+...     def __init__(self, fx):
+...         self.fx = fx
+...         self.counter = 0
+...     def __call__(self, *args, **kwargs):
+...         self.counter += 1
+...         print(self.counter, "times")
+...         return self.fx(*args, **kwargs)
+...
+>>>
+>>> @tracer
+... def add(a, b):
+...     return a + b
+...
+>>> add(10, 20)
+1 times
+30
+>>> add(4, 3)
+2 times
+7
+>>>
+```
+
+> Remember that `__init__` is called to initialize the object. The object is returned implictly by Python.
+
+It is the same as:
+
+```python
+>>> def sub(a, b):
+...     return a - b
+...
+>>> sub = tracer(sub)
+>>> sub(10, 5)
+1 times
+5
+>>> sub(10, 4) # triggers tracer.__call__
+2 times
+6
+>>>
+```
+
+This implementation fails with class methods:
+
+```python
+>>> class tracer:
+...     def __init__(self, fx):
+...         self.fx = fx
+...         self.counter = 0
+...     def __call__(self, *args, **kwargs):
+...         print("self: {}".format(self))
+...         print("*args: {}".format(args))
+...         print("**kwargs: {}".format(kwargs))
+...
+...         self.counter += 1
+...         print(self.counter, "times")
+...
+...         return self.fx(*args, **kwargs)
+...
+>>>
+>>> class Math:
+...     @tracer
+...     def add(self, a, b):
+...         return a + b
+...
+>>>
+>>> m = Math()
+>>> m.add(10, 20)
+self: <__main__.tracer object at 0x7f1214651ef0>
+*args: (10, 20)
+**kwargs: {}
+1 times
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-169-a3aaa252df11> in <module>
+----> 1 m.add(10, 20)
+
+<ipython-input-166-062f9424e1ef> in __call__(self, *args, **kwargs)
+     11         print(self.counter, "times")
+     12
+---> 13         return self.fx(*args, **kwargs)
+     14
+
+TypeError: add() missing 1 required positional argument: 'b'
+>>>
+```
+
+Because `self` is mapped to the `tracer` instance, thus passing the firt argument as `self` to the wrapped method.
+
+To solve this, you can use another common coding pattern: function wrapping
+
+```python
+>>> def tracer(fx):
+...     def wrap(*args, **kwargs):
+...         wrap.times += 1
+...         print("Called {} times".format(wrap.times))
+...         return fx(*args, **kwargs)
+...     wrap.times = 0
+...     return wrap
+...
+>>>
+>>> class Math:
+...     @tracer
+...     def add(self, a, b):
+...         return a + b
+...
+>>>
+>>> m = Math()
+>>> m.add(10, 20)
+Called 1 times
+30
+>>> m.add(1, 2)
+Called 2 times
+3
+>>>
+```
+
+This version works because `self` is not mapped, so the instance is passed as a regular positional argument.
+
+---
+
+Class decorators
+
+```python
+def decorator(klass): return enchanced_klass # must return a callable
+
+@decorator
+class Klass: pass
+```
+
+is mapped to:
+
+```python
+def decorator(klass): return enchanced_klass # must return a callable
+
+class Klass: pass
+
+Klass = decorator(Klass)
+```
+
+Class decorators can enhance and return the received class or wrap it and intercep all instance construction calls.
+
+Example: decorator classes that count instances.
+
+```python
+>>> def countable(klass):
+...     klass.counter = 0
+...
+...     original_init = klass.__init__
+...     def new_init(self, *args, **kwargs):
+...         self.__class__.counter += 1
+...         original_init(self, *args, **kwargs)
+...
+...     klass.__init__ = new_init
+...
+...     return klass
+...
+>>> @countable
+... class Spam: pass
+>>>
+>>> s1 = Spam()
+>>> s2 = Spam()
+>>>
+>>> Spam.counter
+2
+>>> s1.counter
+2
+>>>
+```
+
+You can use class decorator to create fully featured proxies:
+
+```python
+>>> def upcase(klass):
+...     class Proxy:
+...         def __init__(self, *args, **kwargs):
+...             self.wrapped = klass(*args, **kwargs)
+...         def __getattr__(self, attr):
+...             return getattr(self.wrapped, attr, "").upper()
+...     return Proxy
+...
+>>>
+>>> @upcase
+... class Person:
+...     def __init__(self, name, job):
+...         self.name = name
+...         self.job = job
+...
+>>> p = Person("john", "dev")
+>>> p.name
+'JOHN'
+>>> p.job
+'DEV'
+>>>
+```
+
+---
+
+super()
+
