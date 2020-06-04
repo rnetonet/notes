@@ -16520,5 +16520,29 @@ You can use class decorator to create fully featured proxies:
 
 ---
 
-super()
+Exceptions
 
+You can capture exceptions with `try/except` blocks:
+
+```python
+>>> arr = ['a', 'b', 'c']
+>>> arr[4] # ops!
+---------------------------------------------------------------------------
+IndexError                                Traceback (most recent call last)
+<ipython-input-2-311f5b4cae56> in <module>
+----> 1 arr[4] # ops!
+
+IndexError: list index out of range
+>>>
+>>> try:
+...     print(arr[4])
+... except IndexError:
+...     print('out of bounds')
+...
+out of bounds
+>>>
+```
+
+`IndexError` is one of the many built-ins exceptions already defined in the language.
+
+You can use the `assert` statement to check conditions and trigger the `AssertException`
