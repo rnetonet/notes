@@ -17203,4 +17203,6 @@ if not test:
 You can disable asserts in code running Python in optimized mode: `-o`.
 In this mode, the global `__debug__` will be set to `False`.
 
-Example: Trapping Constraints (but Not Errors!)
+---
+
+with/as Context Managers
