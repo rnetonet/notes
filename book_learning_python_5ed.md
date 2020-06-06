@@ -16545,4 +16545,662 @@ out of bounds
 
 `IndexError` is one of the many built-ins exceptions already defined in the language.
 
-You can use the `assert` statement to check conditions and trigger the `AssertException`
+You can use the `assert` statement to check conditions and trigger the `AssertException` if these are no meet:
+
+```python
+In [7]: value = 10
+
+In [8]: assert value < 5, "Value is too small"
+---------------------------------------------------------------------------
+AssertionError                            Traceback (most recent call last)
+<ipython-input-8-bea9a853b341> in <module>
+----> 1 assert value < 5, "Value is too small"
+
+AssertionError: Value is too small
+
+In [9]:
+```
+
+And you can `raise` exceptions:
+
+```python
+In [9]: def fetch(arr, index):
+   ...:     if index >= len(arr):
+   ...:         raise IndexError
+   ...:     else:
+   ...:         return arr[index]
+   ...:
+
+In [10]: fetch(['a', 'b', 'c'], 2)
+Out[10]: 'c'
+
+In [11]: fetch(['a', 'b', 'c'], 3)
+---------------------------------------------------------------------------
+IndexError                                Traceback (most recent call last)
+<ipython-input-11-2bc2bb757ecf> in <module>
+----> 1 fetch(['a', 'b', 'c'], 3)
+
+<ipython-input-9-d9ad47945398> in fetch(arr, index)
+      1 def fetch(arr, index):
+      2     if index >= len(arr):
+----> 3         raise IndexError
+      4     else:
+      5         return arr[index]
+
+IndexError:
+
+In [12]:
+```
+
+Exception are just classes. You can create your own, inheriting from `Exception`:
+
+```python
+>>> class EvenException(Exception): pass
+>>> class OddException(Exception): pass
+>>>
+>>> def handle(number):
+...     if number % 2 == 0:
+...         raise EvenException
+...     else:
+...         raise OddException
+...
+>>> handle(10)
+---------------------------------------------------------------------------
+EvenException                             Traceback (most recent call last)
+<ipython-input-6-d1c2b8d10fe0> in <module>
+----> 1 handle(10)
+
+<ipython-input-5-72415a662d97> in handle(number)
+      1 def handle(number):
+      2     if number % 2 == 0:
+----> 3         raise EvenException
+      4     else:
+      5         raise OddException
+
+EvenException:
+>>>
+>>> handle(33)
+---------------------------------------------------------------------------
+OddException                              Traceback (most recent call last)
+<ipython-input-7-b8de1288a416> in <module>
+----> 1 handle(33)
+
+<ipython-input-5-72415a662d97> in handle(number)
+      3         raise EvenException
+      4     else:
+----> 5         raise OddException
+      6
+
+OddException:
+>>>
+```
+
+And you can catch them the same way as built-in exceptions:
+
+```python
+>>> try:
+...     handle(10)
+... except EvenException:
+...     print('Even!')
+...
+Even!
+>>>
+```
+
+You can customize the exceptions messages defining the `__str__` method.
+
+```python
+>>> class EvenException(Exception):
+...     def __str__(self):
+...         return 'EVEN'
+...
+>>> handle(10)
+---------------------------------------------------------------------------
+EvenException                             Traceback (most recent call last)
+<ipython-input-10-d1c2b8d10fe0> in <module>
+----> 1 handle(10)
+
+<ipython-input-5-72415a662d97> in handle(number)
+      1 def handle(number):
+      2     if number % 2 == 0:
+----> 3         raise EvenException
+      4     else:
+      5         raise OddException
+
+EvenException: EVEN
+>>>
+```
+
+The except clause can have an `as` statement to access the exception object:
+
+```python
+>>> try:
+...     handle(10)
+... except EvenException as ex:
+...     print(repr(ex)) # print
+...     print(type(ex)) # ex type
+...     print(id(ex))   # ex memory address
+...
+EvenException()
+<class '__main__.EvenException'>
+139802552693864
+>>>
+```
+
+Important:
+
+```python
+raise Exception
+```
+
+is automatically translated by Python to:
+
+```python
+raise Exception()
+```
+
+`try` statements can have `finally` blocks, which are executed always, when an exception happens or not:
+
+```python
+# No exception happens
+>>> try:
+...     assert 10 > 1
+... except AssertionError:
+...     print('handled exception')
+... finally:
+...     print('executed after')
+...
+executed after
+>>>
+
+# Exception is handled
+>>> try:
+...     assert 10 > 11
+... except AssertionError:
+...     print('handled exception')
+... finally:
+...     print('executed after')
+...
+handled exception
+executed after
+>>>
+
+# Exception happens and is not handled
+>>> try:
+...     assert 10 > 11
+... except IndexError:
+...     print('handled exception')
+... finally:
+...     print('executed after')
+...
+executed after
+---------------------------------------------------------------------------
+AssertionError                            Traceback (most recent call last)
+<ipython-input-23-934b07f42374> in <module>
+      1 try:
+----> 2     assert 10 > 11
+      3 except IndexError:
+      4     print('handled exception')
+      5 finally:
+
+AssertionError:
+>>>
+```
+
+In a similar way as `for` and `while` loops, `try` statements can have an `else` clause that is run if no `exception` (`break` in loops) happens:
+
+`else` in loops. run only if no `break` is issued:
+
+```python
+# no-breaks
+>>> for i in range(3):
+...     print(i)
+... else:
+...     print('ok')
+...
+0
+1
+2
+ok
+
+# break
+>>> for i in range(3):
+...     print(i)
+...     if i % 2 == 0: break
+... else:
+...     print('ok')
+...
+0
+
+# else still runs if a continue is issued
+>>> for i in range(3):
+...     print(i)
+...     if i % 2 == 0: continue
+... else:
+...     print('ok')
+...
+0
+1
+2
+ok
+>>>
+```
+
+In the `try` statement the `else` clause is run only if **no** exceptions happen in the `try` block, be them handled or not:
+
+```python
+>>> arr = ['a', 'b', 'c']
+>>> index = 2
+>>>
+>>> try:
+...     print(arr[index])
+... except IndexError:
+...     print('array out of bounds')
+... else:
+...     print('no exceptions. index is inside array bounds')
+...
+c
+no exceptions. index is inside array bounds
+>>>
+```
+
+Handled or non handled exceptions both stop `else` execution:
+
+```python
+# handled
+>>> try:
+...     raise IndexError
+... except IndexError:
+...     print('handled IndexError')
+... else:
+...     print('no exceptions! else is running')
+...
+handled IndexError
+>>>
+
+# non-handled
+>>> try:
+...     raise IndexError
+... except AttributeError:
+...     print('handled AttributeError')
+... else:
+...     print('no exceptions! else is running')
+...
+---------------------------------------------------------------------------
+IndexError                                Traceback (most recent call last)
+<ipython-input-37-99dc79166c45> in <module>
+      1 try:
+----> 2     raise IndexError
+      3 except AttributeError:
+      4     print('handled AttributeError')
+      5 else:
+
+IndexError:
+>>>
+```
+
+You can match all exceptions with an empty `except` block:
+
+```python
+>>> try:
+...     raise NotImplementedError
+... except IndexError:
+...     print('IndexError')
+... except AttributeError:
+...     print('AttributeError')
+... except:
+...     print('Generic Exception Handler')
+...
+Generic Exception Handler
+>>>
+```
+
+Exceptions propagate up until they are handled by Python's default exception handler, which prints the exceptions and exit.
+
+```python
+>>> def inner():
+...     raise NotImplementedError
+...
+>>> def outer():
+...     inner()
+...
+>>>
+>>> try:
+...     outer()
+... except NotImplementedError:
+...     print('handled the inner-launched exception')
+...
+handled the inner-launched exception
+>>>
+```
+
+You can handle multiple exceptions types in the same `except` clause:
+
+```python
+>>> try:
+...     if int(random.random() * 10) % 2 == 0: # even
+...         raise NotImplementedError
+...     else: # odd
+...         raise AttributeError
+... except (NotImplementedError, AttributeError) as e:
+...     print("Exception handled: {}".format(repr(e)))
+...
+Exception handled: AttributeError()
+>>>
+>>> try:
+...     if int(random.random() * 10) % 2 == 0: # even
+...         raise NotImplementedError
+...     else: # odd
+...         raise AttributeError
+... except (NotImplementedError, AttributeError) as e:
+...     print("Exception handled: {}".format(repr(e)))
+...
+Exception handled: NotImplementedError()
+>>>
+```
+
+Caution. The empty `except` clause also catches system exceptions, not meant to be handled by your code.
+To mitigate it, use `except Exception:` which has almost the same effect, but ignores system-meant exceptions.
+
+```python
+>>> try:
+...     raise NotImplementedError
+... except IndexError:
+...     print('IndexError')
+... except AttributeError:
+...     print('AttributeError')
+... except Exception:
+...     print('Generic Exception Handler')
+...
+Generic Exception Handler
+>>>
+```
+
+`finally` is always executed. Even if the `except` or `else` clauses raises exceptions:
+
+```python
+>>> try:
+...     raise NotImplementedError
+... except Exception:
+...     raise IndexError
+... finally:
+...     print('Executed before the IndexError exception is propagated')
+...
+Executed before the IndexError exception is propagated
+---------------------------------------------------------------------------
+NotImplementedError                       Traceback (most recent call last)
+<ipython-input-76-0ded7e148e2e> in <module>
+      1 try:
+----> 2     raise NotImplementedError
+      3 except Exception:
+
+NotImplementedError:
+
+During handling of the above exception, another exception occurred:
+
+IndexError                                Traceback (most recent call last)
+<ipython-input-76-0ded7e148e2e> in <module>
+      2     raise NotImplementedError
+      3 except Exception:
+----> 4     raise IndexError
+      5 finally:
+      6     print('Executed before the IndexError exception is propagated')
+
+IndexError:
+>>>
+>>> try:
+...     print('no exceptions raised in try!')
+... except Exception:
+...     raise IndexError
+... else:
+...     print('no exceptions. running else. will raise and exception')
+...     raise AttributeError
+... finally:
+...     print('Executed before the AttributeError exception in else clause is propagated')
+...
+...
+no exceptions raised in try!
+no exceptions. running else. will raise and exception
+Executed before the AttributeError exception in else clause is propagated
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-77-b16cd8a637eb> in <module>
+      5 else:
+      6     print('no exceptions. running else. will raise and exception')
+----> 7     raise AttributeError
+      8 finally:
+      9     print('Executed before the AttributeError exception in else clause is propagated')
+
+AttributeError:
+>>>
+```
+
+`raise` triggers exceptions in Python. It comes in three forms:
+
+```python
+raise ExceptionClass      # raise ExceptionClass. Python automatically converts it to: raise ExceptionClass()
+raise ExceptionInstance() # raise an instance of ExceptionClass
+raise                     # reraise the last triggered exception, propagating it
+```
+
+The `raise ExceptionClass` is converted to `raise ExceptionClass` actually:
+
+```python
+raise IndexError             # Class (instance created)
+raise IndexError()           # Instance (created in statement)
+```
+
+You can instatiate the exception object before too:
+
+```python
+>>> error = IndexError()
+>>>
+>>> raise error
+---------------------------------------------------------------------------
+IndexError                                Traceback (most recent call last)
+<ipython-input-79-a2e21a396f4d> in <module>
+----> 1 raise error
+
+IndexError:
+>>>
+```
+
+You can access the exception instances using the `as` statement in the `except` clauses:
+
+```python
+>>> error = IndexError()
+>>> id(error)
+139802552020136
+>>>
+>>> try:
+...     raise error
+... except IndexError as e:
+...     print(e.__class__)
+...     print(id(e))
+...
+<class 'IndexError'>
+139802552020136
+>>>
+```
+
+Another example, using user-defined exceptions:
+
+```python
+>>> class MyError(Exception):
+...     def __init__(self, value):
+...         self.value = value
+...
+>>>
+>>> try:
+...     raise MyError(42)
+... except MyError as e:
+...     print(e.value)
+...
+42
+>>>
+```
+
+Caution: the `as` statement in `except` clauses localizes the variable to the `except` block below it and, after the block execution, performs a
+`del` in the reference, even if it was existent before the `try` statement:
+
+```python
+>>> e = 3.14
+>>> print(e)
+3.14
+>>>
+>>>
+>>> try:
+...     raise NotImplementedError
+... except NotImplementedError as e:
+...     print(repr(e))
+...
+NotImplementedError()
+>>>
+>>> print(e) # ops!
+---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+<ipython-input-88-f193e723d7bd> in <module>
+----> 1 print(e) # ops!
+
+NameError: name 'e' is not defined
+>>>
+```
+
+Hence, avoid reutilizing names in `except-as` clauses.
+
+To propagate an exception, use `raise` alone:
+
+```python
+>>> try:
+...     raise NotImplementedError
+... except NotImplementedError:
+...     print('handled. propagating: ')
+...     raise
+...
+handled. propagating:
+---------------------------------------------------------------------------
+NotImplementedError                       Traceback (most recent call last)
+<ipython-input-89-de724c44c7b2> in <module>
+      1 try:
+----> 2     raise NotImplementedError
+      3 except NotImplementedError:
+      4     print('handled. propagating: ')
+      5     raise
+
+NotImplementedError:
+>>>
+```
+
+When an exception is raised because of another exception you can use the `raise CurrentException from PreviousException` statement.
+Python will output both exceptions and mark the `PreviosException` instance in the `__cause__` attribute of the `CurrentException` instance.
+
+
+```python
+>>> try:
+...     1 / 0
+... except ZeroDivisionError as e:
+...     raise NotImplementedError("Zero div is not implemented") from e
+...
+---------------------------------------------------------------------------
+ZeroDivisionError                         Traceback (most recent call last)
+<ipython-input-90-13af6a8b1218> in <module>
+      1 try:
+----> 2     1 / 0
+      3 except ZeroDivisionError as e:
+
+ZeroDivisionError: division by zero
+
+The above exception was the direct cause of the following exception:
+
+NotImplementedError                       Traceback (most recent call last)
+<ipython-input-90-13af6a8b1218> in <module>
+      2     1 / 0
+      3 except ZeroDivisionError as e:
+----> 4     raise NotImplementedError("Zero div is not implemented") from e
+      5
+
+NotImplementedError: Zero div is not implemented
+>>>
+```
+
+Simalarly, if an exception is triggered in an `except` block, the exception which was being handle is set as the `__context__` attribute of
+the new exception and both are print:
+
+```python
+>>> try:
+...     1 / 0
+... except ZeroDivisionError:
+...     typo # not defined
+...
+---------------------------------------------------------------------------
+ZeroDivisionError                         Traceback (most recent call last)
+<ipython-input-91-cba524358743> in <module>
+      1 try:
+----> 2     1 / 0
+      3 except ZeroDivisionError:
+
+ZeroDivisionError: division by zero
+
+During handling of the above exception, another exception occurred:
+
+NameError                                 Traceback (most recent call last)
+<ipython-input-91-cba524358743> in <module>
+      2     1 / 0
+      3 except ZeroDivisionError:
+----> 4     typo # not defined
+      5
+
+NameError: name 'typo' is not defined
+>>>
+```
+
+`assert` is an `if` with a `raise`:
+
+```python
+>>> value = 10
+>>>
+>>> if value >= 10:
+...     raise ValueError("Greater or equal to 10")
+...
+---------------------------------------------------------------------------
+ValueError                                Traceback (most recent call last)
+<ipython-input-93-b2c9386f0062> in <module>
+      1 if value >= 10:
+----> 2     raise ValueError("Greater or equal to 10")
+      3
+
+ValueError: Greater or equal to 10
+>>>
+```
+
+Is the same as:
+
+```python
+>>> value = 10
+>>> assert value < 10, "Greater or equal to 10"
+---------------------------------------------------------------------------
+AssertionError                            Traceback (most recent call last)
+<ipython-input-95-0446de4b4d1a> in <module>
+----> 1 assert value < 10, "Greater or equal to 10"
+
+AssertionError: Greater or equal to 10
+>>>
+```
+
+The syntax is:
+
+```python
+asset test, data
+```
+
+If `test` is `False` an `AssertionError` is raised and `data` is passed as argument:
+
+```python
+if not test:
+    raise AssertionError(data)
+```
+
+You can disable asserts in code running Python in optimized mode: `-o`.
+In this mode, the global `__debug__` will be set to `False`.
+
+Example: Trapping Constraints (but Not Errors!)
