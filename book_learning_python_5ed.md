@@ -17205,4 +17205,271 @@ In this mode, the global `__debug__` will be set to `False`.
 
 ---
 
-with/as Context Managers
+`with expr [as var]:` Context Managers
+
+`expr` should return an object that implements the context management interface defined by Python.
+
+optionaly, you can create a reference to this in object `as var` and use it in the block below.
+
+The object returned by `expr` can run code before or after the `with` code block, regardless of any exceptions that happen.
+
+The expression should return a context manager object to execute actions before and/or after the with block, but can also
+return a different object to be assigned to `var`.
+
+An example is the file object, which returns a context manager aware object that closes the file automatically after the `with` block,
+even if exceptions happen inside the block:
+
+```python
+>>> with open('/etc/hosts', 'r') as fp:
+...     data = fp.read()
+...     while data:
+...         print(data)
+...         data = fp.read()
+...
+...
+127.0.0.1	localhost
+127.0.1.1	ThinkPad-T440s
+
+# The following lines are desirable for IPv6 capable hosts
+::1     ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+
+>>> # file closed automatically
+>>>
+```
+
+The context manager protocol:
+
+1. The expression must return an object with `__enter__` and `__exit__` methods.
+
+2. The `__enter__` method is called in the object. The return object is assigned to the variable in the `as` clause, if present, or discarded.
+
+3. Code in the `with` block is executed.
+
+4. After the `with` block executes sucessfully or raises an exception, the `__exit__` method is called.
+
+If an exception happened, its details are passed to the `__exit__` method.
+
+If the `__exit__` method returns a `False` value, the received exception is automatically reraised (this is the most common and desired behavior).
+
+If `__exit__` returns a `True` value, the received exception is terminated and not propagated.
+
+
+A simple context manager example:
+
+```python
+>>> class CManager:
+...     def message(self, arg):
+...         print('***')
+...         print(arg)
+...         print('***')
+...     def __enter__(self):
+...         print('starting the block execution')
+...         return self # return the CManager instance to be assigned to a possible as clause
+...     def __exit__(self, exc_type, exc_value, exc_tb):
+...         if exc_type is None:
+...             print('No exception! Went fine')
+...         else:
+...             print('An exception was raised: {}'.format(repr(exc_type)))
+...             return False # forces propagation. can be ommited, remember that methods return None (false) by default
+...
+>>>
+>>> with CManager() as manager:
+...     print('Doing my work')
+...
+starting the block execution
+Doing my work
+No exception! Went fine
+>>>
+>>> with CManager() as manager:
+...     print('Doing my work')
+...     raise NotImplementedError
+...
+starting the block execution
+Doing my work
+An exception was raised: <class 'NotImplementedError'>
+---------------------------------------------------------------------------
+NotImplementedError                       Traceback (most recent call last)
+<ipython-input-8-c1e9de99a2e1> in <module>
+      1 with CManager() as manager:
+      2     print('Doing my work')
+----> 3     raise NotImplementedError
+      4
+
+NotImplementedError:
+>>>
+```
+
+You can list multiple context managers separated by commas in `with` statements.
+To read multiple files simultaneously, for example:
+
+```python
+>>> with open('/etc/hosts') as hosts, open('/etc/protocols') as protocols:
+...     data = hosts.readline(), protocols.readline()
+...     while all(data):
+...         print(data)
+...         data = hosts.readline(), protocols.readline()
+...
+('127.0.0.1\tlocalhost\n', '# Internet (IP) protocols\n')
+('127.0.1.1\tThinkPad-T440s\n', '#\n')
+('\n', '# Updated from http://www.iana.org/assignments/protocol-numbers and other\n')
+('# The following lines are desirable for IPv6 capable hosts\n', '# sources.\n')
+('::1     ip6-localhost ip6-loopback\n', '# New protocols will be added on request if they have been officially\n')
+('fe00::0 ip6-localnet\n', '# assigned by IANA and are not historical.\n')
+('ff00::0 ip6-mcastprefix\n', '# If you need a huge list of used numbers please install the nmap package.\n')
+('ff02::1 ip6-allnodes\n', '\n')
+('ff02::2 ip6-allrouters\n', 'ip\t0\tIP\t\t# internet protocol, pseudo protocol number\n')
+>>>
+```
+
+---
+
+`except` clausses perform an `isinstance()` check.
+
+It is, if you set a superclass in the `except` clause but raises a `subclass`, the match will occur:
+
+```python
+>>> class TopError(Exception): pass
+>>> class SubError(TopError): pass
+>>>
+>>> try:
+...     raise SubError
+... except TopError as e:
+...     print('type(e) = {}'.format(repr(type(e))))
+...     print('isinstance(e, TopError) = {}'.format(isinstance(e, TopError)))
+...
+type(e) = <class '__main__.SubError'>
+isinstance(e, TopError) = True
+>>>
+```
+
+---
+
+Python exceptions hierarchy has classes that give birth to categories of exceptions:
+
+BaseException          # Superclass of all exceptions, provides default constructor (save arguments in `args` and provides a default `__str__`)
+-- Exception           # User-defined exceptions should inherit from Exception
+------ ArithmeticError # Superclass to all number related exceptions: OverflowError, ZeroDivisionError, FloatingPointError...
+------ LookupError     # Superclass to all indexing related exceptions: IndexError, KeyError
+
+Example of the functionality provided by `BaseException`:
+
+```python
+>>> be = BaseException("Erro!", 1, 2, 3)
+>>> print(be)
+('Erro!', 1, 2, 3)
+>>> print(repr(be))
+BaseException('Erro!', 1, 2, 3)
+>>>
+>>> be.args
+('Erro!', 1, 2, 3)
+>>>
+>>> raise be
+---------------------------------------------------------------------------
+BaseException                             Traceback (most recent call last)
+<ipython-input-24-2b6c74aeba29> in <module>
+----> 1 raise be
+
+BaseException: ('Erro!', 1, 2, 3)
+>>>
+```
+
+Unless you redefine the class constructor, any argument passed to an `Exception` constructor is saved in the `args` attribute and is
+displayed when the instance is printed (`__str__`).
+
+If you pass no arguments, an empty string is used.
+
+If you pass only one argument, it is treated as an string and is used.
+
+If you pass more than one argument, args is treated as a tuple.
+
+Example:
+
+```python
+>>> raise IndexError() # no arg
+---------------------------------------------------------------------------
+IndexError                                Traceback (most recent call last)
+<ipython-input-25-0cf668fc6142> in <module>
+----> 1 raise IndexError() # no arg
+
+IndexError:
+>>>
+>>>
+>>> raise IndexError('simple single string') # single arg
+---------------------------------------------------------------------------
+IndexError                                Traceback (most recent call last)
+<ipython-input-26-cd3cfa1c53d7> in <module>
+----> 1 raise IndexError('simple single string') # single arg
+
+IndexError: simple single string
+>>>
+>>>
+>>> raise IndexError('multiple', 'messages', 1, 2, 3, 'as', 'arguments') # multiple arguments
+---------------------------------------------------------------------------
+IndexError                                Traceback (most recent call last)
+<ipython-input-27-fb9fa3bbe6cb> in <module>
+----> 1 raise IndexError('multiple', 'messages', 1, 2, 3, 'as', 'arguments') # multiple arguments
+
+IndexError: ('multiple', 'messages', 1, 2, 3, 'as', 'arguments')
+>>>
+```
+
+This holds for user-defined classes too:
+
+```python
+>>> raise CustomError() # no arg
+---------------------------------------------------------------------------
+CustomError                               Traceback (most recent call last)
+<ipython-input-29-d91347c6bc75> in <module>
+----> 1 raise CustomError() # no arg
+
+CustomError:
+>>>
+>>> raise CustomError('error message') # single arg
+---------------------------------------------------------------------------
+CustomError                               Traceback (most recent call last)
+<ipython-input-30-9ca7d3bd6409> in <module>
+----> 1 raise CustomError('error message') # single arg
+
+CustomError: error message
+>>>
+>>> raise CustomError('roses', 'are', 'red') # multiple args
+---------------------------------------------------------------------------
+CustomError                               Traceback (most recent call last)
+<ipython-input-31-006d4b9ea527> in <module>
+----> 1 raise CustomError('roses', 'are', 'red') # multiple args
+
+CustomError: ('roses', 'are', 'red')
+>>>
+```
+
+If you want to customize the exception instance representation, override the `__str__` method:
+
+```python
+>>> class MyTimedError(Exception):
+...     def __str__(self):
+...         from datetime import datetime
+...         return 'MyTimedError raised at {}'.format(datetime.now())
+...
+...
+>>> raise MyTimedError
+---------------------------------------------------------------------------
+MyTimedError                              Traceback (most recent call last)
+<ipython-input-33-9365682d870e> in <module>
+----> 1 raise MyTimedError
+
+MyTimedError: MyTimedError raised at 2020-06-07 03:08:50.502359
+>>>
+```
+
+---
+
+The last raised `Exception` is always disponible in the `sys.exc_info()[0]` variable.
+
+Actually, `sys.exc_info()` returns a tuple with `type, instance, traceback`.
+
+---
+
