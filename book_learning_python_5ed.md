@@ -17473,3 +17473,304 @@ Actually, `sys.exc_info()` returns a tuple with `type, instance, traceback`.
 
 ---
 
+`try` blocks are stacked in Python. Exceptions propagate until the top.
+When handled by one `except` clause, the exception is terminated. It does not propagate anymore.
+
+```python
+>>> class Error(Exception): pass
+>>>
+>>> # most outer
+>>> def most_outer():
+...     try:
+...         outer()
+...     except Error:
+...         print('Handle in most_outer')
+...
+>>>
+>>> def outer():
+...     inner()
+...
+>>> def inner():
+...     raise Error
+...
+>>>
+>>> most_outer() # Exception will be raise in inner() but caught in most_outer()
+Handle in most_outer
+>>>
+```
+
+To force the propagation, you shoud 'reraise' with a empty `raise` statement or raising the exception instance: `raise exception_object`.
+
+```python
+>>> class Error(Exception): pass
+>>>
+>>> def most_outer():
+...     try:
+...         outer()
+...     except Error as e:
+...         print('Handle in most_outer and reraised')
+...         raise # or raise e
+...
+>>> def outer():
+...     inner()
+...
+>>> def inner():
+...     raise Error
+...
+>>>
+>>> most_outer()
+Handle in most_outer and reraised
+---------------------------------------------------------------------------
+Error                                     Traceback (most recent call last)
+<ipython-input-11-d278f8fbf6b3> in <module>
+----> 1 most_outer()
+
+<ipython-input-8-7ea98f06a745> in most_outer()
+      1 def most_outer():
+      2     try:
+----> 3         outer()
+      4     except Error as e:
+      5         print('Handle in most_outer and reraised')
+
+<ipython-input-9-d5e3f7c43260> in outer()
+      1 def outer():
+----> 2     inner()
+      3
+
+<ipython-input-10-57f17d0929e1> in inner()
+      1 def inner():
+----> 2     raise Error
+      3
+
+Error:
+>>>
+```
+
+Remember that you can handle the exception a raise a different one using the `raise ... from ...` syntax:
+
+```python
+>>> class OriginalError(Exception): pass
+>>> class CustomError(Exception): pass
+>>>
+>>> def most_outer():
+...     try:
+...         outer()
+...     except Error as e:
+...         print('Handle in most_outer and raises another customized exception')
+...         raise CustomError from e
+...
+>>> def outer():
+...     inner()
+...
+>>> def inner():
+...     raise Error
+...
+>>> most_outer()
+Handle in most_outer and raises another customized exception
+---------------------------------------------------------------------------
+Error                                     Traceback (most recent call last)
+<ipython-input-20-991f9aba106d> in most_outer()
+      2     try:
+----> 3         outer()
+      4     except Error as e:
+
+<ipython-input-21-d5e3f7c43260> in outer()
+      1 def outer():
+----> 2     inner()
+      3
+
+<ipython-input-22-57f17d0929e1> in inner()
+      1 def inner():
+----> 2     raise Error
+      3
+
+Error:
+
+The above exception was the direct cause of the following exception:
+
+CustomError                               Traceback (most recent call last)
+<ipython-input-23-d278f8fbf6b3> in <module>
+----> 1 most_outer()
+
+<ipython-input-20-991f9aba106d> in most_outer()
+      4     except Error as e:
+      5         print('Handle in most_outer and raises another customized exception')
+----> 6         raise CustomError from e
+      7
+
+CustomError:
+>>>
+```
+
+Different from `except` clauses, `finally` clauses don't kill the exception. They are executed in each level, but the exception still is propagated:
+
+```python
+>>> class Error(Exception): pass
+>>>
+>>> def most_outer():
+...     try:
+...         outer()
+...     finally:
+...         print('most_outer')
+...
+>>> def outer():
+...     try:
+...         inner()
+...     finally:
+...         print('outer')
+...
+>>>
+>>> def inner():
+...     try:
+...         raise Error
+...     finally:
+...         print('inner')
+...
+>>>
+>>> most_outer()
+inner
+outer
+most_outer
+---------------------------------------------------------------------------
+Error                                     Traceback (most recent call last)
+<ipython-input-29-d278f8fbf6b3> in <module>
+----> 1 most_outer()
+
+<ipython-input-25-0035eb2efd4d> in most_outer()
+      1 def most_outer():
+      2     try:
+----> 3         outer()
+      4     finally:
+      5         print('most_outer')
+
+<ipython-input-26-6c926f16e278> in outer()
+      1 def outer():
+      2     try:
+----> 3         inner()
+      4     finally:
+      5         print('outer')
+
+<ipython-input-27-08c0e92ce514> in inner()
+      1 def inner():
+      2     try:
+----> 3         raise Error
+      4     finally:
+      5         print('inner')
+
+Error:
+>>>
+```
+
+---
+
+Breaking out of multiple nested loops (go-to) using exceptions
+
+Also note that variables declared inside `try` blocks are mantained after the `try` is executed (launching or not exceptions).
+
+```python
+>>> class ExitLoop(Exception): pass
+>>>
+>>> try:
+...     while True:
+...         while True:
+...             for i in range(10):
+...                 if i > 3: raise ExitLoop
+...                 print('looping3: ', i)
+...             print('looping2')
+...         print('looping1')
+... except ExitLoop:
+...     print('ok. exited.')
+...
+looping3:  0
+looping3:  1
+looping3:  2
+looping3:  3
+ok. exited.
+>>>
+>>> print('i stopped at: ', i)
+i stopped at:  4
+>>>
+```
+
+---
+
+
+Sometimes exceptions are just signals, not errors per se. `KeyboardInterrupt` for example:
+
+```python
+>>> while True:
+...     try:
+...         command = input('Enter command or CTRL + C to exit: ')
+...         print(command.upper())
+...     except KeyboardInterrupt:
+...         print('Ok! Bye')
+...         break
+...
+Enter command or CTRL + C to exit: echo
+ECHO
+Enter command or CTRL + C to exit: cd
+CD
+Enter command or CTRL + C to exit: del
+DEL
+Enter command or CTRL + C to exit: ^COk! Bye
+>>>
+```
+
+---
+
+Signaling conditions with exceptions
+
+```python
+>>> lst = ['spam', 'eggs', 'bacon']
+>>>
+>>> class SearchFound(Exception): pass
+... class SearchNotFound(Exception): pass
+...
+... def search(lst, item):
+...     if item in lst:
+...         raise SearchFound
+...     else:
+...         raise SearchNotFound
+...
+>>>
+>>> try:
+...     search(lst, 'bacon')
+... except SearchFound:
+...     print('Ok! Found it.')
+... except SearchNotFound:
+...     print('oh! not found')
+...
+Ok! Found it.
+>>>
+```
+
+---
+
+You can use the variables defined in the `try` block in the clauses below:
+
+```python
+>>> try:
+...     item = 10
+...     raise IndexError
+... except:
+...     print(item)
+...     print('exception handled')
+...
+10
+exception handled
+>>>
+
+>>> try:
+...     item = 10
+... except:
+...     print('exception handled')
+... else:
+...     print(item)
+...     print('else: no exceptions happened')
+...
+...
+10
+else: no exceptions happened
+>>>
+```
+
