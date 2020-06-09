@@ -17774,3 +17774,134 @@ else: no exceptions happened
 >>>
 ```
 
+---
+
+`sys.exc_info()` returns the most recently raised exception. Its useful for empty `except` blocks.
+
+```python
+import random
+import sys
+
+exceptions = (AttributeError, IndexError, NotImplementedError)
+
+try:
+    raise random.choice(exceptions)
+except:
+    exc_class, exc_obj, _ = sys.exc_info()
+    print(f'{exc_class} / {exc_obj}')
+```
+
+Output:
+
+```bash
+rnetonet on ThinkPad-T440s in /tmp via 🐍 v2.7.17
+❯ python3 sample.py
+<class 'AttributeError'> /
+rnetonet on ThinkPad-T440s in /tmp via 🐍 v2.7.17
+❯ python3 sample.py
+<class 'NotImplementedError'> /
+rnetonet on ThinkPad-T440s in /tmp via 🐍 v2.7.17
+❯ python3 sample.py
+<class 'IndexError'> /
+rnetonet on ThinkPad-T440s in /tmp via 🐍 v2.7.17
+❯
+```
+
+Mind that using `sys.exc_info` for getting the exception type from category excepts is overkill:
+
+```python
+>>> class Parent(Exception): pass
+>>> class Sub(Parent): pass
+>>> class SubSub(Sub): pass
+>>>
+>>> try:
+...     raise SubSub
+... except Parent:
+...     import sys
+...     print( sys.exc_info()[0] ) # overkill!
+...
+<class '__main__.SubSub'>
+>>>
+```
+
+Correct way:
+
+```python
+>>> class Parent(Exception): pass
+>>> class Sub(Parent): pass
+>>> class SubSub(Sub): pass
+>>>
+... try:
+...     raise SubSub
+... except Parent as e:
+...     print( e.__class__ )
+...
+...
+<class '__main__.SubSub'>
+>>>
+```
+
+This is valid for generic `except` clauses:
+
+```python
+>>> class Parent(Exception): pass
+>>> class Sub(Parent): pass
+>>> class SubSub(Sub): pass
+>>>
+>>>
+... try:
+...     raise SubSub
+... except Exception as e:
+...     print( e.__class__ )
+...
+...
+<class '__main__.SubSub'>
+>>>
+```
+
+---
+
+Avoid empty `except` and `except Exception` clauses.
+
+They will catch most of the errors, even programming errors that should be handled by the Python interpreter.
+
+The difference between an empty `except:` and `except Exception:` is that the first catch even `SystemExit` exceptions, while the other, don´t.
+
+```python
+>>> mydic = {"name": "John"}
+>>>
+>>> try:
+...     print( mydi["name"] ) # you could wait for a KeyError, but a NameError is launched because the var name is wrong: should be mydic, not mydi.
+... except:
+...     print("-")
+...
+-
+>>> try:
+...     print( mydi["name"] ) # you could wait for a KeyError, but a NameError is launched because the var name is wrong: should be mydic, not mydi.
+... except Exception:         # also shadows the exception
+...     print("-")
+...
+-
+>>>
+>>> # Be specific instead
+>>> try:
+...     print( mydi["name"] )
+... except KeyError:
+...     print("-")
+...
+---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+<ipython-input-13-80c9800f4ea1> in <module>
+      1 try:
+----> 2     print( mydi["name"] )
+      3 except KeyError:
+      4     print("-")
+      5
+
+NameError: name 'mydi' is not defined
+>>>
+```
+
+---
+
+Unicode and byte strings
