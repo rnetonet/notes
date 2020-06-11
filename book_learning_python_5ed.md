@@ -17905,3 +17905,31 @@ NameError: name 'mydi' is not defined
 ---
 
 Unicode and byte strings
+
+Python 2 types: `str` and `unicode` have become, respectivily, `bytes` and `str` in Python 3.
+
+The mutable `bytearray` type was also included.
+
+Convert a character to its byte representation using `ord()` and back using `chr()`:
+
+```python
+In [1]: ord('ç')
+Out[1]: 231
+
+In [2]:
+
+In [2]: chr(231)
+Out[2]: 'ç'
+
+In [3]:
+```
+
+1 byte can have (256 - 1^8) different values.
+
+**encoding**: convert a unicode string into a sequence of bytes.
+
+**decoding**: translate a sequence of bytes back into a string.
+
+**encode**: string -> raw bytes.
+**decode**: raw bytes -> string.
+
