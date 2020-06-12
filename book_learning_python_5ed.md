@@ -18083,5 +18083,19 @@ b'acentua\xc3\xa7\xc3\xa3o'
 
 Caution with the `str()` method. You should pass an encoding, otherwise the result can be not what you expect.
 
+---
 
+You can unicode chars in literal strings using:
+
+`\uNNNN` or `\uNNNNNNNN`
+
+Mind that you need to fill the four or the eight `N` positions, filling left empty positions with `0`.
+
+```python
+>>> print('\u2705')
+✅
+>>> print("\U0001F601") # Filled with zeros
+😁
+>>>
+```
 
