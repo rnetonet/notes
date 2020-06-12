@@ -17933,3 +17933,155 @@ In [3]:
 **encode**: string -> raw bytes.
 **decode**: raw bytes -> string.
 
+The encode/decode process is based on a defined *encoding* scheme.
+
+Some encodings are trivial, such as ASCII and Latin-1, as they map each char to a single byte.
+But other encodings are more complex, mapping some chars to more than a single byte, having UTF-8 as the most famous.
+
+In UTF-8, the first 128 character codes are represented as single bytes.
+Codes between 128 and 2047 (ox7ff) use two bytes with value between 128 and 255.
+And codes above 2047 have three ou four bytes with value between 128 and 255.
+
+Thus ASCII is a valid subset of both latin-1 and utf-8.
+
+You see this in the example below:
+
+```python
+In [1]: s = 'spam'
+
+In [2]: s.encode('ascii') # each char, one byte
+Out[2]: b'spam'
+
+In [3]: s.encode('latin-1') # each char, one byte
+Out[3]: b'spam'
+
+In [4]: s.encode('utf-8') # each char, one byte
+Out[4]: b'spam'
+
+In [5]:
+
+In [5]: # Now, a string with special chars
+
+In [6]: s = 'ação'
+
+In [7]: s.encode('latin-1') #
+Out[7]: b'a\xe7\xe3o'
+
+In [8]: s.encode('utf-8')
+Out[8]: b'a\xc3\xa7\xc3\xa3o'
+
+In [9]:
+```
+
+Note that Python prints the first 128 character points as real characters, even in byte strings.
+
+These and all the others (utf-16, utf-32) compose the 'unicode' standard.
+
+Python performs the encoding decoding process only when data is transferred externally: files, network.
+In Python, strings are stored in a encoding-neutral format in memory and string operations are performed in this format.
+
+Python 3 has three types for strings and alike:
+
+`str`: for decoded (unicode) strings;
+`bytes`: for encoded (bytes) string and binary data;
+`bytearray`: a mutable sequence of bytes.
+
+The `bytes` type is a sequence of bytes / small integers (0 up to 255). If you index a position of a bytes object, it returns an integer:
+
+```python
+>>> ustr = "acentuação"
+>>>
+>>> ustr_as_bytes = ustr.encode("utf-8") # utf-8 is also the Python 3 default, thus you can omit.
+>>>
+>>> ustr_as_bytes
+b'acentua\xc3\xa7\xc3\xa3o'
+>>>
+>>> ustr_as_bytes[3]
+110
+>>> ustr_as_bytes[4]
+116
+>>>
+```
+
+If you slice it, you get a `bytes` object. If you pass it to a `list()` you get a list of integers:
+
+```python
+>>> ustr_as_bytes[2:5]
+b'ent'
+>>>
+>>> list( ustr_as_bytes )
+[97, 99, 101, 110, 116, 117, 97, 195, 167, 195, 163, 111]
+>>>
+```
+
+The `bytes` type has many string operations, in these, the bytes are treated as ascii characters:
+
+```python
+>>> ustr = "acentuação"
+>>> ustr_as_bytes = ustr.encode()
+>>>
+>>> ustr_as_bytes
+b'acentua\xc3\xa7\xc3\xa3o'
+>>>
+>>> print( ustr_as_bytes.upper() )
+b'ACENTUA\xc3\xa7\xc3\xa3O'
+>>>
+```
+
+When printed, `bytes` are replaced by ascii chars whenever possible.
+
+---
+
+Unicode and text files
+
+In Py 3, when you open a file in text mode it is automatically decoded, becoming a neutral-memory-only string of the `str` type.
+
+And when you write a `str` to a file opened in text mode, it is automatically _encoded_.
+
+You can explictly specify the encoding to be used, if not, the default, utf-8, is used.
+
+End-of-line translation is also automatically handled by Python in text mode.
+
+---
+
+Binary mode and files
+
+To open a file in binary mode, you need to a `b` to the mode string.
+In this mode no encoding or decoding is performed. Python reads `bytes` and writes `bytes` or `bytearray`.
+
+---
+
+In Python 3, `str` and `bytes` can never be mixed. You must explictly convert from one to the other.
+
+Remember that `str` strings while in memory in Python are `unicode-agnostic`.
+
+To convert an `str` to `bytes`, use: `str.encode([encoding])` or `bytes(str, encoding)`.
+
+In `str.encode()` if you not provide the `encoding`, the default `utf-8` is used.
+While `bytes()` requires you to define the encoding.
+
+To convert from `bytes` to `str` use `bytes.decode([encoding])` or `str(bytes, encoding)`:
+
+```python
+>>> b
+b'acentua\xc3\xa7\xc3\xa3o'
+>>>
+>>> b.decode()
+'acentuação'
+>>>
+>>> b.decode("utf-8")
+'acentuação'
+>>>
+>>> # Caution! str(b) requires an encoding
+>>> str(b)
+"b'acentua\\xc3\\xa7\\xc3\\xa3o'"
+>>>
+>>> str(b, "utf-8")
+'acentuação'
+>>>
+```
+
+Caution with the `str()` method. You should pass an encoding, otherwise the result can be not what you expect.
+
+
+
