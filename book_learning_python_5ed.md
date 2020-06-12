@@ -18099,3 +18099,90 @@ Mind that you need to fill the four or the eight `N` positions, filling left emp
 >>>
 ```
 
+---
+
+`bytes` type in Python 3
+
+Imutable sequence of small integers between 0 and 255 (1 byte).
+
+Python prints them as ASCII characters whenever possible.
+
+`bytes` support almost all operations supported by the `str` type, except formating methods.
+
+`bytes` and `str` can not be mixed.
+
+```python
+>>> bs = b'spam'
+>>> bs.index(b'p') # you must pass bytes arguments
+1
+>>>
+>>> bs.upper()
+b'SPAM'
+>>>
+>>> bs.split(b'p')
+[b's', b'am']
+>>>
+>>> bs[3]
+109
+>>>
+>>>
+```
+
+`bytes` also supports indexing and slicing operations:
+
+```python
+>>> bs = b'spam'
+>>> bs
+b'spam'
+>>> repr(bs)
+"b'spam'"
+>>> str(bs)
+"b'spam'"
+>>>
+>>> bs[3] # indexing returns an integer
+109
+>>>
+>>> chr(bs[3]) # use chr to convert to a char
+'m'
+>>>
+>>> list(bs) # returns a list of integers
+[115, 112, 97, 109]
+>>>
+>>> bs[2:4] # slicing returns another bytes object
+b'am'
+>>>
+>>> len(bs) # number of elements
+4
+>>>
+>>> bs + bs
+b'spamspam'
+>>>
+```
+
+---
+
+`str` operations are unicode-aware. They work with unicode code points, not bytes.
+
+```python
+>>> s = 'ação'
+>>>
+>>> len(s) # unicode code points
+4
+>>>
+>>> s.upper()
+'AÇÃO'
+>>>
+>>> bs = s.encode()
+>>> bs
+b'a\xc3\xa7\xc3\xa3o'
+>>>
+>>> len(bs) # num of bytes
+6
+>>>
+>>> bs.upper()
+b'A\xc3\xa7\xc3\xa3O'
+>>>
+```
+
+---
+
