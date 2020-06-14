@@ -18186,3 +18186,114 @@ b'A\xc3\xa7\xc3\xa3O'
 
 ---
 
+Other ways to create `bytes` objects:
+
+```python
+>>> b = b'abc' # literal
+>>> b
+b'abc'
+>>>
+>>> b = bytes('abc', 'utf8') # constructor with encoding name
+>>> b
+b'abc'
+>>>
+>>> b = bytes([97, 98, 99])  # integer sequence
+>>> b
+b'abc'
+>>>
+>>> b = 'abc'.encode() # similar to bytes(str, 'utf8')
+>>> b
+b'abc'
+>>>
+>>> s = b.decode() # or str(bytes, 'utf8')
+>>> s
+'abc'
+>>>
+```
+
+---
+
+Mixing string types is not possible in Python 3:
+
+```python
+>>> # must convert
+>>> b'ab'.decode() + 'cd'
+'abcd'
+>>>
+>>> # or encode the other
+>>> b'ab' + 'cd'.encode()
+b'abcd'
+>>>
+>>> # which is the same as
+>>> b'ab' + bytes('cd', 'ascii')
+b'abcd'
+>>>
+```
+
+---
+
+`bytearray`
+
+To create and modify:
+
+```python
+>>> s = 'spam'
+>>> c = bytearray(s, 'utf8')
+>>> c
+bytearray(b'spam')
+>>> print(c)
+bytearray(b'spam')
+>>>
+>>> c[3] = 32
+>>> print(c)
+bytearray(b'spa ')
+>>>
+>>> c[3] = 90
+>>> c
+bytearray(b'spaZ')
+>>>
+>>> c[3] = ord('X')
+>>> c
+bytearray(b'spaX')
+>>>
+>>> c[3] = b'Y'[0]
+>>> c
+bytearray(b'spaY')
+>>>
+```
+
+`bytearray` provide many methods from `str` and `bytes` types:
+
+```python
+>>> c = bytearray('spam', 'utf8')
+>>> c
+bytearray(b'spam')
+>>>
+>>> c.append( ord('A') )
+>>> c
+bytearray(b'spamA')
+>>>
+>>> c.extend( b'XYZ' )
+>>> c
+bytearray(b'spamAXYZ')
+>>>
+>>> c.replace(b'XYZ', b'ZYX')
+bytearray(b'spamAZYX')
+>>> c
+bytearray(b'spamAXYZ')
+>>>
+>>> c * 2
+bytearray(b'spamAXYZspamAXYZ')
+>>>
+```
+
+---
+
+To sum up:
+
+`str` for textual data.
+
+`bytes` for binary data.
+
+`bytearray` for mutable binary data.
+
