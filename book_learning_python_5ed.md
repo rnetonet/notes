@@ -18297,3 +18297,247 @@ To sum up:
 
 `bytearray` for mutable binary data.
 
+---
+
+Reading and writing text files with the default encoding in Python 3 look the same:
+
+```python
+>>> file = open('/tmp/dump', 'w') # w is the same as wt
+>>> file.write('acentuação\n')
+11
+>>> file.close()
+>>>
+>>> file = open('/tmp/dump') # defaults to reading text, rt
+>>> print( file.read() ) # python decodes automatically
+acentuação
+
+>>> file.close()
+>>>
+```
+
+---
+
+To write encoded (bytes) strings, you can encode beforehand or define the encoding in the `open()` call
+
+This:
+
+```python
+>>> # Writing the encoded strings (bytes)
+>>> data = "acentuação"
+>>> data_enc = data.encode("latin-1")
+>>> data_enc
+b'acentua\xe7\xe3o'
+>>>
+>>> file = open("/tmp/data", "wb")
+>>> file.write(data_enc)
+10
+>>> file.close()
+>>>
+>>> # Reading and decoding
+>>> file = open("/tmp/data", "rb")
+>>> data_enc = file.read()
+>>> data = data_enc.decode("latin-1")
+>>> data
+'acentuação'
+>>>
+```
+
+Is the same as:
+
+```python
+>>> data = "acentuação"
+>>> file = open("/tmp/data", "w", encoding="latin-1")
+>>> file.write(data) # encoding is performed automatically
+10
+>>> file.close()
+>>>
+>>> file = open("/tmp/data", "r", encoding="latin-1")
+>>> data = file.read() # decoding is performed automatically
+>>> data
+'acentuação'
+>>>
+```
+
+---
+
+Some modules were adjusted to work with `str`, `bytes` and `bytearray` such as: `re`, `xml`, `json`...
+
+```python
+>>> import re
+>>>
+>>> s = "The king is naked!"
+>>> bs = b"The king is naked!"
+>>>
+>>> # Handling str types. The pattern and the text should have the same type.
+>>> re.findall("(k[a-z]*)", s)
+['king', 'ked']
+
+>>> # The pattern and the text must have the same type
+>>> re.findall("(k[a-z]*)", bs)
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-50-4a90812ebea1> in <module>
+----> 1 re.findall("(k[a-z]*)", bs)
+
+/usr/lib/python3.6/re.py in findall(pattern, string, flags)
+    220
+    221     Empty matches are included in the result."""
+--> 222     return _compile(pattern, flags).findall(string)
+    223
+    224 def finditer(pattern, string, flags=0):
+
+TypeError: cannot use a string pattern on a bytes-like object
+
+>>> # It works with bytes too
+>>> re.findall(b"(k[a-z]*)", bs)
+[b'king', b'ked']
+>>>
+```
+
+The `pickle` module in Python 3 needs a file opened in binary mode to work properly:
+
+```python
+>>> import pickle
+>>>
+>>> f = open('/tmp/dump', 'w') # text mode
+>>>
+>>> data = "spam!"
+>>>
+>>> pickle.dump(data, f)
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-56-3f22c8cea0f7> in <module>
+----> 1 pickle.dump(data, f)
+
+TypeError: write() argument must be str, not bytes
+>>>
+>>>
+>>> # In binary mode
+>>> f = open('/tmp/dump', 'wb')
+>>> pickle.dump(data, f)
+>>> f.close()
+>>>
+>>> # Reading also requires binary mode
+>>> f = open('/tmp/dump', 'r')
+>>> pickle.load(f) # ops
+---------------------------------------------------------------------------
+UnicodeDecodeError                        Traceback (most recent call last)
+<ipython-input-64-7a3e7c481918> in <module>
+----> 1 pickle.load(f) # ops
+
+/usr/lib/python3.6/codecs.py in decode(self, input, final)
+    319         # decode input (taking the buffer into account)
+    320         data = self.buffer + input
+--> 321         (result, consumed) = self._buffer_decode(data, self.errors, final)
+    322         # keep undecoded input until the next call
+    323         self.buffer = data[consumed:]
+
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0x80 in position 0: invalid start byte
+>>>
+>>> # Reading also requires binary mode
+>>> f = open('/tmp/dump', 'rb')
+>>> pickle.load(f) # ops
+'spam!'
+>>>
+```
+
+---
+
+# Managed Attributes
+
+## Properties
+
+- Created using as class attributes assignments to the `property(fget, fset, fdel, doc)` built-in function:
+
+- All `property` arguments are optional and default to `None`, meaning the opeartion is not allowed.
+Producing `AttributeError` exceptions when attemped.
+
+- The arguments can be any callable that accept an instance as first argument.
+
+- `fget` is the getter, `fset` is the setter, `fdel` is the deletion handler (should return `None`) and `doc` is optional.
+If `doc` is not provided, `fget.__doc__` is used.
+
+- Example:
+
+```python
+>>> class Person:
+...     def __init__(self, name):
+...         self._name = name
+...     def get_name(self):
+...         print('*fetch*')
+...         return self._name
+...     def set_name(self, value):
+...         print('*change*')
+...         self._name = value
+...     def del_name(self):
+...         print('removing!')
+...         del self._name
+...     name = property(get_name, set_name, del_name, "name property example")
+...
+>>>
+>>> bob = Person('bob smith')
+>>> print( bob.name ) # get
+*fetch*
+bob smith
+>>>
+>>> bob.name = "Robert Smith" # set
+*change*
+>>> print( bob.name ) # get
+*fetch*
+Robert Smith
+>>>
+>>> del bob.name # deleting
+removing!
+>>>
+```
+
+- Usually properties are used to compute a value while accessing:
+
+```python
+>>> class Square:
+...     def __init__(self, width, height):
+...         self.width = width
+...         self.height = height
+...     def get_area(self):
+...         return self.width * self.height
+...     area = property(get_area)
+...
+>>> s = Square(10, 20)
+>>> s.area
+200
+>>>
+```
+
+- You can code properties using decorators. The previous example using decorators:
+
+```python
+>>> class SquaredNumber:
+...     def __init__(self, number):
+...         self._number = number
+...     @property
+...     def number(self):
+...         return self._number ** 2
+...     @number.setter
+...     def number(self, value):
+...         self._number = value
+...     @number.deleter
+...     def number(self):
+...         print('bye')
+...         self.number = 0
+...
+>>>
+>>> s = SquaredNumber(5)
+>>> s.number
+25
+>>> s.number = 10
+>>> s.number
+100
+>>>
+>>> del s.number
+bye
+>>> s.number
+0
+>>>
+```
+
+-
