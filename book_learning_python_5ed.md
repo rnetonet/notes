@@ -18698,3 +18698,88 @@ AttributeError: Cannot set
 
 - **Caution:** descriptor protocol deletion method is named `__delete__`, not `__del__`, which is the default destructor method in Python objects.
 
+- You can implement your own `property` using descriptors:
+
+```python
+class p:
+    def __init__(self, fget=None, fset=None, fdel=None, doc=None):
+        self.fget = fget
+        self.fset = fset
+        self.fdel = fdel
+        self.__doc__ = doc
+
+    def __get__(self, instance, owner):
+        print("p.__get__(self={}, instance={}, owner={})".format(self, instance, owner))
+
+        # if called without instance, the descriptor is being called directly
+        if instance is None:
+            return self
+        if self.fget is None:
+            raise AttributeError("no access")
+        else:
+            return self.fget(instance)  # instance as self
+
+    def __set__(self, instance, value):
+        print("p.__set__(self={}, instance={})".format(self, instance))
+
+        if self.fset is None:
+            raise AttributeError("no writing access")
+
+        self.fset(instance, value)  # delegates the assignment
+
+    def __delete__(self, instance):
+        print("p.__delete__(self={}, instance={})".format(self, instance))
+
+        if self.fdel is None:
+            raise AttributeError("no deletion access")
+
+        self.fdel(instance)  # delegates deletion
+
+
+class Person:
+    def __init__(self, name):
+        self._name = name
+
+    def get_name(self):
+        print("name getter")
+        return self._name
+
+    def set_name(self, value):
+        print("name setter")
+        self._name = value
+
+    def del_name(self):
+        print("name deletion")
+        self._name = "John Doe"
+
+    name = p(get_name, set_name, del_name)  # could be used as decorator also
+
+if __name__ == "__main__":
+    p = Person("Bob Smith")
+    print(p.name)
+
+    p.name = "Paul Peterson"
+    print(p.name)
+
+    del p.name
+    print(p.name)
+```
+
+Output:
+
+```bash
+p.__get__(self=<__main__.p object at 0x7fa1cf14d9e8>, instance=<__main__.Person object at 0x7fa1cf14da20>, owner=<class '__main__.Person'>)
+name getter
+Bob Smith
+p.__set__(self=<__main__.p object at 0x7fa1cf14d9e8>, instance=<__main__.Person object at 0x7fa1cf14da20>)
+name setter
+p.__get__(self=<__main__.p object at 0x7fa1cf14d9e8>, instance=<__main__.Person object at 0x7fa1cf14da20>, owner=<class '__main__.Person'>)
+name getter
+Paul Peterson
+p.__delete__(self=<__main__.p object at 0x7fa1cf14d9e8>, instance=<__main__.Person object at 0x7fa1cf14da20>)
+name deletion
+p.__get__(self=<__main__.p object at 0x7fa1cf14d9e8>, instance=<__main__.Person object at 0x7fa1cf14da20>, owner=<class '__main__.Person'>)
+name getter
+John Doe
+```
+
