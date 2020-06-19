@@ -18783,3 +18783,293 @@ name getter
 John Doe
 ```
 
+---
+
+# `__getattr__` and `__getattribute__`
+
+- `__getattr__(self, attr)` handle *undefined* attributes that are accessed.
+
+- `__getattribute__(self, attr)` is run for **every** attribute access. **Undefined and defined**:
+
+```python
+>>> class Demo:
+...     def __getattribute__(self, attr):
+...         print("__getattribute__({}, {})".format(self, attr))
+...
+>>> d = Demo()
+>>> d.name
+__getattribute__(<__main__.Demo object at 0x7ff4996d19e8>, name)
+>>>
+>>> d.age = 45
+>>> d.age
+__getattribute__(<__main__.Demo object at 0x7ff4996d19e8>, age)
+>>>
+```
+
+- The attribute interception protocol can be summarized as:
+
+```
+def __getattr__(self, attr):        # Called when __getattribute__ is not defined and an undefined attribute is accesed
+def __getattribute__(self, attr):   # Called for all attribute reading access (even undefined) (obj.attr)
+def __setattr__(self, attr, value): # Called for every assignment (obj.attr = )
+def __delattr__(self, attr):        # Called on deletion (del obj.attr)
+```
+
+---
+
+# Avoiding loops when using `__getattribute__` and `__setattr__`
+
+- These methods are called for all attributes readings and assignments.
+  If you perform some of these options inside their body, you end up in an infinite loop:
+
+```python
+>>> class Tracer:
+...     def __init__(self, wrapped):
+...         self.wrapped = wrapped
+...     def __getattribute__(self, attr):
+...         print('trace: .{}'.format(attr))
+...         return self.wrapped.attr # loop!
+...
+...
+...
+>>> f = 3.14
+>>> t = Tracer(f)
+>>> t.real
+trace: .real
+trace: .wrapped
+trace: .wrapped
+trace: .wrapped
+trace: .wrapped
+trace: .wrapped
+trace: .wrapped
+trace: .wrapped
+```
+
+- To avoid the loop, route the fetch through a superclass (usually `object`):
+
+```python
+>>> class Tracer:
+...     def __init__(self, wrapped):
+...         self.wrapped = wrapped
+...     def __getattribute__(self, attr):
+...         print('trace: ', attr)
+...         return getattr( object.__getattribute__(self, 'wrapped'), attr )
+...
+...
+>>> f = 3.14
+>>> t = Tracer(f)
+>>> t.real
+trace:  real
+3.14
+>>>
+```
+
+- `__setattr__` is also susceptible to loops, hence assignments inside `__setattr__` blocks should also
+  go through a superclass.
+
+    - Loop:
+
+    ```python
+    >>> class SetTracer:
+    ...     def __init__(self, wrapped):
+    ...         self.wrapped = wrapped
+    ...     def __setattr__(self, attr, value):
+    ...         print('set:', attr, 'value:', value)
+    ...         setattr(self, attr, value) # loop!
+    ...
+    >>>
+    >>> class Struct: pass
+    >>>
+    >>> s = Struct()
+    >>> st = SetTracer(s)
+    set: wrapped value: <__main__.Struct object at 0x7f7de7df4630>
+    set: wrapped value: <__main__.Struct object at 0x7f7de7df4630>
+    set: wrapped value: <__main__.Struct object at 0x7f7de7df4630>
+    set: wrapped value: <__main__.Struct object at 0x7f7de7df4630>
+    set: wrapped value: <__main__.Struct object at 0x7f7de7df4630>
+    set: wrapped value: <__main__.Struct object at 0x7f7de7df4630>
+    set: wrapped value: <__main__.Struct object at 0x7f7de7df4630>
+    ```
+
+    - No-loop
+
+    ```python
+    >>> class SetTracer:
+    ...     def __init__(self, wrapped):
+    ...         self.wrapped = wrapped
+    ...     def __setattr__(self, attr, value):
+    ...         print('set:', attr, 'value:', value)
+    ...         object.__setattr__(self, attr, value)
+    ...
+    ...
+    >>> class Struct: pass
+    >>>
+    >>> s = Struct()
+    >>> ts = SetTracer(s)
+    set: wrapped value: <__main__.Struct object at 0x7f7de6682fd0>
+    >>>
+    >>> ts.answer = 42
+    set: answer value: 42
+    >>>
+    ```
+
+- Coding `managed` attr using these interception methods:
+
+```python
+class Person:
+    _managed = ("name", "age")
+
+    def __getattribute__(self, attr):
+        _managed = object.__getattribute__(self, "_managed")
+        if attr in _managed:
+            print('get', attr)
+
+        return object.__getattribute__(self, attr)
+
+    def __setattr__(self, attr, value):
+        _managed = object.__getattribute__(self, "_managed")
+        if attr in _managed:
+            print('set', attr, 'value', value)
+
+        object.__setattr__(self, attr, value)
+
+if __name__ == '__main__':
+    p = Person()
+
+    p.name = 'John'
+    p.age = 42
+    p.job = 'devops'
+
+    print(p.name)
+    print(p.age)
+    print(p.job)
+```
+
+output:
+
+```bash
+set name value John
+set age value 42
+get name
+John
+get age
+42
+devops
+```
+
+---
+
+# Intercepting built-in operations
+
+- Language operations like addition `+`, subtraction `-`, among others, are not passed to `__getattr__` or `__getattribute__` handlers.
+  To wrap acess to these methods, the class must reimplement them:
+
+```python
+>>> class MyFloat(float):
+...     def __getattribute__(self, attr):
+...         print('get: ', attr)
+...         return object.__getattribute__(self, attr)
+...
+>>>
+>>> m = MyFloat(3.14)
+>>> m
+3.14
+>>>
+>>> m.real
+get:  real
+3.14
+>>>
+>>> m + 10 # calls __add__, but does not trigger __getattribute__
+13.14
+>>>
+```
+
+- To intercept operator calls, you must reimplement them in the wrapper class:
+
+```python
+>>> class WrappedFloat:
+...     def __init__(self, f):
+...         self.f = f
+...
+...     def __getattribute__(self, attr):
+...         print('get', attr)
+...
+...         if attr == 'f':
+...             return object.__getattribute__(self, 'f')
+...
+...         return getattr( object.__getattribute__(self, 'f'), attr )
+...
+...     def __add__(self, other):
+...         print('add', other)
+...         return self.f + other
+...
+>>>
+>>> w = WrappedFloat(3.14)
+>>> w.real
+get real
+3.14
+>>>
+>>> w + 10
+add 10
+get f
+13.14
+>>>
+```
+
+- The printing operation skips `__getattribute__` also:
+
+```python
+>>> class WrappedFloat:
+...     def __init__(self, f):
+...         self.f = f
+...
+...     def __getattribute__(self, attr):
+...         print('get', attr)
+...
+...         if attr == 'f':
+...             return object.__getattribute__(self, 'f')
+...
+...         return getattr( object.__getattribute__(self, 'f'), attr )
+...
+...     def __add__(self, other):
+...         print('add', other)
+...         return self.f + other
+...
+>>> w = WrappedFloat(3.14)
+>>> print(w) # w.__str__ does not trigger getattribute
+<__main__.WrappedFloat object at 0x7f7de666bb00>
+>>>
+```
+
+To intercept, reimplement:
+
+```python
+>>> class WrappedFloat:
+...     def __init__(self, f):
+...         self.f = f
+...
+...     def __getattribute__(self, attr):
+...         print('get', attr)
+...
+...         if attr == 'f':
+...             return object.__getattribute__(self, 'f')
+...
+...         return getattr( object.__getattribute__(self, 'f'), attr )
+...
+...     def __add__(self, other):
+...         print('add', other)
+...         return self.f + other
+...
+...     def __str__(self):
+...         print('printing')
+...         return "***{}***".format(self.f)
+...
+...
+>>> w = WrappedFloat(3.14)
+>>> print(w)
+printing
+get f
+***3.14***
+>>>
+```
+
