@@ -18540,4 +18540,161 @@ bye
 >>>
 ```
 
--
+---
+
+# Descriptors
+
+- Properties are syntax sugar for descriptors, which are classes/objects that implement a protocol to intercept
+  the reading, writing and deletion of an attribute.
+
+- Descriptors have their proper state (being objects) and have access to the `instance` state.
+  The `instance` is received as an argument of the protocol methods.
+
+- The descriptor protocol has three methods:
+    - `__get__(self, instance, owner)`, that returns the attr value;
+    - `__set__(self, instance, value)`, that sets the attr value;
+    - `__delete__(self, instance)`, that deletes the attr value;
+
+- Descriptors can implement all or none of these. If not implemented, the operation will not be allowed by the interpreter.
+
+- **Caution:** If you dont implement `__set__` the assignment operation will be performed in the origin instance, thus overriding the descriptor.
+  To implement a readonly descriptor, you must implement `__get__` and `__set__`.
+
+- All descriptor methods receive the descriptor instance (`self`) and the client-instance which attribute points to a descriptor instance (`instance`).
+
+    - The `__get__` method also receives an `owner` argument, that refers to the class where the descriptor was defined and called.
+      Remember that descriptor are class attributes, hence they can be accessed directly from the class (`MyDescriptorClass.descriptor`)
+      In this case, the `instance` argument will be empty and only the `owner` will be avaiable, with the class: `MyDescriptorClass`.
+
+- An example:
+
+```python
+>>> class Descriptor:
+...     def __get__(self, instance, owner):
+...         print('Accessing descriptor: self={}, instance={}, owner={}'.format(self, instance, owner))
+...         return instance.value ** 2
+...
+...
+>>> class Number:
+...     squared = Descriptor()
+...     def __init__(self, value):
+...         self.value = value
+...
+>>>
+>>> n = Number(10)
+>>> n.squared
+Accessing descriptor: self=<__main__.Descriptor object at 0x7fadb33cb2e8>, instance=<__main__.Number object at 0x7fadb345ac18>, owner=<class '__main__.Number'>
+100
+>>>
+```
+
+Adding a setter and deleter:
+
+```python
+>>> import math
+>>>
+>>> class Descriptor:
+...     def __get__(self, instance, owner):
+...         print('Accessing descriptor: self={}, instance={}, owner={}'.format(self, instance, owner))
+...         return instance.value ** 2
+...     def __set__(self, instance, value):
+...         print('Setting descriptor: self={}, instance={}, value={}'.format(self, instance, value))
+...         instance.value = math.sqrt(value)
+...     def __delete__(self, instance):
+...         print('Setting descriptor: self={}, instance={}'.format(self, instance))
+...         instance.value = 0
+...
+>>>
+>>> class Number:
+...     squared = Descriptor()
+...     def __init__(self, value):
+...         self.value = value
+...
+>>>
+>>> n = Number(10)
+>>> n.value
+10
+>>> n.squared
+Accessing descriptor: self=<__main__.Descriptor object at 0x7fadb259ddd8>, instance=<__main__.Number object at 0x7fadb259dac8>, owner=<class '__main__.Number'>
+100
+>>>
+>>> n.squared = 81
+Setting descriptor: self=<__main__.Descriptor object at 0x7fadb259ddd8>, instance=<__main__.Number object at 0x7fadb259dac8>, value=81
+>>> n.value
+9.0
+>>>
+>>> del n.squared
+Setting descriptor: self=<__main__.Descriptor object at 0x7fadb259ddd8>, instance=<__main__.Number object at 0x7fadb259dac8>
+>>> n.value
+0
+>>>
+```
+
+- To create read-only descriptors you should implement the `__set__` method, otherwise the descriptor can be overriden:
+
+```python
+>>> class SquaredDescriptor:
+...     def __get__(self, instance, owner):
+...         return instance.value ** 2
+...
+>>>
+>>> class Number:
+...     squared = SquaredDescriptor()
+...     def __init__(self, n):
+...         self.value = n
+...
+>>> n = Number(10)
+>>> n.squared
+100
+>>>
+>>> # If you dont implement __set__, the descriptor can be overriden in the instance
+>>> n.squared = 81
+>>> n.value
+10
+>>> n.squared
+81
+>>>
+```
+
+Implementing `__set__` solves it:
+
+```python
+>>> class SquaredDescriptor:
+...     def __get__(self, instance, owner):
+...         return instance.value ** 2
+...     def __set__(self, instance, value):
+...         raise AttributeError('Cannot set')
+...
+>>> class Number:
+...     squared = SquaredDescriptor()
+...     def __init__(self, n):
+...         self.value = n
+...
+>>>
+>>> n = Number(10)
+>>> n.squared
+100
+>>>
+>>> n.squared = 81 # cant!
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-50-1d325a88e5e9> in <module>
+----> 1 n.squared = 81 # cant!
+
+<ipython-input-46-8117b3f88984> in __set__(self, instance, value)
+      3         return instance.value ** 2
+      4     def __set__(self, instance, value):
+----> 5         raise AttributeError('Cannot set')
+      6
+
+AttributeError: Cannot set
+>>>
+>>> # Change value to get correct squared
+>>> n.value = 9
+>>> n.squared
+81
+>>>
+```
+
+- **Caution:** descriptor protocol deletion method is named `__delete__`, not `__del__`, which is the default destructor method in Python objects.
+
