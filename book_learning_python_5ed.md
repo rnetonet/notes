@@ -19073,3 +19073,495 @@ get f
 >>>
 ```
 
+---
+
+# Decorators
+
+- **Decorators** manage or augment functions or classes
+
+- Decorators are callable that receive other callables and return callables.
+
+- Decorators can be implemented as functions or classes (implementing `__call__()`).
+
+- Decorators can be **applied** to functions and classes statements.
+  In practice, they are additional code executed just after the function or class statement block.
+
+- Decorators can return a wrapper object, thus serving as a proxy object, or the original object after augmenting it.
+
+- **Function decorators** are syntatic sugar that runs one function through another after the `def` statement block,
+  rebinding the original to the return value.
+
+- Function decorator basic struct:
+
+```python
+>>> def meta_function(wrapped_function):
+...     def wrapper_function(*args, **kwargs):
+...         print('Called!')
+...         return wrapped_function(*args, **kwargs) # delegates the call
+...     return wrapper_function
+...
+>>> @meta_function
+... def banner(name):
+...     print('***', name, '***')
+...
+>>>
+>>> banner('john')
+Called!
+*** john ***
+>>>
+```
+
+- The decorator syntax is similar to a rebind just after the `def` or `class` statement:
+
+```python
+>>> def meta_function(wrapped_function):
+...     def wrapper_function(*args, **kwargs):
+...         print('Called!')
+...         return wrapped_function(*args, **kwargs) # delegates the call
+...     return wrapper_function
+...
+>>>
+>>> def banner(name):
+...     print('*' * 50)
+...     print(name)
+...     print('*' * 50)
+...
+>>> banner = meta_function(banner) # equivalente to @meta_function decorator
+>>> banner('john')
+Called!
+**************************************************
+john
+**************************************************
+>>>
+```
+
+- Function decorators can be implemented as classes too.
+  In this case, the `__call__()` method act as the returned callable in function decorators:
+
+```python
+>>> class logger:
+...     def __init__(self, fx):
+...         self.fx = fx
+...     def __call__(self, *args, **kwargs):
+...         print('calling {}'.format(self.fx))
+...         return self.fx(*args, **kwargs)
+...
+>>>
+>>> @logger
+... def banner(name):
+...     print('***', name, '***')
+...
+>>>
+>>> banner('john')
+calling <function banner at 0x7fbb5cb9f510>
+*** john ***
+>>>
+```
+
+- **Caution:** class-based decorators dont work with class methods (oh, the irony) because the automatically passed `self` instance will be
+  decorator class instance, not the wrapped class instance:
+
+```python
+>>> class logger:
+...     def __init__(self, fx):
+...         self.fx = fx
+...     def __call__(self, *args, **kwargs):
+...         print('calling {}'.format(self.fx))
+...         return self.fx(*args, **kwargs)
+...
+>>>
+>>> class Example:
+...     def __init__(self, number):
+...         self.number = number
+...
+...     @logger
+...     def squared(self):
+...         return self.number ** 2
+...
+>>>
+>>> e = Example(10)
+>>> e.squared()
+calling <function Example.squared at 0x7fbb5cf9ad08>
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-14-c3710e24f3d9> in <module>
+----> 1 e.squared()
+
+<ipython-input-11-a7b30b19ce72> in __call__(self, *args, **kwargs)
+      4     def __call__(self, *args, **kwargs):
+      5         print('calling {}'.format(self.fx))
+----> 6         return self.fx(*args, **kwargs)
+      7
+
+TypeError: squared() missing 1 required positional argument: 'self'
+>>>
+```
+
+This happens because only one automatic `self` is passed by the Python interpreter.
+In the `e.squared()` call the object being called is of the `logger()` type, thus only the `logger` instance as `self` to `logger.__call__` method.
+`Example` instance is not passed.
+
+To create decorators appliable to functions and class methods, create `function decorators`:
+
+```python
+>>> def logger(f):
+...     def f_with_log(*args, **kwargs):
+...         print('{}({}, {})'.format(f, args, kwargs))
+...         return f(*args, **kwargs)
+...     return f_with_log
+...
+>>>
+>>> class Example:
+...     def __init__(self, number):
+...         self.number = number
+...
+...     @logger
+...     def squared(self):
+...         return self.number ** 2
+...
+>>>
+>>> e = Example(10)
+>>> e.squared()
+<function Example.squared at 0x7fbb5cbb7840>((<__main__.Example object at 0x7fbb57e5fe10>,), {})
+100
+>>>
+>>> # works with functions too
+>>> @logger
+... def banner(name):
+...     print('*' * 50)
+...     print(name)
+...     print('*' * 50)
+...
+>>>
+>>> banner('john')
+<function banner at 0x7fbb57e062f0>(('john',), {})
+**************************************************
+john
+**************************************************
+>>>
+```
+
+- **Class decorators** work very similar to function decorators, they are declared just before the class statement and return a callable:
+
+```python
+>>> def wrap(cls):
+...     class Wrapper:
+...         def __init__(self, *args, **kwargs):
+...             self.wrapped = cls(*args, **kwargs)
+...         def __getattr__(self, attr):
+...             print('get:', attr)
+...             return getattr(self.wrapped, attr)
+...     return Wrapper
+...
+>>>
+>>> @wrap
+... class Person:
+...     def __init__(self, name, age):
+...         self.name = name
+...         self.age = age
+...
+>>>
+>>> p = Person("john", 42)
+>>> p.name
+get: name
+'john'
+>>> p.age
+get: age
+42
+>>>
+```
+
+- Class decorators are singletons, so be careful. There is only one namespace. You can end up overriding it in subsequent `__call__` executions:
+
+```python
+>>> class decorator:
+...     #
+...     # @decorator
+...     # class Example:
+...     # ...
+...     # is the same as:
+...     # Example = decorator(Example) # calls decorator.__init__ method and returns a decorator instance
+...     #
+...     def __init__(self, cls):
+...         self.cls = cls
+...
+...     #
+...     # Example is now a decorator instance.
+...     # When you try to instatiate a new Example instance, through Example(...) call,
+...     # you are really calling the __call__ method below, that creates an instance and returns it.
+...     #
+...     # CAUTION: Every time a new instance is created, the Example.wrapped  is overwritten.
+...     # Remember that Example is now a "decorator" instance.
+...     #
+...     def __call__(self, *args, **kwargs):
+...         self.wrapped = self.cls(*args, **kwargs)
+...         return self
+...
+...     #
+...     # Intercepts attributes access in Decorator and delegates to the self.wrapped
+...     #
+...     def __getattr__(self, attr):
+...         print('get', attr)
+...         return getattr(self.wrapped, attr)
+...
+>>>
+>>> @decorator
+... class Struct:
+...     def __init__(self, value):
+...         self.value = value
+...
+>>>
+>>> s1 = Struct(10)
+>>> s1.value
+get value
+10
+>>>
+>>> isinstance(Struct, decorator) # Struct is an instance of decorator
+True
+>>>
+>>> s2 = Struct(99) # will replace the decorator wrapped attribute
+>>> s2.value
+get value
+99
+>>>
+>>> s1.value # was overwritten
+get value
+99
+>>>
+```
+
+- Decorators can be nested:
+
+```python
+@A
+@B
+@C
+def example(...): pass
+```
+
+Is the same as:
+
+```python
+def example(...): pass
+example = A(B(C(example)))
+```
+
+This is also true for class decorators:
+
+```python
+@spam
+@eggs
+@bacon
+class Pizza: pass
+```
+
+Is the same as:
+
+```python
+class Pizza: pass
+Pizza = spam(eggs(bacon(Pizza)))
+```
+
+**The closest decorator is always executed first, up to the top.**
+
+- An example of nesting:
+
+```python
+>>> def arity(f):
+...     def wrapper(*args, **kwargs):
+...         print("arity", len(args) + len(kwargs))
+...         return f(*args, **kwargs)
+...     return wrapper
+...
+>>>
+>>> def trace(f):
+...     def wrapper(*args, **kwargs):
+...         print('trace: ({}, {})'.format(args, kwargs))
+...         return f(*args, **kwargs)
+...     return wrapper
+...
+>>>
+>>> @arity
+... @trace
+... def sum(a, b): return a + b
+>>>
+>>> sum(10, 20)
+arity 2
+trace: ((10, 20), {})
+30
+>>>
+```
+
+- You can pass arguments to decoratos, provided that you create first a "decorator factory".
+  A function or class that receives these arguments and returns a callable, which is then used to decorate the
+  class or function:
+
+```python
+>>> def debug_factory(arity=False, trace=False):
+...     # Creates and returns a custom decorator, based on the received arguments
+...     def decorator(f):
+...         def wrapper(*args, **kwargs):
+...             if arity:
+...                 print('arity:', len(args) + len(kwargs))
+...             if trace:
+...                 print('trace:', args, kwargs)
+...             return f(*args, **kwargs)
+...         return wrapper
+...
+...     return decorator
+...
+>>>
+>>> @debug_factory(arity=True, trace=True)
+... def sum(a, b): return a + b
+>>>
+>>> sum(10, 20)
+arity: 2
+trace: (10, 20) {}
+30
+>>>
+```
+
+- Remember that class decorators cant be used to decorate other class methods ? Because when called, Python passes only one `self` argument ?
+  Which is the decorator instance. To circumvent it, you can leverage the descriptor protocol:
+
+```python
+class count_calls:
+    # Creates a decorator instance and saves the wrapped function as an instance attribute
+    def __init__(self, f):
+        self.f = f
+        self.calls = 0
+
+    # the init returns an instance, that responds as a function. this syntax is handled by this method.
+    def __call__(self, *args, **kwargs):
+        self.calls += 1
+        print("{} called {} times".format(self.f, self.calls))
+        return self.f(*args, **kwargs)
+
+    # to allow the decorator to be applied to class methods, we leverage the descriptor protocol, that receives
+    # the instance and its class as arguments when accessed.
+    # then, we create another callable instance (wrapper) concatenating the decorator instance (self) and the object instance (instance).
+    # this callable calls the descriptor passing the object instance as the first positional arg.
+    # in face, two selfes are passed to the descriptor. the descriptors's self and the object instance as the first positional arg.
+    def __get__(self, instance, owner):
+        class wrapper:
+            def __init__(self, descriptor, subject):
+                self.descriptor = descriptor
+                self.subject = subject
+
+            def __call__(self, *args, **kwargs):
+                return self.descriptor(self.subject, *args, **kwargs)
+
+        return wrapper(self, instance)
+
+if __name__ == '__main__':
+    @count_calls
+    def first_test(): pass
+
+    class Test:
+        @count_calls
+        def second_test(self):
+            pass
+
+        @count_calls
+        def third_test(self):
+            pass
+
+    first_test()
+
+    t = Test()
+    t.second_test()
+    t.third_test()
+
+    first_test()
+
+    t.second_test()
+    t.second_test()
+
+    t.third_test()
+    t.third_test()
+    t.third_test()
+```
+
+output:
+
+```bash
+<function first_test at 0x7fb741658488> called 1 times
+<function Test.second_test at 0x7fb74166a8c8> called 1 times
+<function Test.third_test at 0x7fb74166a950> called 1 times
+<function first_test at 0x7fb741658488> called 2 times
+<function Test.second_test at 0x7fb74166a8c8> called 2 times
+<function Test.second_test at 0x7fb74166a8c8> called 3 times
+<function Test.third_test at 0x7fb74166a950> called 2 times
+<function Test.third_test at 0x7fb74166a950> called 3 times
+<function Test.third_test at 0x7fb74166a950> called 4 times
+```
+
+- The `wrapper` class in the last example can be replaced with a function:
+
+```python
+class count_calls:
+    # Creates a decorator instance and saves the wrapped function as an instance attribute
+    def __init__(self, f):
+        self.f = f
+        self.calls = 0
+
+    # the init returns an instance, that responds as a function. this syntax is handled by this method.
+    def __call__(self, *args, **kwargs):
+        self.calls += 1
+        print("{} called {} times".format(self.f, self.calls))
+        return self.f(*args, **kwargs)
+
+    # to allow the decorator to be applied to class methods, we leverage the descriptor protocol, that receives
+    # the instance and its class as arguments when accessed.
+    # then, we create another callable instance (wrapper) concatenating the decorator instance (self) and the object instance (instance).
+    # this callable calls the descriptor passing the object instance as the first positional arg.
+    # in face, two selfes are passed to the descriptor. the descriptors's self and the object instance as the first positional arg.
+    def __get__(self, instance, owner):
+        def wrapper(*args, **kwargs):
+            return self(instance, *args, **kwargs)
+
+        return wrapper
+
+if __name__ == '__main__':
+    @count_calls
+    def first_test(): pass
+
+    class Test:
+        @count_calls
+        def second_test(self):
+            pass
+
+        @count_calls
+        def third_test(self):
+            pass
+
+    first_test()
+
+    t = Test()
+    t.second_test()
+    t.third_test()
+
+    first_test()
+
+    t.second_test()
+    t.second_test()
+
+    t.third_test()
+    t.third_test()
+    t.third_test()
+```
+
+same output:
+
+```bash
+<function first_test at 0x7f7e09241d08> called 1 times
+<function Test.second_test at 0x7f7e092718c8> called 1 times
+<function Test.third_test at 0x7f7e09271950> called 1 times
+<function first_test at 0x7f7e09241d08> called 2 times
+<function Test.second_test at 0x7f7e092718c8> called 2 times
+<function Test.second_test at 0x7f7e092718c8> called 3 times
+<function Test.third_test at 0x7f7e09271950> called 2 times
+<function Test.third_test at 0x7f7e09271950> called 3 times
+<function Test.third_test at 0x7f7e09271950> called 4 times
+```
+
