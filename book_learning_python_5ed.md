@@ -19690,3 +19690,126 @@ trace: add
 12
 >>>
 ```
+
+- The following example creates a class decorator to implement `private`-like access for class attributes.
+  They can be accessed only from inside the class.
+
+```python
+def private(*attributes):
+    def decorator(klass):
+        class wrapper:
+            def __init__(self, *args, **kwargs):
+                self.klass = klass
+                self.instance = self.klass(*args, **kwargs)
+
+            def __getattr__(self, attr):
+                if attr in attributes:
+                    raise AttributeError("private attribute")
+
+                return getattr(self.instance, attr)
+
+            def __setattr__(self, attr, value):
+                if attr in attributes:
+                    raise AttributeError("private")
+
+                if attr in ("klass", "instance"):
+                    return object.__setattr__(self, attr, value)
+
+                setattr(self.instance, attr, value)
+
+        return wrapper
+
+    return decorator
+
+
+@private("name", "age")
+class Person:
+    def __init__(self, name, age, job):
+        self.name = name
+        self.age = age
+        self.job = job
+
+
+if __name__ == "__main__":
+    p = Person("john", 42, "manager")
+
+    print(p.job)
+
+    # raise exception, is private
+    try:
+        print(p.name)  # ops!
+    except AttributeError as e:
+        print(e)
+
+    p.job = "dev"  # ok! public attr
+    print(p.job)
+
+    # raises exp! its private
+    try:
+        p.name = "paul"
+    except AttributeError as e:
+        print(e)
+
+```
+
+- Decorators can be used to test arguments validity too:
+
+```python
+def range_check(**checks):
+    for check in checks:
+        assert len(checks[check]) == 2, "{}={} argument is invalid"
+
+    def decorator(f):
+        def wrapper(*args, **kwargs):
+            if "all" in checks:
+                for arg in args:
+                    assert (
+                        checks["all"][0] <= arg <= checks["all"][1]
+                    ), "{} is bigger than 'all' constraint: ({}, {})".format(
+                        arg, checks["all"][0], checks["all"][1]
+                    )
+
+            for check in checks:
+                if check in kwargs:
+                    assert (
+                        checks[check][0] <= kwargs[check] <= checks[check][1]
+                    ), "{} argument is bigger thant ({}, {})".format(
+                        kwargs[check], checks[check][0], checks[check][1]
+                    )
+
+            return f(*args, **kwargs)
+        return wrapper
+    return decorator
+
+if __name__ == "__main__":
+    @range_check(all=(0.0, 1.0))
+    def sum(a, b):
+        return a + b
+
+    print( sum(0.1, 0.1) )
+
+    try:
+        print( sum(1, 3) )
+    except AssertionError as e:
+        print(e)
+
+    @range_check(percent=(0, 100))
+    def give_raise(salary=0, percent=0):
+        return salary * (1 + (percent/100))
+
+    print( give_raise(salary=1000, percent=25) )
+
+    try:
+        print( give_raise(salary=1000, percent=200) )
+    except AssertionError as e:
+        print(e)
+```
+
+Output:
+
+```bash
+0.2
+3 is bigger than 'all' constraint: (0.0, 1.0)
+1250.0
+200 argument is bigger thant (0, 100)
+```
