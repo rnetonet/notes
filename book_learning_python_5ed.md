@@ -19565,3 +19565,128 @@ same output:
 <function Test.third_test at 0x7f7e09271950> called 4 times
 ```
 
+- Usefull class decorator: `singleton`
+
+```python
+>>> def singleton(klass):
+...     instance = None
+...     def wrapper(*args, **kwargs):
+...         nonlocal instance
+...         if instance is None:
+...             instance = klass(*args, **kwargs)
+...         return instance
+...     return wrapper
+...
+>>>
+>>> @singleton
+... class Example: pass
+>>>
+>>> e1 = Example()
+>>> e1
+<__main__.Example at 0x7fbb57b30898>
+>>>
+>>> e2 = Example()
+>>> e2
+<__main__.Example at 0x7fbb57b30898>
+>>>
+>>> id(e1), id(e2)
+(140442606962840, 140442606962840)
+>>>
+>>> @singleton
+... class AnotherExample: pass
+>>>
+>>> a1 = AnotherExample()
+>>> a1
+<__main__.AnotherExample at 0x7fbb57d69b00>
+>>>
+>>> a2 = AnotherExample()
+>>> a2
+<__main__.AnotherExample at 0x7fbb57d69b00>
+>>>
+>>> @singleton
+... class Person:
+...     def __init__(self, name):
+...         self.name = name
+...
+>>>
+>>> p1 = Person("john")
+>>> p1.name
+'john'
+>>>
+>>> p2 = Person("paul")
+>>> p2.name
+'john'
+>>>
+```
+
+- The singleton decorator can be implemented as a class too:
+
+```python
+>>> class singleton:
+...     def __init__(self, klass):
+...         self.klass = klass
+...         self.instance = None
+...
+...     def __call__(self, *args, **kwargs):
+...         if self.instance is None:
+...             self.instance = self.klass(*args, **kwargs)
+...         return self.instance
+...
+>>>
+>>> @singleton
+... class Test: pass
+>>>
+>>> t1 = Test()
+>>> t2 = Test()
+>>>
+>>> id(t1), id(t2)
+(140442608276704, 140442608276704)
+>>>
+```
+
+- Creating a `trace` decorator using classes:
+
+```python
+>>> class trace:
+...     def __init__(self, klass):
+...         self.klass = klass
+...     def __call__(self, *args, **kwargs):
+...         class wrapper:
+...             def __init__(self, delegate):
+...                 self.delegate = delegate
+...             def __getattr__(self, attr):
+...                 print('trace:', attr)
+...                 return getattr(self.delegate, attr)
+...
+...         return wrapper( self.klass(*args, **kwargs) )
+...
+>>>
+>>> @trace
+... class Person:
+...     def __init__(self, name, age):
+...         self.name = name
+...         self.age = age
+...
+>>>
+>>> p1 = Person("john", 42)
+>>> p1.name
+trace: name
+'john'
+>>> p1.age
+trace: age
+42
+>>> @trace
+... class Math:
+...     def __init__(self, a, b):
+...         self.a = a
+...         self.b = b
+...     def add(self):
+...         return self.a + self.b
+...
+>>>
+>>> m = Math(10, 2)
+>>> m.add()
+trace: add
+12
+>>>
+```
