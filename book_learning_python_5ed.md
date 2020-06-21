@@ -19813,3 +19813,140 @@ Output:
 1250.0
 200 argument is bigger thant (0, 100)
 ```
+
+---
+
+# Function annotations
+
+- The previous range test example can be implement using function annotations, which include expressions
+  to the funcion signature header and associate them to the parameters and the function return value.
+  This association is saved as a function attribute named `__annotations__`:
+
+```python
+>>> def sum(a: (0.0, 1.0), b: (0.0, 1.0)) -> (0.0, 2.0):
+...     return a + b
+...
+>>> sum.__annotations__
+{'a': (0.0, 1.0), 'b': (0.0, 1.0), 'return': (0.0, 2.0)}
+>>>
+```
+
+- The previous, range checking, decorator can leverage these annotations:
+
+```python
+def range_check(f):
+    checks = f.__annotations__
+
+    for check in checks:
+        assert check != "return" and len(checks[check]) == 2, "{}={} check is invalid"
+
+    def wrapper(*args, **kwargs):
+
+        # checking args
+        argnames = f.__code__.co_varnames
+        checks_list = list(checks.values())
+
+        for index, arg in enumerate(args):
+            assert (
+                checks_list[index][0] <= args[index] <= checks_list[index][1]
+            ), "{}={} argument is invalid ({}, {})".format(
+                argnames[index],
+                args[index],
+                checks_list[index][0],
+                checks_list[index][1]
+            )
+
+        # checking kwargs
+        for check in checks:
+            if check in kwargs:
+                assert (
+                    checks[check][0] <= kwargs[check] <= checks[check][1]
+                ), "{}={} argument is invalid ({}, {})".format(
+                    check,
+                    kwargs[check],
+                    checks[check][0],
+                    checks[check][1]
+                )
+
+        return f(*args, **kwargs)
+
+    return wrapper
+
+
+if __name__ == "__main__":
+
+    @range_check
+    def sum(a: (0.0, 1.0), b: (0.0, 1.0)):
+        return a + b
+
+    print(sum(0.1, 0.1))
+
+    try:
+        print(sum(1, 3))
+    except AssertionError as e:
+        print(e)
+
+    @range_check
+    def give_raise(salary:(0, 10_000)=0 , percent:(1, 100)=0):
+        return salary * (1 + (percent / 100))
+
+    print(give_raise(salary=1000, percent=25))
+
+    try:
+        print(give_raise(salary=1000, percent=200))
+    except AssertionError as e:
+        print(e)
+
+```
+
+- The previous examples can be modified to check for argument class types too:
+
+```python
+def type_check(f):
+    annotations = f.__annotations__
+
+    def wrapper(*args, **kwargs):
+
+        # check args
+        args_names = f.__code__.co_varnames
+        for index, arg in enumerate(args):
+            arg_name = args_names[index]
+            annotation = annotations[arg_name]
+
+            assert isinstance(arg, annotation), "{} ({}) has not the expected type {}".format(arg_name, type(arg), annotation)
+
+        # check kwargs
+        for kwarg in kwargs:
+            arg_name = kwarg
+            arg = kwargs[kwarg]
+            annotation = annotations[kwarg]
+            assert isinstance(arg, annotation), "{} ({}) has not the expected type {}".format(arg_name, type(arg), annotation)
+
+        return f(*args, **kwargs)
+
+    return wrapper
+
+
+if __name__ == "__main__":
+    @type_check
+    def sum(a: int, b: int):
+        return a + b
+
+    print( sum(2, 2) )
+
+    try:
+        print( sum(2, 3.0) )
+    except AssertionError as e:
+        print(e)
+
+    @type_check
+    def sub(a:float=0.0, b:float=0.0):
+        return a - b
+
+    print( sub(3.0, 1.0) )
+
+    try:
+        print( sub(3.0, 1) )
+    except AssertionError as e:
+        print(e)
+```
