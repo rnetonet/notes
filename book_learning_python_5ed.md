@@ -19950,3 +19950,51 @@ if __name__ == "__main__":
     except AssertionError as e:
         print(e)
 ```
+
+---
+
+# Metaclasses
+
+- Metaclasses allow the programmer define code to be automatically run after a class creation.
+  Differently from decorators, there is no rebound. The metaclass does not need to return another object.
+
+- Metaclasses and decorators share many similarities. There is a time difference: metaclasses are run during
+  class creation, while decorators are run after the class is already created and perform name rebinding.
+
+- A simple example of a metaclass that augments the class `__str__` method:
+
+```python
+class BetterStr(type):
+    def better_str(self):
+        attrs = [attr for attr in dir(self) if not attr.startswith("_")]
+        return "{}: {}".format(self.__class__, attrs)
+
+    def __init__(klass, klass_name, superclasses, klass_dict):
+        print(
+            "klass={}, klass_name={}, superclasses={}, klass_dict={}".format(
+                klass, klass_name, superclasses, klass_dict
+            )
+        )
+
+        klass.__str__ = BetterStr.better_str
+
+class Person(metaclass=BetterStr):
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+if __name__ == "__main__":
+    p = Person("john", 42)
+    print(p)
+```
+
+output:
+
+```bash
+klass=<class '__main__.Person'>, klass_name=Person, superclasses=(), klass_dict={'__module__': '__main__', '__qualname__': 'Person', '__init__': <function Person.__init__ at 0x7fc9d4d1e620>}
+<class '__main__.Person'>: ['age', 'name']
+```
+
+- Metaclasses should inherit from `type`. Their __init__ method does not receive a `self` instance, but a `klass` instance
+  and its data as parameters.
+
