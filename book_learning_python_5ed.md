@@ -19998,3 +19998,30 @@ klass=<class '__main__.Person'>, klass_name=Person, superclasses=(), klass_dict=
 - Metaclasses should inherit from `type`. Their __init__ method does not receive a `self` instance, but a `klass` instance
   and its data as parameters.
 
+- In Python 3, classes are objects of the type `type`:
+
+```python
+>>> class E: pass
+>>> type( E )
+type
+>>> E.__class__
+type
+>>> E
+__main__.E
+>>>
+```
+
+This is True for the built-in classes too:
+
+```python
+>>> type( list )
+type
+>>> type( tuple )
+type
+>>> type( float )
+type
+>>> type( int )
+type
+>>>
+
+```
