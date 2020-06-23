@@ -20023,5 +20023,127 @@ type
 >>> type( int )
 type
 >>>
-
 ```
+
+- To understand metaclasses you need to grasp the following concepts:
+
+    - Classes are instances of the `type` class.
+      Classes statements are, in fact, a syntatic sugar for `type()` instantiation.
+
+    - Metaclasses are subclasses of `type` (they must be!) that overwrite the `__init__` or other methods.
+
+    - When we specify `metaclass=CustomMetaClass` we are indicating that the class should be created instantiating `CustomMetaClass`,
+      instead of `type`.
+
+- The class creation protocol:
+
+1. Execute the class statement block code, creating a namespace dictionary (`attribute_dict`).
+
+2. After the block execution and namespace creation, call the `type` (default metaclass) `__call__` method:
+
+```python
+type(classname, superclasses, attribute_dict)
+```
+
+3. The `type` `__call__` method makes two calls. One to the `__new__` method, that creates and returns the class object,
+   and `__init__` that initialize this class object:
+
+```python
+type.__new__(typeclass, classname, superclasses, attributedict)
+type.__init__(class, classname, superclasses, attributedict)
+```
+
+Example: given the following class:
+
+```python
+class Eggs: ...
+
+class Spam(Eggs):
+    data = 1
+    def meth(self, arg):
+        return self.data + arg
+```
+
+Python will internally execute:
+
+```python
+Spam = type(classname="Spam", superclasses=("Eggs",), attribute_dict={"data": 1})
+```
+
+In fact, you can create a class calling type directly:
+
+```python
+>>> class Super:
+...     a = 1
+...     def out(self):
+...         print(self.a)
+...
+>>>
+>>> Sub = type("Sub", (Super,), {"b": 2})
+>>> Sub
+__main__.Sub
+>>>
+>>> s = Sub()
+>>> s.out()
+1
+>>>
+>>> s.b
+2
+>>>
+```
+
+- Metaclasses are just subclasses of `type` and to use them in your user classes you
+  simple a `metaclass` keyword argument to the class header statement:
+
+```python
+>>> class Meta(type):
+...     # def __new__ ...
+...     def __init__(self, *args, **kwargs):
+...         print(args, kwargs)
+...         type.__init__(self, *args, **kwargs)
+...
+>>>
+>>> class Spam(metaclass=Meta): pass
+('Spam', (), {'__module__': '__main__', '__qualname__': 'Spam'}) {}
+>>>
+```
+
+- The `metaclass` keyword argument should be the last in the class statement declaration.
+
+- One of the simplest metaclasses you can create is one that simple intercepts and delegates the object creation to the default:
+
+```python
+class LogMeta(type):
+    def __new__(meta, classname, supers, classdict):
+        print("meta={}, classname={}, supers={}, classdict={}".format(meta, classname, supers, classdict))
+        return type.__new__(meta, classname, supers, classdict)
+
+class Person(metaclass=LogMeta):
+    banner_top = "***" + "\n"
+    banner_bottom = "***"
+
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    def __str__(self):
+        response = ""
+        response += self.banner_top
+        response += "{} - {}\n".format(self.name, self.age)
+        response += self.banner_bottom
+        return response
+
+if __name__ == "__main__":
+    p = Person("john", 42)
+    print( p )
+```
+
+output:
+
+```bash
+meta=<class '__main__.LogMeta'>, classname=Person, supers=(), classdict={'__module__': '__main__', '__qualname__': 'Person', 'banner_top': '***\n', 'banner_bottom': '***', '__init__': <function Person.__init__ at 0x7ffb7c33c620>, '__str__': <function Person.__str__ at 0x7ffb7c33c6a8>}
+***
+john - 42
+***
+```
+
