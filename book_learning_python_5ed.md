@@ -20147,3 +20147,454 @@ john - 42
 ***
 ```
 
+- The metaclass protocol really is a call to the `type.__call__` which calls `__new__` and `__init__` implementations.
+  Thus, it can be implemented as a simple function:
+
+```python
+>>> def meta(classname, supers, classdict):
+...     print('***', classname, supers, classdict, '***')
+...     return type(classname, supers, classdict) # type.__call__
+...
+>>>
+>>> class Person(metaclass=meta):
+...     job = 'dev'
+...     def __init__(self, name, age):
+...         self.name = name
+...         self.age = age
+...
+*** Person () {'__module__': '__main__', '__qualname__': 'Person', 'job': 'dev', '__init__': <function Person.__init__ at 0x7f14c494d510>} ***
+>>>
+```
+
+- Classes (but not their instances) have access to metaclass attributes:
+
+```python
+>>> class Meta(type):
+...     attr = 42
+...
+>>>
+>>> class Example(metaclass=Meta): pass
+>>>
+>>> Example.attr # class has access to metaclass
+42
+>>>
+>>> # But, instance does not
+>>> e = Example()
+>>> e.attr
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-6-cf12a7ae060f> in <module>
+----> 1 e.attr
+
+AttributeError: 'Example' object has no attribute 'attr'
+>>>
+```
+
+This attribute can be a `classmethod`, `staticmethod`.
+
+- Metaclass are propagated in inheritance:
+
+```python
+class Meta(type):
+    def __new__(meta, classname, supers, classdict):
+        print(meta, classname, supers, classdict)
+        return type.__new__(meta, classname, supers, classdict)
+
+class Super(metaclass=Meta): pass
+
+class Sub(Super): pass
+
+if __name__ == "__main__":
+    s = Sub()
+```
+
+Output:
+
+```python
+class Meta(type):
+    def __new__(meta, classname, supers, classdict):
+        print(meta, classname, supers, classdict)
+        return type.__new__(meta, classname, supers, classdict)
+
+class Super(metaclass=Meta): pass
+
+class Sub(Super): pass
+
+if __name__ == "__main__":
+    s = Sub()
+```
+
+Note that both class instances are created and passed to the same metaclass:
+
+```bash
+<class '__main__.Meta'> Super () {'__module__': '__main__', '__qualname__': 'Super'}
+<class '__main__.Meta'> Sub (<class '__main__.Super'>,) {'__module__': '__main__', '__qualname__': 'Sub'}
+```
+
+- Thus, subclasses also have access to metaclass attributes:
+
+```python
+class Meta(type):
+    def __new__(meta, classname, supers, classdict):
+        print(meta, classname, supers, classdict)
+        return type.__new__(meta, classname, supers, classdict)
+
+    @classmethod
+    def toast(klass):
+        print(klass, 'toast')
+
+class Super(metaclass=Meta): pass
+
+class Sub(Super): pass
+
+if __name__ == "__main__":
+    s = Sub()
+    Sub.toast()
+```
+
+- Metaclass methods accessed through one of its classes are bound to the class:
+
+```python
+>>> class Meta(type):
+...     def __new__(meta, classname, supers, classdict):
+...         print(meta, classname, supers, classdict)
+...         return type.__new__(meta, classname, supers, classdict)
+...
+...     @classmethod
+...     def toast(klass):
+...         print(klass, 'toast')
+...
+... class Super(metaclass=Meta): pass
+...
+... class Sub(Super): pass
+<class '__main__.Meta'> Super () {'__module__': '__main__', '__qualname__': 'Super'}
+<class '__main__.Meta'> Sub (<class '__main__.Super'>,) {'__module__': '__main__', '__qualname__': 'Sub'}
+>>>
+>>> Sub.toast
+<bound method Meta.toast of <class '__main__.Meta'>>
+>>>
+```
+
+- While **class** methods when accessed through the class are unbound:
+
+```python
+>>> class Meta(type):
+...     def __new__(meta, classname, supers, classdict):
+...         print(meta, classname, supers, classdict)
+...         return type.__new__(meta, classname, supers, classdict)
+...
+...     @classmethod
+...     def toast(klass):
+...         print(klass, 'toast')
+...
+... class Super(metaclass=Meta): pass
+...
+... class Sub(Super):
+...     def spam(self):
+...         print('spam')
+...
+<class '__main__.Meta'> Super () {'__module__': '__main__', '__qualname__': 'Super'}
+<class '__main__.Meta'> Sub (<class '__main__.Super'>,) {'__module__': '__main__', '__qualname__': 'Sub', 'spam': <function Sub.spam at 0x7f484bfa7b70>}
+>>>
+>>> Sub.spam # unbound
+<function __main__.Sub.spam(self)>
+>>>
+```
+
+- But class methods referenced from an instance are **bound** to the instance:
+
+```python
+>>> class Meta(type):
+...     def __new__(meta, classname, supers, classdict):
+...         print(meta, classname, supers, classdict)
+...         return type.__new__(meta, classname, supers, classdict)
+...
+...     @classmethod
+...     def toast(klass):
+...         print(klass, 'toast')
+...
+... class Super(metaclass=Meta): pass
+...
+... class Sub(Super):
+...     def spam(self):
+...         print('spam')
+...
+<class '__main__.Meta'> Super () {'__module__': '__main__', '__qualname__': 'Super'}
+<class '__main__.Meta'> Sub (<class '__main__.Super'>,) {'__module__': '__main__', '__qualname__': 'Sub', 'spam': <function Sub.spam at 0x7f484bde41e0>}
+>>>
+>>> s = Sub()
+>>> s.spam # bound to s
+<bound method Sub.spam of <__main__.Sub object at 0x7f484bde86a0>>
+>>>
+```
+
+- Remember: a metaclass is a class that produces classes. Thus, their methods receive the "class instance" as the first argument `self`:
+
+```python
+>>> class Meta(type):
+...     def add(self, a, b):
+...         print('self={}'.format(self))
+...         return a + b
+...
+>>> class Example(metaclass=Meta): pass
+>>>
+>>> Example.add(5, 3)
+self=<class '__main__.Example'>
+8
+>>>
+```
+
+- Remember2: All metaclasses should inherit from `type`.
+
+- Metaclass methods have access only to the class data (they have no access to this class instances and are not accessible from them).
+  Hence, don't need the application of a `@classmethod` decorator.
+
+- Therefore, you should write metaclass methods with a `cls` or `klass` as first argument, instead of `self`:
+
+```python
+>>> class Meta(type):
+...     def add(cls, a, b):
+...         print('cls={}'.format(cls))
+...         return a + b
+...
+...
+>>> class Example(metaclass=Meta): pass
+>>>
+>>> Example.add(5, 3)
+cls=<class '__main__.Example'>
+8
+>>>
+```
+
+- You can define operator-methods in metaclasses, making the operations supported by the classes that are based in
+  this metaclass:
+
+```python
+>>> class Meta(type):
+...     def __add__(cls, other):
+...         print('cls={}, other={}'.format(cls, other))
+...         return cls.value + other.value
+...
+...
+...
+>>> class A(metaclass=Meta):
+...     value = 10
+...
+>>> class B(metaclass=Meta):
+...     value = 50
+...
+>>>
+>>> A + B
+cls=<class '__main__.A'>, other=<class '__main__.B'>
+60
+>>>
+```
+
+Mind that the classes instance have no access to these implementations:
+
+```python
+>>> a = A()
+>>> b = B()
+>>>
+>>> a + b
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-15-bd58363a63fc> in <module>
+----> 1 a + b
+
+TypeError: unsupported operand type(s) for +: 'A' and 'B'
+>>>
+```
+
+- You can use metaclasses to augment the future-created-classes with new methods or attributes:
+
+```python
+>>> class Meta(type):
+...     def __new__(meta, classname, supers, classdict):
+...         print("meta={}, classname={}, supers={}, classdict={}".format(meta, classname, supers, classdict))
+...         classdict["add"] = lambda self, a, b: a + b
+...         return type.__new__(meta, classname, supers, classdict)
+...
+>>>
+>>> class Example(metaclass=Meta): pass
+meta=<class '__main__.Meta'>, classname=Example, supers=(), classdict={'__module__': '__main__', '__qualname__': 'Example'}
+>>>
+>>> e1 = Example()
+>>> e1.add(10, 20)
+30
+>>>
+```
+
+- Adding a new attribute:
+
+```python
+>>> class PrefixMeta(type):
+...     def __new__(meta, classname, supers, classdict):
+...         classdict["prefix"] = "__"
+...         return type.__new__(meta, classname, supers, classdict)
+...
+>>>
+>>> class Example(metaclass=PrefixMeta): pass
+>>>
+>>> e = Example()
+>>> e.prefix
+'__'
+>>>
+>>> Example.prefix
+'__'
+>>>
+```
+
+- Decorators are best suited to handle 'instances', while metaclasses are better suited for class creations.
+  A Tracer example:
+
+As a decorator:
+
+```python
+>>> def trace(klass):
+...     class Wrapper:
+...         def __init__(self, *args, **kwargs):
+...             self.wrapped = klass(*args, **kwargs)
+...
+...         def __getattr__(self, attr):
+...             print("get: ", attr)
+...             return getattr(self.wrapped, attr)
+...
+...     return Wrapper
+...
+>>>
+>>> @trace
+... class Person:
+...     def __init__(self, name):
+...         self.name = name
+...
+>>>
+>>> p = Person("john")
+>>> p.name
+get:  name
+'john'
+>>>
+```
+
+As a metaclass:
+
+```python
+class Tracer(type):
+    def __new__(cls, name, bases, namespace):
+        class Wrapper:
+            def __init__(self, *args, **kwargs):
+                self.wrapped = type(name, bases, namespace)(*args, **kwargs)
+
+            def __getattr__(self, attr):
+                print("get:", attr)
+                return getattr(self.wrapped, attr)
+
+        return Wrapper
+
+
+class Person(metaclass=Tracer):
+    def __init__(self, name):
+        self.name = name
+
+
+class Job(metaclass=Tracer):
+    def __init__(self, description):
+        self.description = description
+
+
+if __name__ == "__main__":
+    p = Person("john")
+    print(p.name)
+
+    p2 = Person("paul")
+    print(p2.name)
+
+    j1 = Job("dev")
+    print(j1.description)
+
+    j2 = Job("mgr")
+    print(j2.description)
+```
+
+output:
+
+```bash
+get: name
+john
+get: name
+paul
+get: description
+dev
+get: description
+mgrget: name
+john
+get: name
+paul
+get: description
+dev
+get: description
+mgr
+```
+
+- One last metaclass usage example: decorate all methods of a class automatically:
+
+```python
+import types
+
+
+def counter_decorator(func):
+    ncalls = 0
+
+    def wrapper_func(*args, **kwargs):
+        nonlocal ncalls
+        ncalls += 1
+
+        print("{} called {} times".format(func.__name__, ncalls))
+
+        return func(*args, **kwargs)
+
+    return wrapper_func
+
+class CounterMeta(type):
+    def __init__(klass, klass_name, klass_bases, klass_namespace):
+        for key in klass_namespace:
+            if isinstance(klass_namespace[key], types.FunctionType):
+                setattr(klass, key, counter_decorator(klass_namespace[key]))
+
+class Person(metaclass=CounterMeta):
+    def __init__(self, name):
+        self.name = name
+
+    def banner(self):
+        print('*' * 10)
+        print(self.name)
+        print('*' * 10)
+
+if __name__ == "__main__":
+    p1 = Person("John")
+    p2 = Person("Paul")
+
+    p1.banner()
+    p1.banner()
+
+    p2.banner()
+```
+
+output:
+
+```bash
+__init__ called 1 times
+__init__ called 2 times
+banner called 1 times
+**********
+John
+**********
+banner called 2 times
+**********
+John
+**********
+banner called 3 times
+**********
+Paul
+**********
+```
