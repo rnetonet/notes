@@ -1,0 +1,21 @@
+{% extends "blog/base.html" %}
+{% block content %}
+  {% if email_sent %}
+  <h1>Your email was sent! Thanks</h1>
+  {% else %}
+    <h1>Sharing: {{ post.title }}</h1>
+    <h2>{{ post.body }}</h2>
+
+    <hr>
+
+    <p>{{ form.cleaned_data.post }}</p>
+
+    <form action="{% url "blog:post_share" post.pk %}" method="POST">
+      {% csrf_token %}
+      {{ form }}
+      <p>
+          <input type="submit" value="Share">
+      </p>
+    </form>
+  {% endif %}
+{% endblock %}
