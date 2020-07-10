@@ -1,15 +1,27 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Page, Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic import ListView
+from django.contrib.postgres.search import SearchVector
 from .models import Post
-from .forms import CommentForm, PostShareForm
+from .forms import CommentForm, PostShareForm, SearchForm
 
 # Create your views here.
 class PostListView(ListView):
-    queryset = Post.published.all()
     context_object_name = "posts"
     paginate_by = 3
     template_name = "blog/post/list.html"
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data()
+        data["search_form"] = SearchForm(self.request.GET)
+        return data
+
+    def get_queryset(self):
+        search = self.request.GET.get("search")
+        if search:
+            return Post.published.annotate(search_vector=SearchVector("title", "body")).filter(search_vector=search)
+
+        return Post.published.all()
 
 
 def post_detail(request, year, month, day, slug):

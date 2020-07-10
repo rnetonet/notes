@@ -1,7 +1,9 @@
-from django.db import models
-from django.utils import timezone
 from django.contrib.auth.models import User
+from django.db import models
 from django.urls import reverse
+from django.utils import timezone
+from taggit.managers import TaggableManager
+
 
 # Create your models here.
 class PostPublishedManager(models.Manager):
@@ -32,6 +34,8 @@ class Post(models.Model):
     objects = models.Manager()
     published = PostPublishedManager()
 
+    tags = TaggableManager()
+
     def get_absolute_url(self):
         return reverse(
             "blog:post_detail",
@@ -56,4 +60,3 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"Comment on {self.post} by {self.name}"
-

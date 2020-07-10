@@ -31,6 +31,8 @@ ALLOWED_HOSTS = []
 # Application definition
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+SITE_ID = 1
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -39,7 +41,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'django.contrib.postgres',
+    'django.contrib.sites',
+    'django.contrib.sitemaps',
+
     'blog.apps.BlogConfig',
+
+    'taggit'
 ]
 
 MIDDLEWARE = [
@@ -78,8 +86,11 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'HOST': 'localhost',
+        'NAME': 'blog',
+        'USER': 'postgres',
+        'PASSWORD': '123456',
     }
 }
 

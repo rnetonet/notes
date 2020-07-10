@@ -1,7 +1,20 @@
 {% extends "blog/base.html" %}
+{% load blog_tags %}
+
 {% block title %}My Blog{% endblock %}
 {% block content %}
   <h1>My Blog</h1>
+  <h2>Search</h2>
+  <div>
+  <form action="{% url "blog:post_list" %}">
+    {% csrf_token %}
+    {{ search_form }}
+    <input type="submit" name="Search" id="">
+  </form>
+  </div>
+
+  <br><br><br>
+
   {% for post in posts %}
     <h2>
       <a href="{{ post.get_absolute_url }}">
@@ -11,7 +24,7 @@
     <p class="date">
       Published {{ post.publish }} by {{ post.author }}
     </p>
-    {{ post.body|truncatewords:30|linebreaks }}
+    {{ post.body|markdown|truncatewords_html:30 }}
   {% endfor %}
   {% include "blog/pagination.html" with page=page_obj %}
 {% endblock %}
