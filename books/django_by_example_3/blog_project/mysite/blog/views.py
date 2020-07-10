@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Page, Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic import ListView
-from django.contrib.postgres.search import SearchVector
+from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from .models import Post
 from .forms import CommentForm, PostShareForm, SearchForm
 
@@ -19,7 +19,12 @@ class PostListView(ListView):
     def get_queryset(self):
         search = self.request.GET.get("search")
         if search:
-            return Post.published.annotate(search_vector=SearchVector("title", "body")).filter(search_vector=search)
+            search_vector = SearchVector("title", weight="A") + SearchVector("body", weight="B")
+            search_query = SearchQuery(search)
+            return Post.published.annotate(
+                search_vector=search_vector,
+                search_rank=SearchRank(search_vector, search_query)
+            ).filter(search_vector=search_query, search_rank__gte=0.3).order_by("-search_rank")
 
         return Post.published.all()
 
