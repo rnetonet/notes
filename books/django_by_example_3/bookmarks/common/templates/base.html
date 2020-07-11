@@ -23,12 +23,24 @@
     {% endif %}
     <span class="user">
     {% if request.user.is_authenticated %}
-      Hello, <strong>{{ request.user.username }}</strong> (<a href="{% url "logout" %}">log-out</a>).
+      Hello, <strong>{{ request.user.username }}</strong>
+      (<a href="{% url "edit" %}">edit profile</a> | <a href="{% url "logout" %}">log-out</a>).
     {% else %}
       <a href="{% url "login" %}">Log-in</a>
     {% endif %}
     </span>
   </div>
+
+  {% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+    <li class="{{ message.tags }}">
+      {{message|safe}}
+      <a href="#" class="close">x</a>
+    </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
 
   <div id="content">
     {% block content %}
