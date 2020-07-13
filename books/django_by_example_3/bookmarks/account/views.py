@@ -1,6 +1,7 @@
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
 from django.contrib import messages
+from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, render
 
 from .forms import UserEditForm, UserProfileForm, UserRegistrationForm
 from .models import Profile
@@ -16,7 +17,9 @@ def dashboard(request):
 def edit(request):
     user_edit_form = UserEditForm(instance=request.user, data=request.POST or None)
     user_profile_form = UserProfileForm(
-        instance=request.user.profile, data=request.POST or None, files=request.FILES or None
+        instance=request.user.profile,
+        data=request.POST or None,
+        files=request.FILES or None,
     )
 
     if request.method == "POST":
@@ -24,9 +27,9 @@ def edit(request):
             user_edit_form.save()
             user_profile_form.save()
 
-            messages.success(request, 'Profile update!')
+            messages.success(request, "Profile update!")
         else:
-            messages.error(request, 'Error updating your profile.')
+            messages.error(request, "Error updating your profile.")
 
     return render(
         request,
@@ -48,3 +51,16 @@ def register(request):
             return render(request, "account/register_done.html", {"new_user": new_user})
 
     return render(request, "account/register.html", {"form": form})
+
+
+@login_required
+def user_list(request):
+    User = get_user_model()
+    users = User.objects.filter(is_active=True)
+    return render(request, "account/user/list.html", {"users": users, "section": "people"})
+
+@login_required
+def user_detail(request, username):
+    User = get_user_model()
+    user = get_object_or_404(User, username=username, is_active=True)
+    return render(request, "account/user/detail.html", {"user": user, "section": "people"})

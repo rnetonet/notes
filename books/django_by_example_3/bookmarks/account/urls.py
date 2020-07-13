@@ -10,4 +10,6 @@ urlpatterns = [
     path("edit/", views.edit, name="edit"),
     path("", include("django.contrib.auth.urls")),
     path("dashboard/", views.dashboard, name="dashboard"),
+    path("users/<username>/", views.user_detail, name="user_detail"),
+    path("users/", views.user_list, name="user_list"),
 ]
