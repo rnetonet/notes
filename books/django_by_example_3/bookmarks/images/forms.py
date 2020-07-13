@@ -16,7 +16,7 @@ class ImageCreateForm(forms.ModelForm):
     def clean_url(self):
         url = self.cleaned_data["url"]
         valid_extensions = ["jpg", "jpeg"]
-        extension = url.split(".")[-1].trim().lower()
+        extension = url.split(".")[-1].lower()
         if extension not in valid_extensions:
             raise forms.ValidationError("We only accept jpg or jpegs")
 
@@ -24,10 +24,13 @@ class ImageCreateForm(forms.ModelForm):
 
     def save(self, force_insert=False, force_update=False, commit=True):
         image = super().save(commit=False)
+
         image_url = self.cleaned_data["url"]
+        extension = image_url.split(".")[-1].lower()
+
         name = slugify(image.title)
-        extension = image_url.split(".")[-1].trim().lower()
         image_name = f"{name}.{extension}"
+
         response = request.urlopen(image_url)
         image.image.save(image_name, ContentFile(response.read()), save=False)
 
