@@ -11,5 +11,8 @@ Dashboard
     {% with total_images_bookmarked=request.user.images_created.count %}
         <p>Welcome to your dashboard. You have bookmarked {{ total_images_bookmarked }} image{{ total_images_bookmarked|pluralize }}.</p>
     {% endwith %}
-    <p></p>
+
+    {% for action in actions %}
+        {% include "actions/action/detail.html" %}
+    {% endfor %}
 {% endblock %}

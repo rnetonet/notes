@@ -47,6 +47,7 @@ INSTALLED_APPS = [
 
     'common.apps.CommonConfig',
     'images.apps.ImagesConfig',
+    'actions.apps.ActionsConfig',
 
     'easy_thumbnails',
 ]
