@@ -1,3 +1,5 @@
+import redis as redislib
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
@@ -11,6 +13,8 @@ from common.decorators import require_AJAX
 from .forms import ImageCreateForm
 from .models import Image
 
+
+redis = redislib.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB)
 
 # Create your views here.
 @login_required
@@ -35,8 +39,13 @@ def image_create(request):
 
 def image_detail(request, id, slug):
     image = get_object_or_404(Image, id=id, slug=slug)
+
+    total_views = redis.incr(f"image:{image.id}:views")
+    # score
+    redis.zincrby(name="image_ranking", value=image.id, amount=1)
+
     return render(
-        request, "images/image/detail.html", {"section": "images", "image": image}
+        request, "images/image/detail.html", {"section": "images", "image": image, "total_views": total_views}
     )
 
 
