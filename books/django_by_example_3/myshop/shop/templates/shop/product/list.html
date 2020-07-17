@@ -1,0 +1,38 @@
+{% extends "common/base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+
+{% block content %}
+<div class="row">
+    <div class="col-2">
+        <h5>Categories</h5>
+        <ul class="list-group">
+            <a href="{% url "shop:product_list" %}" class="list-group-item list-group-item-action {% if not category %}active{% endif %}">
+                All
+            </a>
+            {% for c in categories %}
+            <a href="{{ c.get_absolute_url }}" class="list-group-item {% if category.slug == c.slug %}active{% endif %}">
+                {{ c.name }}
+            </a>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="col-10">
+        <h5>{{ category.name|title }} Products</h5>
+        <div class="row row-cols-3">
+            {% for product in products %}
+            <div class="col card">
+            <a href="{{ product.get_absolute_url }}">
+                <img src="{{ product.image.url }}" class="card-img-top">
+            </a>
+            <div class="card-body">
+                <h5 class="card-title">Card title</h5>
+                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                <a href="#" class="btn btn-primary">Go somewhere</a>
+            </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
