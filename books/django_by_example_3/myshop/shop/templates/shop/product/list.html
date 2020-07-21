@@ -1,11 +1,12 @@
 {% extends "common/base.html" %}
 {% load static %}
 {% load bootstrap4 %}
+{% load thumbnail %}
 
 {% block content %}
 <div class="row">
     <div class="col-2">
-        <h5>Categories</h5>
+        <h4>Categories</h4>
         <ul class="list-group">
             <a href="{% url "shop:product_list" %}" class="list-group-item list-group-item-action {% if not category %}active{% endif %}">
                 All
@@ -18,17 +19,18 @@
         </ul>
     </div>
     <div class="col-10">
-        <h5>{{ category.name|title }} Products</h5>
-        <div class="row row-cols-3">
+        <h4>{{ category.name|title }} Products</h4>
+        <div class="card-deck">
             {% for product in products %}
-            <div class="col card">
+            <div class="card">
             <a href="{{ product.get_absolute_url }}">
-                <img src="{{ product.image.url }}" class="card-img-top">
+                {% thumbnail product.image 60x60 crop=smart autocrop as thumb %}
+                <img src="{{ thumb.url }}" class="card-img-top">
             </a>
             <div class="card-body">
-                <h5 class="card-title">Card title</h5>
-                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                <a href="#" class="btn btn-primary">Go somewhere</a>
+                <h5 class="card-title">{{ product.name }}</h5>
+                <p class="card-text">{{ product.description }}&nbsp;</p>
+                <span class="badge badge-light">{{ product.price }}</span>
             </div>
             </div>
             {% endfor %}
