@@ -53,9 +53,9 @@ class Cart:
 
         self.save()
 
-    def remove(self, product):
+    def remove(self, product: Product):
         """
-        Removes a produce
+        Removes a product from the cart
         """
         product_id = str(product.id)
         if product_id in self.cart:
@@ -71,7 +71,7 @@ class Cart:
         """
         total_price = Decimal("0.0")
         for item in self:
-            total_price += item["total_price"]
+            total_price += Decimal(item["total_price"])
 
         return total_price
 

@@ -1,4 +1,6 @@
 {% load bootstrap4 %}
+{% load humanize %}
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -23,7 +25,15 @@
                   <li class="nav-item">&nbsp;</li>
               </ul>
               <ul class="navbar-nav ml-auto mr-1">
-                  <li class="nav-item">Your cart is empty.</li>
+                  <li class="nav-item">
+                  {% with total_items=cart|length %}
+                  {% if not total_items %}
+                    Your cart is empty.
+                  {% else %}
+                    <a href="{% url "cart:cart_detail" %}">Your cart has {{ total_items }} item{{ total_items|pluralize }}, R$ {{ cart.get_total_price|floatformat:2 }}</a>
+                  {% endif %}
+                  {% endwith %}
+                  </li>
               </ul>
           </div>
       </nav>

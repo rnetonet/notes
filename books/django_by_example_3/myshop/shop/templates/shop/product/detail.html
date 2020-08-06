@@ -9,9 +9,20 @@
   <div class="card-header"><h4>{{ product.name }} <small class="text-muted"><a href="{{ product.category.get_absolute_url }}">({{ product.category.name }})</a></small></h4></div>
   <img src="{% thumbnail product.image 60x60 crop=smart autocrop %}" class="card-img-top">
   <div class="card-body">
-    <h5 class="card-title">{{ product.name }}</h5>
-    <p class="card-text">{{ product.description }}&nbsp;</p>
-    <span class="badge badge-light">{{ product.price }}</span>
+    <div class="row">
+      <div class="col">
+        <h5 class="card-title">{{ product.name }}</h5>
+        <p class="card-text">{{ product.description }}&nbsp;</p>
+        <span class="badge badge-light">{{ product.price }}</span>
+      </div>
+      <div class="col">
+        <form action="{% url "cart:cart_add" product.id %}" method="POST">
+          {% csrf_token %}
+          {% bootstrap_form cart_add_product_form %}
+          <input class="btn btn-primary" type="submit" value="Add">
+        </form>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}

@@ -1,0 +1,76 @@
+{% extends "common/base.html" %}
+{% load static %}
+{% load thumbnail %}
+{% load bootstrap4 %}
+
+{% block content %}
+<h1>Your shopping cart</h1>
+
+<div class="row">
+
+    <div class="col-10">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Remove</th>
+                <th>Unit Price</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart %}
+                {% with product=item.product %}
+                <tr>
+                    <td>
+                        <a href="{{ product.get_absolute_url }}"><img src="{% thumbnail product.image 60x60 crop=smart autocrop %}"></a>
+                    </td>
+                    <td>
+                        {{ product.name }}
+                    </td>
+                    <td>
+                        <form action="{% url "cart:cart_add" product.pk %}" method="POST">
+                            {% csrf_token %}
+                            {% bootstrap_form item.update_quantity_form show_label=False %}
+                            <input type="submit" value="Update" class="btn btn-link">
+                        </form>
+                    </td>
+                    <td>
+                        <form action="{% url "cart:cart_remove" product.id %}" method="post">
+                            {% csrf_token %}
+                            <input class="btn btn-link" type="submit" value="Remove">
+                        </form>
+                    </td>
+                    <td>${{ item.price }}</td>
+                    <td>${{ item.total_price|floatformat:2 }}</td>
+                </tr>
+                {% endwith %}
+            {% endfor %}
+            <tfoot>
+                <tr class="table-warning">
+                    <td>Total</td>
+                    <td colspan="4"></td>
+                    <td>${{ cart.get_total_price|floatformat:2 }}</td>
+                </tr>
+            </tfoot>
+        </tbody>
+    </table>
+    </div>
+
+    <div class="col">
+        <div class="row mb-3">
+            <div class="col">
+                <a href="{% url "shop:product_list" %}" class="btn btn-light w-100">Continue shopping</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <a href="#" class="btn btn-success w-100">Checkout!</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
