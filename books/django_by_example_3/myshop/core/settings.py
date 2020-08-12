@@ -138,3 +138,5 @@ MEDIA_URL = "/media/"
 CART_SESSION_ID = 'cart'
 
 USE_THOUSAND_SEPARATOR = True
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

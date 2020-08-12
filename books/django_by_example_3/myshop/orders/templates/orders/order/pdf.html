@@ -1,0 +1,28 @@
+{% extends "common/base.html" %}
+{% block content %}
+    <h1>Order {{  order.id }}</h1>
+    <table class="table">
+        <tr>
+            <td>Customer</td>
+            <td>{{ order.name }}</td>
+        </tr>
+        <tr>
+            <td>E-mail</td>
+            <td>{{ order.email }}</td>
+        </tr>
+        <tr>
+            <td>total:</td>
+            <td>{{ order.get_total_cost }}</td>
+        </tr>
+        <tr>
+            <td>Status</td>
+            <td>
+                {% if order.paid %}
+                Paid
+                {% else %}
+                Not paind
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+{% endblock %}
