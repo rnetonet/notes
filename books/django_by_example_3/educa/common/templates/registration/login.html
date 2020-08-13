@@ -1,0 +1,20 @@
+{% extends "common/base.html" %}
+
+{% load bootstrap4 %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    Login
+  </div>
+  <div class="card-body">
+    <form action="{% url "login" %}" method="POST">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    <input type="hidden" name="next" value="{{ next }}">
+    <br>
+    {% buttons submit="Login" %}{% endbuttons %}
+    </form>
+  </div>
+</div>
+{% endblock %}
