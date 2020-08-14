@@ -3,22 +3,30 @@
 {% load bootstrap4 %}
 
 {% block content %}
-<div class="card">
-  <div class="card-header">
-    Courses
+<div class="row">
+  <div class="col-4">
+    <div class="card">
+      <div class="card-header">
+        Subjects
+      </div>
+      <ul class="list-group list-group-flush">
+      {% for s in subjects %}
+        <a class="list-group-item {% if s == subject %}active{% endif %}" href="{% url "courses:course_list_by_subject" s.slug %}">{{ s }} ({{ s.total_courses }})</a>
+      {% endfor %}
+      </ul>
+    </div>
   </div>
-  <div class="card-body">
+  <div class="col-8">
+    <div class="card">
+    <div class="card-header">
+      Courses
+    </div>
     <ul class="list-group list-group-flush">
-        {% for course in object_list %}
-        <li class="list-group-item">
-            <div class="row">
-                <div class="col">{{ course.title }}</div>
-            </div>
-        </li>
-        {% empty %}
-        <p>Please create a course.</p>
-        {% endfor %}
+    {% for course in object_list %}
+      <a class="list-group-item" href="{% url "courses:course_detail" course.id %}">{{ course.title }}, {{ course.total_modules }} modules</a>
+    {% endfor %}
     </ul>
+    </div>
   </div>
 </div>
 {% endblock %}

@@ -162,6 +162,9 @@ class CourseListView(ListView):
 
     def get_queryset(self):
         qs = super().get_queryset()
+        
+        qs = qs.annotate(total_modules=Count("modules"))
+
         if self.subject:
             qs = qs.filter(subject=self.subject)
         return qs
@@ -170,7 +173,6 @@ class CourseListView(ListView):
         context_data = super().get_context_data(**kwargs)
 
         context_data["subjects"] = Subject.objects.annotate(total_courses=Count("courses"))
-        context_data["courses"] = Course.objects.annotate(total_modules=Count("modules"))
         context_data["subject"] = self.subject
 
         return context_data
