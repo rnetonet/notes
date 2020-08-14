@@ -1,0 +1,48 @@
+{% extends "common/base.html" %}
+
+{% load bootstrap4 %}
+
+{% block content %}
+<h1>{{ course }}</h1>
+{% for module in object.modules.all %}
+<div class="card">
+  <div class="card-header">
+    {{ module }}
+  </div>
+  <div class="card-body">
+    <div class="row">
+        <div class="col-3 text-right ml-auto">
+            <div class="btn-group"">
+              <a href="{% url "courses:module_content_create" module.id "text" %}" class="btn btn-light">Text</a>
+              <a href="{% url "courses:module_content_create" module.id "video" %}" class="btn btn-light">Video</a>
+              <a href="{% url "courses:module_content_create" module.id "image" %}" class="btn btn-light">Image</a>
+              <a href="{% url "courses:module_content_create" module.id "file" %}" class="btn btn-light">File</a>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <ul class="list-group list-group-flush">
+        {% for content in module.contents.all %}
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col-1">{{ content.item.title }}</div>
+                <div class="col-1">{{ content.content_type.name }}</div>
+                <div class="col">{{ content.item.content }}</div>
+                <div class="col-2 btn-group ml-auto">
+                  <a href="{% url "courses:module_content_edit" module.id content.content_type.name content.item.id %}" class="btn btn-primary">Edit</a>
+                  <form action="{% url "courses:module_content_delete" content.id %}" method="POST">
+                  {% csrf_token %}
+                  <input type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?');" value="Delete">
+                  </form>
+                </div>
+            </div>
+        </li>
+        {% empty %}
+          <p>Please create some content.</p>
+        {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endfor %}
+
+{% endblock %}

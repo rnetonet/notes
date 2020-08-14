@@ -1,0 +1,38 @@
+{% extends "common/base.html" %}
+
+{% load bootstrap4 %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    My Courses
+  </div>
+  <div class="card-body">
+    <div class="row">
+        <div class="col-1 ml-auto">
+            <a href="{% url "courses:course_create" %}" class="btn btn-success">Create</a>
+        </div>
+    </div>
+    <hr>
+    <ul class="list-group list-group-flush">
+        {% for course in object_list %}
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col">{{ course.title }}</div>
+                <div class="col-2">
+                  <a href="{% url "courses:course_detail" course.id %}" class="btn btn-secondary">Manage contents</a>
+                </div>
+                <div class="col-3 btn-group">
+                    <a href="{% url "courses:course_edit" course.id %}" class="btn btn-primary">Edit</a>
+                    <a href="{% url "courses:course_modules" course.id %}" class="btn btn-secondary">Edit Modules</a>
+                    <a href="{% url "courses:course_delete" course.id %}" class="btn btn-danger">Delete</a>
+                </div>
+            </div>
+        </li>
+        {% empty %}
+        <p>Please create a course.</p>
+        {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}
