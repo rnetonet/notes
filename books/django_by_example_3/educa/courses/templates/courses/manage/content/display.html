@@ -1,0 +1,7 @@
+{% if content.content_type.name == "text" %}
+    {{ content.item.content }}
+{% elif content.content_type.name == "image" %}
+    <img src="{{ content.item.content.url }}" alt="">
+{% else %}
+    <a href="{{ content.item.content }}">{{ content.item.content }}</a>
+{% endif %}

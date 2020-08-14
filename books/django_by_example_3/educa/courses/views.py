@@ -2,16 +2,17 @@ from typing import List
 
 from django.apps import apps
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.db.models import Count
 from django.forms.models import modelform_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
-from django.views.generic.base import TemplateResponseMixin, View
+from django.views.generic.base import TemplateResponseMixin, TemplateView, View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
 from .forms import ModuleFormSet
-from .models import Content, Course, Module
+from .models import Content, Course, Module, Subject
 
 
 class OwnerQuerysetFilterMixin:
@@ -35,11 +36,11 @@ class CourseViewMixin(
 
 
 class CourseEditViewMixin(CourseViewMixin, OwnerFormFillMixin):
-    template_name = "courses/manage/course/form.html"
+    template_name = "courses/course/form.html"
 
 
 class ManageCourseListView(CourseViewMixin, ListView):
-    template_name = "courses/manage/course/list.html"
+    template_name = "courses/course/mine.html"
     permission_required = "courses.view_course"
 
 
@@ -52,7 +53,7 @@ class CourseUpdateView(CourseEditViewMixin, UpdateView):
 
 
 class CourseDeleteView(CourseViewMixin, DeleteView):
-    template_name = "courses/manage/course/delete.html"
+    template_name = "courses/course/delete.html"
     permission_required = "courses.delete_course"
 
 
@@ -128,7 +129,7 @@ class CourseDetailView(DetailView, LoginRequiredMixin, PermissionRequiredMixin):
         "courses.change_module",
         "courses.delete_module",
     ]
-    template_name = "courses/manage/course/detail.html"
+    template_name = "courses/course/detail.html"
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -146,3 +147,30 @@ class ContentDeleteView(View, LoginRequiredMixin, PermissionRequiredMixin):
         content.item.delete()
         content.delete()
         return redirect("courses:course_detail", course_id)
+
+class CourseListView(ListView):
+    model = Course
+    template_name = "courses/course/list.html"
+
+    subject = None
+
+    def dispatch(self, request, *args, **kwargs):
+        if "subject" in self.kwargs:
+            self.subject = Subject.objects.get(slug=self.kwargs["subject"])
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if self.subject:
+            qs = qs.filter(subject=self.subject)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+
+        context_data["subjects"] = Subject.objects.annotate(total_courses=Count("courses"))
+        context_data["courses"] = Course.objects.annotate(total_modules=Count("modules"))
+        context_data["subject"] = self.subject
+
+        return context_data
