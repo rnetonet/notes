@@ -4,6 +4,15 @@
 
 {% block content %}
 <h1>{{ course }}</h1>
+{% if request.user.is_authenticated %}
+  <form action="{% url "students:student_enroll" %}" method="post">
+    {% csrf_token %}
+    {{ enroll_form }}
+    {% buttons submit="Enroll" %}{% endbuttons %}
+  </form>
+  <br>
+{% endif %}
+
 {% for module in object.modules.all %}
 <div class="card">
   <div class="card-header">

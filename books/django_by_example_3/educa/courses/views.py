@@ -13,7 +13,7 @@ from django.views.generic.list import ListView
 
 from .forms import ModuleFormSet
 from .models import Content, Course, Module, Subject
-
+from students.forms import CourseEnrollForm
 
 class OwnerQuerysetFilterMixin:
     def get_queryset(self):
@@ -131,10 +131,10 @@ class CourseDetailView(DetailView, LoginRequiredMixin, PermissionRequiredMixin):
     ]
     template_name = "courses/course/detail.html"
 
-    def get_queryset(self):
-        qs = super().get_queryset()
-        return qs.filter(owner=self.request.user)
-
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        context_data["enroll_form"] = CourseEnrollForm(initial={"course": self.object})
+        return context_data
 
 class ContentDeleteView(View, LoginRequiredMixin, PermissionRequiredMixin):
     def post(self, request, id):

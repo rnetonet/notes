@@ -1,0 +1,18 @@
+{% extends "common/base.html" %}
+
+{% load bootstrap4 %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    Courses you are enrolled
+  </div>
+  <div class="card-body">
+    <ul class="list-group list-group-flush">
+    {% for course in object_list %}
+      <a class="list-group-item" href="{% url "courses:course_detail" course.id %}">{{ course.title }}, {{ course.total_modules }} modules</a>
+    {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}
