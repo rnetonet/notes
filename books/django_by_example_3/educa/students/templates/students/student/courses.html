@@ -10,7 +10,7 @@
   <div class="card-body">
     <ul class="list-group list-group-flush">
     {% for course in object_list %}
-      <a class="list-group-item" href="{% url "courses:course_detail" course.id %}">{{ course.title }}, {{ course.total_modules }} modules</a>
+      <a class="list-group-item" href="{% url "students:student_course_detail" course.id %}">{{ course.title }}</a>
     {% endfor %}
     </ul>
   </div>

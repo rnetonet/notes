@@ -6,6 +6,7 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, FormView
 from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
 
 from . import forms
 from courses import models as courses_models
@@ -45,4 +46,7 @@ class StudentCoursesView(ListView):
 
     def get_queryset(self):
         return self.request.user.courses_joined.all()
-    
+
+class StudentCourseDetailView(DetailView):
+    model = courses_models.Course
+    template_name = "students/student/course_detail.html"

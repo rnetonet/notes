@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'bootstrap4',
+    'memcache_status',
 ]
 
 MIDDLEWARE = [
@@ -130,3 +131,10 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media/'
 
 LOGIN_REDIRECT_URL = reverse_lazy("students:student_courses")
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
+        "LOCATION": "127.0.0.1:11211"
+    }
+}

@@ -1,5 +1,6 @@
 {% extends "common/base.html" %}
 
+{% load cache %}
 {% load bootstrap4 %}
 
 {% block content %}
@@ -31,13 +32,14 @@
     </div>
     <hr>
     <ul class="list-group list-group-flush">
+      {% cache 600 module_contents module %}
         {% for content in module.contents.all %}
         <li class="list-group-item">
             <div class="row">
                 <div class="col-1">{{ content.item.title }}</div>
                 <div class="col-1">{{ content.content_type.name }}</div>
                 <div class="col">
-                {% include "courses/manage/content/display.html" with content=content %}
+                  {{ content.item.render }}
                 </div>
                 <div class="col-2 btn-group ml-auto">
                   <a href="{% url "courses:module_content_edit" module.id content.content_type.name content.item.id %}" class="btn btn-primary">Edit</a>
@@ -51,9 +53,11 @@
         {% empty %}
           <p>Please create some content.</p>
         {% endfor %}
+        {% endcache %}
     </ul>
   </div>
 </div>
 {% endfor %}
+
 
 {% endblock %}

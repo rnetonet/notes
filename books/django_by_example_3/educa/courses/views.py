@@ -1,7 +1,9 @@
 from typing import List
 
 from django.apps import apps
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import (LoginRequiredMixin,
+                                        PermissionRequiredMixin)
+from django.core.cache import cache
 from django.db.models import Count
 from django.forms.models import modelform_factory
 from django.shortcuts import get_object_or_404, redirect, render
@@ -10,10 +12,11 @@ from django.views.generic.base import TemplateResponseMixin, TemplateView, View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
+from students.forms import CourseEnrollForm
 
 from .forms import ModuleFormSet
 from .models import Content, Course, Module, Subject
-from students.forms import CourseEnrollForm
+
 
 class OwnerQuerysetFilterMixin:
     def get_queryset(self):
@@ -163,16 +166,32 @@ class CourseListView(ListView):
     def get_queryset(self):
         qs = super().get_queryset()
         
-        qs = qs.annotate(total_modules=Count("modules"))
-
         if self.subject:
-            qs = qs.filter(subject=self.subject)
-        return qs
+            qs_cache_key = f"courses_{self.subject.id}"
+        else:
+            qs_cache_key = f"courses_all"
+        
+        cached_qs = cache.get(qs_cache_key)
+        if cached_qs:
+            return cached_qs
+        else:
+            qs = qs.annotate(total_modules=Count("modules"))
+            if self.subject:
+                qs = qs.filter(subject=self.subject)
+
+            cache.set(cached_qs, qs)
+
+            return qs
 
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
 
-        context_data["subjects"] = Subject.objects.annotate(total_courses=Count("courses"))
+        subjects = cache.get("all_subjects")
+        if not subjects:
+            subjects = Subject.objects.annotate(total_courses=Count("courses"))
+            cache.set("all_subjects", subjects)
+        
+        context_data["subjects"] = subjects
         context_data["subject"] = self.subject
 
         return context_data
