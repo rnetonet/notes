@@ -36,7 +36,8 @@ INSTALLED_APPS = [
     'common.apps.CommonConfig',
     'courses.apps.CoursesConfig',
     'students.apps.StudentsConfig',
-    
+    'chat.apps.ChatConfig',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -47,6 +48,7 @@ INSTALLED_APPS = [
     'bootstrap4',
     'memcache_status',
     'rest_framework',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -145,3 +147,5 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
     ]
 }
+
+ASGI_APPLICATION = 'core.routing.application'
