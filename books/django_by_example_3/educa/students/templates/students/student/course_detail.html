@@ -4,7 +4,7 @@
 
 {% block content %}
 <h1>{{ course }}</h1>
-
+<a href="{% url "chat:course_chat_room" course.id %}">chat</a>
 {% for module in object.modules.all %}
 <div class="card">
   <div class="card-header">

@@ -35,8 +35,9 @@ chatSocket.onmessage = function(e){
     var data = JSON.parse(e.data);
     var message = data.message;
     var user = data.user;
+    var timestamp = data.timestamp;
     var $chat = $("#chat");
-    $chat.append('<li class="list-group-item"><span class="badge bg-light text-dark">' + user + '</span>' + message + '</li>');
+    $chat.append('<li class="list-group-item"><span class="badge bg-light text-dark">' + user + '</span><span class="badge bg-light text-dark">' + timestamp + '</span>' + message + '</li>');
     $chat.scrollTop($chat[0].scrollHeight);
 
 };
