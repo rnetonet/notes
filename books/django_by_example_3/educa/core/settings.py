@@ -150,3 +150,6 @@ CHANNEL_LAYERS = {
         "CONFIG": {"hosts": [("127.0.0.1", 6379)]},
     }
 }
+
+DEFAULT_FROM_EMAIL = 'admin@admin.com'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
