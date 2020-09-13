@@ -17,3 +17,9 @@ class CheeseDetailView(DetailView):
 
 class CheeseCreateView(CreateView):
     model = Cheese
+    fields = [
+        "name",
+        "description",
+        "firmness",
+        "country_of_origin",
+    ]
